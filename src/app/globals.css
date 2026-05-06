@@ -1,40 +1,66 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: 222 47% 5%;
-    --foreground: 210 40% 95%;
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 95%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 14%;
-    --secondary-foreground: 210 40% 80%;
-    --muted: 217 33% 11%;
-    --muted-foreground: 215 20% 55%;
-    --accent: 217 33% 16%;
-    --accent-foreground: 210 40% 90%;
-    --destructive: 0 63% 55%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 217 33% 16%;
-    --input: 217 33% 16%;
-    --ring: 221 83% 53%;
-    --radius: 0.75rem;
-  }
+@theme {
+  --color-background: hsl(222 47% 5%);
+  --color-foreground: hsl(210 40% 95%);
+  --color-card: hsl(222 47% 8%);
+  --color-card-foreground: hsl(210 40% 95%);
+  --color-primary: hsl(221 83% 53%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(217 33% 14%);
+  --color-secondary-foreground: hsl(210 40% 80%);
+  --color-muted: hsl(217 33% 11%);
+  --color-muted-foreground: hsl(215 20% 55%);
+  --color-accent: hsl(217 33% 16%);
+  --color-accent-foreground: hsl(210 40% 90%);
+  --color-destructive: hsl(0 63% 55%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-border: hsl(217 33% 16%);
+  --color-input: hsl(217 33% 16%);
+  --color-ring: hsl(221 83% 53%);
+  --radius: 0.75rem;
+  --font-family-sans: 'Inter', sans-serif;
+  --color-pmo-blue:   #2563eb;
+  --color-pmo-purple: #7c3aed;
+  --color-pmo-green:  #059669;
+  --color-pmo-amber:  #d97706;
+  --color-pmo-red:    #dc2626;
+  --color-pmo-teal:   #0891b2;
+  --color-pmo-navy:   #0f172a;
+  --color-pmo-dark:   #1e293b;
+  --color-pmo-darker: #0a0f1a;
 }
-@layer base {
-  * { @apply border-border; }
-  body { @apply bg-background text-foreground font-sans antialiased; }
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { @apply bg-transparent; }
-  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+
+* { box-sizing: border-box; border-color: var(--color-border); }
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-family-sans);
+  -webkit-font-smoothing: antialiased;
 }
-@layer utilities {
-  .text-gradient { @apply bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent; }
-  .glass { @apply bg-white/5 backdrop-blur-sm border border-white/10; }
-  .tool-card { @apply bg-card border border-border rounded-xl p-4 hover:border-primary/40 transition-colors; }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 9999px; }
+
+.text-gradient {
+  background: linear-gradient(to right, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.tool-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+.tool-card:hover { border-color: rgba(37,99,235,0.4); }
