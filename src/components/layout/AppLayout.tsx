@@ -72,7 +72,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* ── BANNIÈRE HEADER ── */}
-        <div className="relative w-full flex-shrink-0" style={{ height: 160, overflow: "hidden" }}>
+        <div className="relative w-full flex-shrink-0" style={{ height: 200, overflow: "hidden" }}>
           {/* Photo pleine largeur sans zoom */}
           <img
             src="/banner.jpg"
@@ -81,15 +81,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               position: "absolute", inset: 0,
               width: "100%", height: "100%",
               objectFit: "cover",
-              objectPosition: "center center",
-              filter: "brightness(0.55)"
+              objectPosition: "35% center",
+              filter: "brightness(0.65)"
             }}
           />
 
           {/* Overlay gradient */}
           <div style={{
             position: "absolute", inset: 0,
-            background: "linear-gradient(90deg, rgba(10,15,26,0.85) 0%, rgba(10,15,26,0.4) 50%, rgba(10,15,26,0.7) 100%)"
+            background: "linear-gradient(90deg, rgba(10,15,26,0.80) 0%, rgba(10,15,26,0.25) 45%, rgba(10,15,26,0.60) 100%)"
           }}/>
 
           {/* Contenu header */}
