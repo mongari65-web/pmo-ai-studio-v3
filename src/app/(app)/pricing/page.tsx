@@ -52,7 +52,7 @@ const PLANS = [
     color: "#7c3aed",
     badge: null,
     features: [
-      "Projets illimités",
+      "50 projets",
       "Collaboration temps réel",
       "Gestion des membres",
       "Tableau de bord portfolio",
