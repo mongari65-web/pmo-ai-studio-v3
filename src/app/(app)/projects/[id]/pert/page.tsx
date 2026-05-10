@@ -217,30 +217,49 @@ export default function PERTPage() {
     await save({ tasks: recalc })
   }, [save])
 
-  // Générer un exemple
+  // Générer PERT avec fallback robuste
   const generate = async () => {
     if (!project) return
     setLoading(true); toast.info("Génération PERT...")
     try {
-      const res = await fetch("/api/generate", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ tool:"pert", projectName:project.name, projectDescription:project.description })
-      })
-      const json = await res.json()
-      if (json.error) throw new Error(json.error)
+      // Essayer d'abord via l'API IA
+      let rawTasks: PERTTask[] = []
+      try {
+        const res = await fetch("/api/generate", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ tool:"pert", projectName:project.name, projectDescription:project.description })
+        })
+        const json = await res.json()
+        const nodes = json.data?.nodes ?? json.data?.tasks ?? []
+        rawTasks = nodes
+          .filter((n: any) => n && (n.id || n.name))
+          .map((n: any, i: number) => ({
+            id: String(n.id ?? `T${i+1}`),
+            name: String(n.name ?? `Tâche ${i+1}`),
+            duration: Number(n.duration_exp ?? n.duration ?? n.duration_m ?? 5),
+            deps: Array.isArray(n.deps) ? n.deps.map(String) :
+                  Array.isArray(n.dependencies) ? n.dependencies.map(String) : [],
+            est:0, eft:0, lst:0, lft:0, slack:0, critical:false, x:0, y:0
+          }))
+      } catch(e) { /* ignore, on utilise le fallback */ }
 
-      const rawTasks: PERTTask[] = (json.data?.nodes ?? json.data?.tasks ?? []).map((n: any, i: number) => ({
-        id: n.id ?? `T${i+1}`,
-        name: n.name ?? `Tâche ${i+1}`,
-        duration: n.duration_exp ?? n.duration ?? 5,
-        deps: n.deps ?? [],
-        est:0, eft:0, lst:0, lft:0, slack:0, critical:false,
-        x:0, y:0
-      }))
+      // Fallback : générer un réseau PERT type projet
+      if (rawTasks.length === 0) {
+        rawTasks = [
+          { id:"D",  name:"Début",           duration:0,  deps:[],          est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"T1", name:"Initialisation",  duration:5,  deps:["D"],       est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"T2", name:"Analyse",         duration:10, deps:["T1"],      est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"T3", name:"Conception",      duration:8,  deps:["T1"],      est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"T4", name:"Développement",   duration:15, deps:["T2"],      est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"T5", name:"Tests",           duration:7,  deps:["T3","T4"], est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"F",  name:"Fin",             duration:0,  deps:["T5"],      est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+        ]
+        toast.info("Réseau PERT exemple généré — modifiez les tâches selon votre projet")
+      }
 
       const withLayout = autoLayout(rawTasks)
       await saveTasks(withLayout)
-      toast.success(`PERT généré — ${withLayout.length} tâches`)
+      toast.success(`PERT généré — ${withLayout.length} nœuds`)
     } catch(e:any) { toast.error(e.message) }
     finally { setLoading(false) }
   }
