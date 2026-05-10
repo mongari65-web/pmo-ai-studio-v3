@@ -3,211 +3,140 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
-import {
-  Plus, FolderKanban, TrendingUp, TrendingDown,
-  AlertTriangle, CheckCircle2, Wand2, Bell, ArrowRight,
-  Target, Clock, DollarSign
-} from "lucide-react"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { Plus, FolderKanban, Target, DollarSign, Bell, AlertTriangle, Clock, CheckCircle2, Wand2, ArrowRight, TrendingUp } from "lucide-react"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts"
 
-interface Project {
-  id: string; name: string; description: string
-  status: string; completion: number; color: string
-  icon: string; created_at: string; budget: number
-}
+interface Alert { type:string; message:string; project:string; projectId:string; href:string; severity:string }
 
-interface Alert {
-  type: string
-  message: string
-  project: string
-  projectId: string
-  href: string
-  severity: string
-}
-
-const SEVERITY_CFG = {
-  danger:  { bg: "rgba(239,68,68,0.1)",   border: "#ef4444", icon: AlertTriangle, color: "#ef4444" },
-  warning: { bg: "rgba(245,158,11,0.1)",  border: "#f59e0b", icon: Clock,         color: "#f59e0b" },
-  info:    { bg: "rgba(59,130,246,0.1)",  border: "#3b82f6", icon: CheckCircle2,  color: "#3b82f6" },
+const SEV = {
+  danger:  { bg:"#FCEBEB", border:"#E24B4A", icon:AlertTriangle, color:"#A32D2D" },
+  warning: { bg:"#FAEEDA", border:"#EF9F27", icon:Clock,         color:"#854F0B" },
+  info:    { bg:"#E6F1FB", border:"#378ADD", icon:CheckCircle2,  color:"#185FA5" },
 }
 
 export default function DashboardPage() {
-  const [projects, setProjects] = useState<Project[]>([])
+  const [projects, setProjects] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
   const [alerts, setAlerts] = useState<Alert[]>([])
   const supabase = createClient()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user))
+    supabase.auth.getUser().then(({data})=>setUser(data.user))
     loadData()
   }, [])
 
   const loadData = async () => {
-    const { data: projs } = await supabase
-      .from("projects").select("*").order("created_at", { ascending: false })
-    setProjects(projs ?? [])
-
-    const { data: tools } = await supabase
-      .from("project_tools").select("project_id, tool_type, data")
-
+    const {data:projs} = await supabase.from("projects").select("*").order("created_at",{ascending:false})
+    setProjects(projs??[])
+    const {data:tools} = await supabase.from("project_tools").select("project_id,tool_type,data")
     if (tools && projs) {
       const newAlerts: Alert[] = []
       tools.forEach(t => {
-        const proj = (projs as Project[]).find(p => p.id === t.project_id)
+        const proj = (projs as any[]).find(p=>p.id===t.project_id)
         if (!proj) return
-
-        if (t.tool_type === "raid" && t.data?.items) {
-          const critiques = t.data.items.filter((i: any) => i.priority === "Critique" && i.status === "Ouvert")
-          if (critiques.length > 0) {
-            newAlerts.push({
-              type: "raid",
-              message: `${critiques.length} risque(s) critique(s) ouvert(s)`,
-              project: proj.name,
-              projectId: proj.id,
-              href: `/projects/${proj.id}/raid`,
-              severity: "danger"
-            })
-          }
+        if (t.tool_type==="raid"&&t.data?.items) {
+          const crit = t.data.items.filter((i:any)=>i.priority==="Critique"&&i.status==="Ouvert")
+          if (crit.length>0) newAlerts.push({type:"raid",message:`${crit.length} risque(s) critique(s) ouvert(s)`,project:proj.name,projectId:proj.id,href:`/projects/${proj.id}/raid`,severity:"danger"})
         }
-
-        if (t.tool_type === "budget" && t.data?.tasks) {
-          const cp = new Date().getMonth()
-          const totalEV = t.data.tasks.reduce((s: number, task: any) => s + (task.ev?.[cp] ?? 0), 0)
-          const totalAC = t.data.tasks.reduce((s: number, task: any) => s + (task.ac?.[cp] ?? 0), 0)
-          const cpi = totalAC > 0 ? totalEV / totalAC : 1
-          if (cpi < 0.9) {
-            newAlerts.push({
-              type: "budget",
-              message: `CPI = ${cpi.toFixed(2)} — dépassement budgétaire`,
-              project: proj.name,
-              projectId: proj.id,
-              href: `/projects/${proj.id}/budget`,
-              severity: "warning"
-            })
-          }
+        if (t.tool_type==="budget"&&t.data?.tasks) {
+          const cp=new Date().getMonth()
+          const ev=t.data.tasks.reduce((s:number,task:any)=>s+(task.ev?.[cp]??0),0)
+          const ac=t.data.tasks.reduce((s:number,task:any)=>s+(task.ac?.[cp]??0),0)
+          const cpi=ac>0?ev/ac:1
+          if (cpi<0.9) newAlerts.push({type:"budget",message:`CPI = ${cpi.toFixed(2)} — dépassement budgétaire`,project:proj.name,projectId:proj.id,href:`/projects/${proj.id}/budget`,severity:"warning"})
         }
-
-        if (t.tool_type === "jalons" && t.data?.jalons) {
-          const today = new Date().toISOString().split("T")[0]
-          const retard = t.data.jalons.filter((j: any) => j.date < today && j.status !== "Atteint")
-          if (retard.length > 0) {
-            newAlerts.push({
-              type: "jalon",
-              message: `${retard.length} jalon(s) en retard`,
-              project: proj.name,
-              projectId: proj.id,
-              href: `/projects/${proj.id}/jalons`,
-              severity: "warning"
-            })
-          }
+        if (t.tool_type==="jalons"&&t.data?.jalons) {
+          const today=new Date().toISOString().split("T")[0]
+          const retard=t.data.jalons.filter((j:any)=>j.date<today&&j.status!=="Atteint")
+          if (retard.length>0) newAlerts.push({type:"jalon",message:`${retard.length} jalon(s) en retard`,project:proj.name,projectId:proj.id,href:`/projects/${proj.id}/jalons`,severity:"warning"})
         }
       })
       setAlerts(newAlerts)
     }
   }
 
-  const activeProjects = projects.filter(p => p.status === "active")
-  const avgCompletion = projects.length > 0
-    ? Math.round(projects.reduce((s, p) => s + (p.completion ?? 0), 0) / projects.length) : 0
-  const totalBudget = projects.reduce((s, p) => s + (p.budget ?? 0), 0)
+  const active = projects.filter(p=>p.status==="active")
+  const avg = projects.length>0?Math.round(projects.reduce((s,p)=>s+(p.completion??0),0)/projects.length):0
+  const totalBudget = projects.reduce((s,p)=>s+(p.budget??0),0)
 
-  const chartData = projects.slice(0, 8).map(p => ({
-    name: p.name.length > 12 ? p.name.slice(0, 11) + "…" : p.name,
-    Avancement: p.completion ?? 0,
+  const chartData = projects.slice(0,8).map(p=>({
+    name:p.name.length>12?p.name.slice(0,11)+"…":p.name,
+    v:p.completion??0, fill:p.color??"#185FA5"
   }))
+
+  const KPI = ({label,value,icon:Icon,color,bg,sub}:any) => (
+    <div style={{ background:bg??"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r8)", padding:"16px 18px" }}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+        <span style={{ fontSize:11, fontWeight:500, color:"var(--text-2)", textTransform:"uppercase", letterSpacing:"0.6px" }}>{label}</span>
+        <div style={{ width:32, height:32, borderRadius:"var(--r8)", background:color+"18", display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <Icon size={15} style={{ color }}/>
+        </div>
+      </div>
+      <div style={{ fontSize:24, fontWeight:700, color:color??"var(--text-1)" }}>{value}</div>
+      {sub && <div style={{ fontSize:11, color:"var(--text-3)", marginTop:4 }}>{sub}</div>}
+    </div>
+  )
 
   return (
     <AppLayout>
-      <div className="p-6 space-y-6">
+      <div style={{ padding:"24px 28px", background:"var(--bg)", minHeight:"100%" }}>
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24 }}>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Bonjour{user?.user_metadata?.full_name ? `, ${user.user_metadata.full_name.split(" ")[0]}` : ""} 👋
+            <h1 style={{ fontSize:20, fontWeight:700, color:"var(--text-1)", margin:"0 0 4px" }}>
+              Bonjour{user?.user_metadata?.full_name?`, ${user.user_metadata.full_name.split(" ")[0]}`:""} 👋
             </h1>
-            <p className="text-muted-foreground text-sm mt-0.5">
-              Vue d'ensemble — {new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
+            <p style={{ fontSize:12, color:"var(--text-2)", margin:0 }}>
+              {new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Link href="/guide" className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-lg text-sm font-medium hover:bg-amber-500/20 transition-colors">
-              <Wand2 size={15}/> Guide CP
+          <div style={{ display:"flex", gap:8 }}>
+            <Link href="/guide" style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 14px", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:12, fontWeight:500, color:"#854F0B", textDecoration:"none" }}>
+              <Wand2 size={14}/> Guide CP
             </Link>
-            <Link href="/guide" className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-              <Plus size={15}/> Nouveau projet
+            <Link href="/guide" style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 14px", background:"var(--primary)", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, color:"#fff", textDecoration:"none" }}>
+              <Plus size={14}/> Nouveau projet
             </Link>
           </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-4 gap-4">
-          <div className="border rounded-xl p-4 bg-blue-500/10 border-blue-500/20">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Projets actifs</p>
-              <FolderKanban size={16} className="text-blue-400"/>
-            </div>
-            <p className="text-2xl font-bold text-blue-400">{activeProjects.length}</p>
-          </div>
-          <div className="border rounded-xl p-4 bg-purple-500/10 border-purple-500/20">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Avancement moyen</p>
-              <Target size={16} className="text-purple-400"/>
-            </div>
-            <p className="text-2xl font-bold text-purple-400">{avgCompletion}%</p>
-          </div>
-          <div className="border rounded-xl p-4 bg-green-500/10 border-green-500/20">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Budget total</p>
-              <DollarSign size={16} className="text-green-400"/>
-            </div>
-            <p className="text-2xl font-bold text-green-400">
-              {totalBudget > 0 ? `${(totalBudget / 1000).toFixed(0)}k€` : "—"}
-            </p>
-          </div>
-          <div className={`border rounded-xl p-4 ${alerts.length > 0 ? "bg-red-500/10 border-red-500/20" : "bg-card border-border"}`}>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Alertes actives</p>
-              <Bell size={16} className={alerts.length > 0 ? "text-red-400" : "text-muted-foreground"}/>
-            </div>
-            <p className={`text-2xl font-bold ${alerts.length > 0 ? "text-red-400" : "text-muted-foreground"}`}>
-              {alerts.length}
-            </p>
-          </div>
+        {/* KPIs */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:20 }}>
+          <KPI label="Projets actifs"   value={active.length} icon={FolderKanban} color="#185FA5" sub={`${projects.length} au total`}/>
+          <KPI label="Avancement moyen" value={`${avg}%`}     icon={Target}       color="#639922" sub="tous projets confondus"/>
+          <KPI label="Budget total"     value={totalBudget>0?`${(totalBudget/1000).toFixed(0)}k€`:"—"} icon={DollarSign} color="#27500A" sub="engagé"/>
+          <KPI label="Alertes actives"  value={alerts.length}  icon={Bell}         color={alerts.length>0?"#A32D2D":"#185FA5"} bg={alerts.length>0?"#FCEBEB":undefined} sub={alerts.length>0?"à traiter":"tout va bien"}/>
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
-          {/* Alertes cliquables */}
-          <div className="col-span-1 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">🔔 Alertes</h2>
-              <Link href="/notifications" className="text-xs text-primary hover:underline">Voir tout →</Link>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:16, marginBottom:20 }}>
+          {/* Alertes */}
+          <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r12)", padding:16 }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+              <h2 style={{ fontSize:13, fontWeight:600, color:"var(--text-1)", margin:0 }}>🔔 Alertes</h2>
+              <Link href="/notifications" style={{ fontSize:11, color:"var(--primary)", textDecoration:"none" }}>Voir tout →</Link>
             </div>
-            {alerts.length === 0 ? (
-              <div className="bg-card border border-border rounded-xl p-6 text-center">
-                <CheckCircle2 size={24} className="text-green-400 mx-auto mb-2"/>
-                <p className="text-sm font-medium text-foreground">Aucune alerte</p>
-                <p className="text-xs text-muted-foreground mt-1">Tous les projets sont en bonne santé</p>
+            {alerts.length===0 ? (
+              <div style={{ textAlign:"center", padding:"24px 0" }}>
+                <CheckCircle2 size={28} style={{ color:"#639922", margin:"0 auto 8px", display:"block" }}/>
+                <p style={{ fontSize:12, color:"var(--text-2)", margin:0 }}>Aucune alerte</p>
+                <p style={{ fontSize:11, color:"var(--text-3)", marginTop:4 }}>Tous les projets sont sains</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {alerts.slice(0, 5).map((alert, i) => {
-                  const cfg = SEVERITY_CFG[alert.severity as keyof typeof SEVERITY_CFG] ?? SEVERITY_CFG.info
-                  const Icon = cfg.icon
+              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                {alerts.slice(0,5).map((a,i)=>{
+                  const cfg=SEV[a.severity as keyof typeof SEV]??SEV.info
+                  const Icon=cfg.icon
                   return (
-                    <Link key={i} href={alert.href}
-                      className="block rounded-xl p-3 border hover:opacity-80 transition-all cursor-pointer"
-                      style={{ background: cfg.bg, borderColor: cfg.border + "44" }}>
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-start gap-2">
-                          <Icon size={14} style={{ color: cfg.color, flexShrink: 0, marginTop: 1 }}/>
+                    <Link key={i} href={a.href} style={{ display:"block", textDecoration:"none", padding:"10px 12px", borderRadius:"var(--r8)", background:cfg.bg, borderLeft:`3px solid ${cfg.border}` }}>
+                      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                        <div style={{ display:"flex", alignItems:"flex-start", gap:8 }}>
+                          <Icon size={14} style={{ color:cfg.color, flexShrink:0, marginTop:1 }}/>
                           <div>
-                            <p className="text-xs font-semibold text-foreground">{alert.project}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{alert.message}</p>
+                            <p style={{ fontSize:11, fontWeight:600, color:cfg.color, margin:"0 0 2px" }}>{a.project}</p>
+                            <p style={{ fontSize:11, color:"var(--text-2)", margin:0 }}>{a.message}</p>
                           </div>
                         </div>
-                        <span className="text-[10px] font-semibold flex-shrink-0" style={{ color: cfg.color }}>
-                          Voir →
-                        </span>
+                        <span style={{ fontSize:10, color:cfg.color, fontWeight:600, flexShrink:0 }}>Voir →</span>
                       </div>
                     </Link>
                   )
@@ -216,83 +145,74 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Graphique avancement */}
-          <div className="col-span-2">
-            <h2 className="text-sm font-semibold text-foreground mb-3">📊 Avancement par projet</h2>
-            {chartData.length > 0 ? (
-              <div className="bg-card border border-border rounded-xl p-4">
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={chartData} barSize={24}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b"/>
-                    <XAxis dataKey="name" tick={{ fill: "#64748b", fontSize: 10 }}/>
-                    <YAxis domain={[0, 100]} tick={{ fill: "#64748b", fontSize: 10 }} tickFormatter={v => `${v}%`}/>
-                    <Tooltip
-                      contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8 }}
-                      formatter={(v: any) => [`${v}%`, "Avancement"]}
-                    />
-                    <Bar dataKey="Avancement" fill="#2563eb" radius={[4, 4, 0, 0]}/>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+          {/* Chart */}
+          <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r12)", padding:16 }}>
+            <h2 style={{ fontSize:13, fontWeight:600, color:"var(--text-1)", margin:"0 0 14px" }}>📊 Avancement par projet</h2>
+            {chartData.length>0 ? (
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={chartData} barSize={22}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
+                  <XAxis dataKey="name" tick={{fill:"#94a3b8",fontSize:10}} axisLine={false} tickLine={false}/>
+                  <YAxis domain={[0,100]} tick={{fill:"#94a3b8",fontSize:10}} axisLine={false} tickLine={false} tickFormatter={v=>`${v}%`}/>
+                  <Tooltip contentStyle={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:8,boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}} formatter={(v:any)=>[`${v}%`,"Avancement"]} labelStyle={{color:"#0f172a",fontWeight:600}}/>
+                  <Bar dataKey="v" radius={[4,4,0,0]}>
+                    {chartData.map((d,i)=><Cell key={i} fill={d.fill}/>)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             ) : (
-              <div className="bg-card border border-border rounded-xl p-8 text-center text-muted-foreground">
-                <FolderKanban size={32} className="mx-auto mb-2 opacity-30"/>
-                <p className="text-sm">Créez des projets pour voir les statistiques</p>
+              <div style={{ height:180, display:"flex", alignItems:"center", justifyContent:"center", color:"var(--text-3)", fontSize:13 }}>
+                Créez des projets pour voir les statistiques
               </div>
             )}
           </div>
         </div>
 
         {/* Projets récents */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-foreground">📁 Projets récents</h2>
-            <Link href="/projects" className="text-xs text-primary hover:underline">Voir tous →</Link>
+        <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r12)", padding:16 }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+            <h2 style={{ fontSize:13, fontWeight:600, color:"var(--text-1)", margin:0 }}>📁 Projets récents</h2>
+            <Link href="/projects" style={{ fontSize:11, color:"var(--primary)", textDecoration:"none" }}>Voir tous →</Link>
           </div>
-          {projects.length === 0 ? (
-            <div className="bg-card border border-dashed border-border rounded-xl p-12 text-center">
-              <FolderKanban size={40} className="text-muted-foreground mx-auto mb-3"/>
-              <p className="font-medium text-foreground mb-1">Aucun projet</p>
-              <p className="text-sm text-muted-foreground mb-4">Commencez par créer votre premier projet</p>
-              <Link href="/guide" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-lg text-sm font-medium hover:bg-amber-500/20">
-                ✨ Démarrer avec le Guide CP
+          {projects.length===0 ? (
+            <div style={{ textAlign:"center", padding:"32px 0" }}>
+              <FolderKanban size={36} style={{ color:"#cbd5e1", margin:"0 auto 12px", display:"block" }}/>
+              <p style={{ fontSize:13, color:"var(--text-2)", margin:"0 0 16px" }}>Aucun projet. Créez-en un avec le Guide CP.</p>
+              <Link href="/guide" style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"8px 16px", background:"var(--warning-bg)", border:"1px solid #EF9F27", borderRadius:"var(--r8)", fontSize:12, color:"var(--warning)", textDecoration:"none", fontWeight:500 }}>
+                ✨ Guide CP
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
-              {projects.slice(0, 6).map(p => (
-                <Link key={p.id} href={`/projects/${p.id}`}
-                  className="bg-card border border-border rounded-xl p-4 hover:border-primary/40 transition-all hover:shadow-lg group">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{p.icon}</span>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
+              {projects.slice(0,5).map(p=>(
+                <Link key={p.id} href={`/projects/${p.id}`} style={{ display:"block", textDecoration:"none", padding:"14px", border:"1px solid var(--border)", borderRadius:"var(--r8)", background:"var(--bg)", transition:"all 0.12s" }}
+                  onMouseEnter={e=>{(e.currentTarget as any).style.borderColor="var(--primary)";(e.currentTarget as any).style.background="#fff"}}
+                  onMouseLeave={e=>{(e.currentTarget as any).style.borderColor="var(--border)";(e.currentTarget as any).style.background="var(--bg)"}}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                      <span style={{ fontSize:18 }}>{p.icon}</span>
                       <div>
-                        <p className="font-medium text-foreground text-sm group-hover:text-primary transition-colors truncate max-w-28">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">{p.status}</p>
+                        <p style={{ fontSize:12, fontWeight:600, color:"var(--text-1)", margin:0, maxWidth:120, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.name}</p>
+                        <p style={{ fontSize:10, color:"var(--text-3)", margin:0 }}>{p.status}</p>
                       </div>
                     </div>
-                    <ArrowRight size={14} className="text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 mt-1"/>
+                    <ArrowRight size={13} style={{ color:"var(--text-3)" }}/>
                   </div>
                   <div>
-                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                      <span>Avancement</span>
-                      <span className="font-medium text-foreground">{p.completion ?? 0}%</span>
+                    <div style={{ display:"flex", justifyContent:"space-between", fontSize:10, color:"var(--text-3)", marginBottom:4 }}>
+                      <span>Avancement</span><span style={{ fontWeight:600, color:"var(--text-1)" }}>{p.completion??0}%</span>
                     </div>
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all" style={{ width: `${p.completion ?? 0}%`, background: p.color ?? "#2563eb" }}/>
+                    <div style={{ height:4, background:"var(--border)", borderRadius:2, overflow:"hidden" }}>
+                      <div style={{ height:"100%", borderRadius:2, width:`${p.completion??0}%`, background:p.color??"var(--primary)" }}/>
                     </div>
                   </div>
-                  {p.budget > 0 && (
-                    <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
-                      <DollarSign size={10}/> {(p.budget / 1000).toFixed(0)}k€
-                    </p>
-                  )}
+                  {p.budget>0&&<p style={{ fontSize:10, color:"#639922", marginTop:8, fontWeight:500 }}>💰 {(p.budget/1000).toFixed(0)}k€</p>}
                 </Link>
               ))}
-              <Link href="/guide"
-                className="bg-card border border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center hover:border-primary/40 hover:bg-accent/30 transition-all text-muted-foreground hover:text-primary group">
-                <Plus size={24} className="mb-2 group-hover:scale-110 transition-transform"/>
-                <span className="text-sm font-medium">Nouveau projet</span>
+              <Link href="/guide" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"14px", border:"1px dashed var(--border)", borderRadius:"var(--r8)", textDecoration:"none", color:"var(--text-3)", fontSize:12, transition:"all 0.12s" }}
+                onMouseEnter={e=>{(e.currentTarget as any).style.borderColor="var(--primary)";(e.currentTarget as any).style.color="var(--primary)"}}
+                onMouseLeave={e=>{(e.currentTarget as any).style.borderColor="var(--border)";(e.currentTarget as any).style.color="var(--text-3)"}}>
+                <Plus size={22} style={{ marginBottom:6 }}/> Nouveau projet
               </Link>
             </div>
           )}

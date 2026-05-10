@@ -1,61 +1,76 @@
 "use client"
 import { useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
-import { toast } from "sonner"
 
 export default function RegisterPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const [done, setDone] = useState(false)
   const supabase = createClient()
+  const router = useRouter()
 
-  const register = async () => {
-    if (!name || !email || !password) { toast.error("Remplissez tous les champs"); return }
-    setLoading(true)
+  const register = async (e: React.FormEvent) => {
+    e.preventDefault(); setError(""); setLoading(true)
     const { error } = await supabase.auth.signUp({
       email, password,
       options: { data: { full_name: name } }
     })
-    if (error) { toast.error(error.message); setLoading(false); return }
-    toast.success("Compte créé ! Vérifiez vos emails.")
-    router.push("/dashboard")
+    if (error) { setError(error.message); setLoading(false) }
+    else setDone(true)
   }
 
+  const inputStyle = { width:"100%", padding:"9px 12px", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:13, color:"var(--text-1)", background:"#fff", outline:"none", transition:"border-color 0.15s" }
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-3">
-            <span className="text-xl font-bold text-white">P</span>
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">Créer un compte</h1>
-          <p className="text-muted-foreground text-sm mt-1">Commencez gratuitement</p>
+    <div style={{ minHeight:"100vh", background:"var(--bg)", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter',-apple-system,sans-serif" }}>
+      <div style={{ width:420 }}>
+        <div style={{ textAlign:"center", marginBottom:32 }}>
+          <div style={{ width:56, height:56, borderRadius:14, background:"linear-gradient(135deg,#185FA5,#3C3489)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28, fontWeight:800, color:"#fff", margin:"0 auto 14px" }}>P</div>
+          <h1 style={{ fontSize:22, fontWeight:700, color:"var(--text-1)", margin:"0 0 6px" }}>PMO AI Studio</h1>
+          <p style={{ fontSize:13, color:"var(--text-2)" }}>Créez votre compte gratuitement</p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-6 space-y-4">
-          {[
-            { label:"Nom complet", value:name, set:setName, type:"text", ph:"Jean Dupont" },
-            { label:"Email", value:email, set:setEmail, type:"email", ph:"votre@email.com" },
-            { label:"Mot de passe", value:password, set:setPassword, type:"password", ph:"8 caractères min." },
-          ].map(f => (
-            <div key={f.label}>
-              <label className="text-sm font-medium text-foreground block mb-1.5">{f.label}</label>
-              <input type={f.type} value={f.value} onChange={e => f.set(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-                placeholder={f.ph}/>
+        <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r16)", padding:"32px", boxShadow:"var(--sh-md)" }}>
+          {done ? (
+            <div style={{ textAlign:"center", padding:"20px 0" }}>
+              <div style={{ fontSize:40, marginBottom:16 }}>📧</div>
+              <h2 style={{ fontSize:18, fontWeight:600, color:"var(--text-1)", margin:"0 0 10px" }}>Vérifiez votre email</h2>
+              <p style={{ fontSize:13, color:"var(--text-2)", lineHeight:1.6 }}>Un email de confirmation a été envoyé à <strong>{email}</strong>. Cliquez sur le lien pour activer votre compte.</p>
+              <Link href="/auth/login" style={{ display:"inline-block", marginTop:20, color:"var(--primary)", fontSize:13, fontWeight:500 }}>← Retour à la connexion</Link>
             </div>
-          ))}
-          <button onClick={register} disabled={loading}
-            className="w-full py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50">
-            {loading ? "Création..." : "Créer mon compte"}
-          </button>
-          <p className="text-center text-sm text-muted-foreground">
-            Déjà un compte ?{" "}
-            <Link href="/auth/login" className="text-primary hover:underline">Se connecter</Link>
-          </p>
+          ) : (
+            <>
+              <h2 style={{ fontSize:18, fontWeight:600, color:"var(--text-1)", margin:"0 0 24px" }}>Créer un compte</h2>
+              <form onSubmit={register}>
+                {[
+                  { label:"Nom complet", type:"text", val:name, set:setName, ph:"Abdelhafid Touil" },
+                  { label:"Email",       type:"email", val:email, set:setEmail, ph:"vous@exemple.com" },
+                  { label:"Mot de passe",type:"password", val:password, set:setPassword, ph:"8 caractères min." },
+                ].map(f => (
+                  <div key={f.label} style={{ marginBottom:16 }}>
+                    <label style={{ display:"block", fontSize:12, fontWeight:500, color:"var(--text-2)", marginBottom:6 }}>{f.label}</label>
+                    <input type={f.type} value={f.val} onChange={e=>f.set(e.target.value)} required placeholder={f.ph}
+                      style={inputStyle}
+                      onFocus={e=>(e.target as any).style.borderColor="var(--primary)"}
+                      onBlur={e=>(e.target as any).style.borderColor="var(--border)"}/>
+                  </div>
+                ))}
+                {error && <div style={{ background:"var(--danger-bg)", border:"1px solid #fca5a5", borderRadius:"var(--r8)", padding:"10px 12px", fontSize:12, color:"var(--danger)", marginBottom:16 }}>{error}</div>}
+                <button type="submit" disabled={loading}
+                  style={{ width:"100%", padding:"10px", background:"var(--primary)", color:"#fff", border:"none", borderRadius:"var(--r8)", fontSize:14, fontWeight:600, cursor:"pointer", opacity:loading?0.7:1 }}>
+                  {loading ? "Création..." : "Créer mon compte"}
+                </button>
+              </form>
+              <p style={{ textAlign:"center", marginTop:20, fontSize:12, color:"var(--text-3)" }}>
+                Déjà un compte ?{" "}
+                <Link href="/auth/login" style={{ color:"var(--primary)", fontWeight:500, textDecoration:"none" }}>Se connecter</Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

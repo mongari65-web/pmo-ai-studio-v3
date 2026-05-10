@@ -1,57 +1,70 @@
 "use client"
 import { useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
-import { toast } from "sonner"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
   const supabase = createClient()
+  const router = useRouter()
 
-  const login = async () => {
-    setLoading(true)
+  const login = async (e: React.FormEvent) => {
+    e.preventDefault(); setError(""); setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { toast.error(error.message); setLoading(false); return }
-    router.push("/dashboard")
+    if (error) { setError(error.message); setLoading(false) }
+    else router.push("/dashboard")
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-3">
-            <span className="text-xl font-bold text-white">P</span>
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">PMO AI Studio</h1>
-          <p className="text-muted-foreground text-sm mt-1">Connectez-vous à votre espace</p>
+    <div style={{ minHeight:"100vh", background:"var(--bg)", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter',-apple-system,sans-serif" }}>
+      <div style={{ width:400 }}>
+        {/* Logo */}
+        <div style={{ textAlign:"center", marginBottom:32 }}>
+          <div style={{ width:56, height:56, borderRadius:14, background:"linear-gradient(135deg,#185FA5,#3C3489)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28, fontWeight:800, color:"#fff", margin:"0 auto 14px" }}>P</div>
+          <h1 style={{ fontSize:22, fontWeight:700, color:"var(--text-1)", margin:"0 0 6px" }}>PMO AI Studio</h1>
+          <p style={{ fontSize:13, color:"var(--text-2)" }}>Le copilote IA des Chefs de Projet</p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-6 space-y-4">
-          <div>
-            <label className="text-sm font-medium text-foreground block mb-1.5">Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              placeholder="votre@email.com"/>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground block mb-1.5">Mot de passe</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && login()}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              placeholder="••••••••"/>
-          </div>
-          <button onClick={login} disabled={loading}
-            className="w-full py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50">
-            {loading ? "Connexion..." : "Se connecter"}
-          </button>
-          <p className="text-center text-sm text-muted-foreground">
+
+        {/* Card */}
+        <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r16)", padding:"32px", boxShadow:"var(--sh-md)" }}>
+          <h2 style={{ fontSize:18, fontWeight:600, color:"var(--text-1)", margin:"0 0 24px" }}>Connexion</h2>
+          <form onSubmit={login}>
+            <div style={{ marginBottom:16 }}>
+              <label style={{ display:"block", fontSize:12, fontWeight:500, color:"var(--text-2)", marginBottom:6 }}>Email</label>
+              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required
+                placeholder="vous@exemple.com"
+                style={{ width:"100%", padding:"9px 12px", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:13, color:"var(--text-1)", background:"#fff", outline:"none", transition:"border-color 0.15s" }}
+                onFocus={e=>(e.target as any).style.borderColor="var(--primary)"}
+                onBlur={e=>(e.target as any).style.borderColor="var(--border)"}/>
+            </div>
+            <div style={{ marginBottom:20 }}>
+              <label style={{ display:"block", fontSize:12, fontWeight:500, color:"var(--text-2)", marginBottom:6 }}>Mot de passe</label>
+              <input type="password" value={password} onChange={e=>setPassword(e.target.value)} required
+                placeholder="••••••••"
+                style={{ width:"100%", padding:"9px 12px", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:13, color:"var(--text-1)", background:"#fff", outline:"none", transition:"border-color 0.15s" }}
+                onFocus={e=>(e.target as any).style.borderColor="var(--primary)"}
+                onBlur={e=>(e.target as any).style.borderColor="var(--border)"}/>
+            </div>
+            {error && <div style={{ background:"var(--danger-bg)", border:"1px solid #fca5a5", borderRadius:"var(--r8)", padding:"10px 12px", fontSize:12, color:"var(--danger)", marginBottom:16 }}>{error}</div>}
+            <button type="submit" disabled={loading}
+              style={{ width:"100%", padding:"10px", background:"var(--primary)", color:"#fff", border:"none", borderRadius:"var(--r8)", fontSize:14, fontWeight:600, cursor:"pointer", transition:"background 0.15s", opacity:loading?0.7:1 }}
+              onMouseEnter={e=>!loading&&((e.target as any).style.background="var(--primary-h)")}
+              onMouseLeave={e=>((e.target as any).style.background="var(--primary)")}>
+              {loading ? "Connexion..." : "Se connecter"}
+            </button>
+          </form>
+          <p style={{ textAlign:"center", marginTop:20, fontSize:12, color:"var(--text-3)" }}>
             Pas de compte ?{" "}
-            <Link href="/auth/register" className="text-primary hover:underline">Créer un compte</Link>
+            <Link href="/auth/register" style={{ color:"var(--primary)", fontWeight:500, textDecoration:"none" }}>Créer un compte</Link>
           </p>
         </div>
+        <p style={{ textAlign:"center", marginTop:20, fontSize:11, color:"var(--text-3)" }}>
+          PMO AI Studio · PMBOK 7 · Propulsé par Claude AI
+        </p>
       </div>
     </div>
   )
