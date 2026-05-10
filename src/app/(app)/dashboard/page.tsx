@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [user, setUser] = useState<any>(null)
   const [toolData, setToolData] = useState<ToolSummary[]>([])
-  const [alerts, setAlerts] = useState<{ type: string; message: string; project: string; severity: string }[]>([])
+  const [alerts, setAlerts] = useState<{ type: string; message: string; project: string; projectId?: string; href?: string; severity: string }[]>([])
   const supabase = createClient()
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function DashboardPage() {
         if (t.tool_type === "raid" && t.data?.items) {
           const critiques = t.data.items.filter((i: any) => i.priority === "Critique" && i.status === "Ouvert")
           if (critiques.length > 0) {
-            newAlerts.push({ type: "raid", message: `${critiques.length} risque(s) critique(s) ouvert(s)`, project: proj.name, severity: "danger" })
+            newAlerts.push({ type: "raid", message: `${critiques.length} risque(s) critique(s) ouvert(s)`, project: proj.name, projectId: proj.id, href: `/projects/${proj.id}/raid`, severity: "danger" })
           }
         }
         // EVM CPI < 1
@@ -63,7 +63,7 @@ export default function DashboardPage() {
           const totalAC = t.data.tasks.reduce((s: number, task: any) => s + (task.ac?.[cp] ?? 0), 0)
           const cpi = totalAC > 0 ? totalEV / totalAC : 1
           if (cpi < 0.9) {
-            newAlerts.push({ type: "budget", message: `CPI = ${cpi.toFixed(2)} — dépassement budgétaire`, project: proj.name, severity: "warning" })
+            newAlerts.push({ type: "budget", message: `CPI = ${cpi.toFixed(2)} — dépassement budgétaire`, project: proj.name, projectId: proj.id, href: `/projects/${proj.id}/budget`, severity: "warning" })
           }
         }
         // Jalons en retard
@@ -71,7 +71,7 @@ export default function DashboardPage() {
           const today = new Date().toISOString().split("T")[0]
           const retard = t.data.jalons.filter((j: any) => j.date < today && j.status !== "Atteint")
           if (retard.length > 0) {
-            newAlerts.push({ type: "jalon", message: `${retard.length} jalon(s) en retard`, project: proj.name, severity: "warning" })
+            newAlerts.push({ type: "jalon", message: `${retard.length} jalon(s) en retard`, project: proj.name, projectId: proj.id, href: `/projects/${proj.id}/jalons`, severity: "warning" })
           }
         }
       })
