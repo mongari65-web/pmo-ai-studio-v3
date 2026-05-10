@@ -370,14 +370,6 @@ export default function PERTPage() {
         projectName={project?.name} jsonData={{ tasks:computed }}
         exportFilename={`PERT_${project?.name??""}`}>
 
-        {computed.length===0 && !loading && (
-          <div style={{ background:"var(--card)", border:"1px dashed var(--border)", borderRadius:"var(--r12)", padding:48, textAlign:"center" }}>
-            <div style={{ fontSize:48, marginBottom:12 }}>🔀</div>
-            <p style={{ fontSize:15, fontWeight:600, color:"var(--text-2)", margin:"0 0 8px" }}>Aucun diagramme PERT</p>
-            <p style={{ fontSize:13, color:"var(--text-3)", margin:0 }}>Générez automatiquement ou ajoutez des tâches dans le tableau</p>
-          </div>
-        )}
-
         {/* KPIs */}
         {computed.length>0 && (
           <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:14 }}>
@@ -574,6 +566,14 @@ export default function PERTPage() {
                           critical={isCrit}/>
                       )
                     })
+                  )}
+
+                  {/* Message si vide */}
+                  {computed.length===0 && (
+                    <g transform={`translate(300,200)`}>
+                      <text textAnchor="middle" fontSize="14" fill="#94a3b8" dy="-10">Ajoutez une tâche dans le tableau</text>
+                      <text textAnchor="middle" fontSize="12" fill="#cbd5e1" dy="15">ou cliquez sur "Générer PERT"</text>
+                    </g>
                   )}
 
                   {/* ── Nœuds ── */}
