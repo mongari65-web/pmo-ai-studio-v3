@@ -217,49 +217,103 @@ export default function PERTPage() {
     await save({ tasks: recalc })
   }, [save])
 
-  // Générer PERT avec fallback robuste
+  // Générer PERT depuis le WBS du projet
   const generate = async () => {
     if (!project) return
-    setLoading(true); toast.info("Génération PERT...")
+    setLoading(true); toast.info("Génération PERT depuis le WBS...")
     try {
-      // Essayer d'abord via l'API IA
-      let rawTasks: PERTTask[] = []
-      try {
-        const res = await fetch("/api/generate", {
-          method:"POST", headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ tool:"pert", projectName:project.name, projectDescription:project.description })
-        })
-        const json = await res.json()
-        const nodes = json.data?.nodes ?? json.data?.tasks ?? []
-        rawTasks = nodes
-          .filter((n: any) => n && (n.id || n.name))
-          .map((n: any, i: number) => ({
-            id: String(n.id ?? `T${i+1}`),
-            name: String(n.name ?? `Tâche ${i+1}`),
-            duration: Number(n.duration_exp ?? n.duration ?? n.duration_m ?? 5),
-            deps: Array.isArray(n.deps) ? n.deps.map(String) :
-                  Array.isArray(n.dependencies) ? n.dependencies.map(String) : [],
-            est:0, eft:0, lst:0, lft:0, slack:0, critical:false, x:0, y:0
-          }))
-      } catch(e) { /* ignore, on utilise le fallback */ }
+      // Charger le WBS depuis Supabase
+      const { createClient } = await import("@/lib/supabase/client")
+      const supabase = createClient()
+      const { data: wbsData } = await supabase
+        .from("project_tools")
+        .select("data")
+        .eq("project_id", id)
+        .eq("tool_type", "wbs")
+        .single()
 
-      // Fallback : générer un réseau PERT type projet
-      if (rawTasks.length === 0) {
+      // Charger aussi le Gantt si disponible
+      const { data: ganttData } = await supabase
+        .from("project_tools")
+        .select("data")
+        .eq("project_id", id)
+        .eq("tool_type", "gantt")
+        .single()
+
+      let rawTasks: PERTTask[] = []
+
+      // Depuis le WBS (priorité)
+      if (wbsData?.data?.items?.length > 0) {
+        const items = (wbsData!.data.items as any[]).filter((i: any) => i.level === 2 || i.code?.includes("."))
+        // Construire les dépendances séquentielles par phase
+        const phases: Record<string, string[]> = {}
+        items.forEach((item: any) => {
+          const phase = item.code?.split(".")[0] ?? "1"
+          if (!phases[phase]) phases[phase] = []
+          phases[phase].push(item.code)
+        })
+
+        const phaseKeys = Object.keys(phases).sort()
+        rawTasks.push({ id:"D", name:"Début", duration:0, deps:[], est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 })
+
+        let prevPhaseLastId = "D"
+        phaseKeys.forEach(phaseKey => {
+          const phaseItems = phases[phaseKey]
+          let prevId = prevPhaseLastId
+          phaseItems.forEach((code: string, idx: number) => {
+            const item = items.find((i: any) => i.code === code)
+            if (!item) return
+            const taskId = code.replace(".", "_")
+            // Extraire durée (ex: "2 sem" → 2)
+            const durStr = String(item.duration ?? "5")
+            const dur = parseInt(durStr.match(/\d+/)?.[0] ?? "5")
+            rawTasks.push({
+              id: taskId, name: item.name ?? code,
+              duration: dur,
+              deps: [prevId],
+              est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0
+            })
+            prevId = taskId
+          })
+          prevPhaseLastId = prevId
+        })
+        rawTasks.push({ id:"F", name:"Fin", duration:0, deps:[prevPhaseLastId], est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 })
+        toast.success(`PERT généré depuis le WBS — ${rawTasks.length} nœuds`)
+      }
+      // Depuis le Gantt
+      else if (ganttData?.data?.tasks?.length > 0) {
+        const gtasks = (ganttData!.data.tasks as any[])
+        rawTasks.push({ id:"D", name:"Début", duration:0, deps:[], est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 })
+        gtasks.forEach((t: any, i: number) => {
+          const tid = `T${i+1}`
+          const deps = t.dependencies
+            ? t.dependencies.split(",").map((d: string) => d.trim()).filter(Boolean).map((_: any, j: number) => j===0?"D":`T${j}`)
+            : [i===0?"D":`T${i}`]
+          rawTasks.push({
+            id: tid, name: t.name ?? `Tâche ${i+1}`,
+            duration: t.duration ?? 5, deps,
+            est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0
+          })
+        })
+        rawTasks.push({ id:"F", name:"Fin", duration:0, deps:[`T${gtasks.length}`], est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 })
+        toast.success(`PERT généré depuis le Gantt — ${rawTasks.length} nœuds`)
+      }
+      // Fallback exemple
+      else {
         rawTasks = [
-          { id:"D",  name:"Début",           duration:0,  deps:[],          est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
-          { id:"T1", name:"Initialisation",  duration:5,  deps:["D"],       est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
-          { id:"T2", name:"Analyse",         duration:10, deps:["T1"],      est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
-          { id:"T3", name:"Conception",      duration:8,  deps:["T1"],      est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
-          { id:"T4", name:"Développement",   duration:15, deps:["T2"],      est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
-          { id:"T5", name:"Tests",           duration:7,  deps:["T3","T4"], est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
-          { id:"F",  name:"Fin",             duration:0,  deps:["T5"],      est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"D",  name:"Début",          duration:0,  deps:[],           est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"T1", name:"Initialisation", duration:5,  deps:["D"],        est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"T2", name:"Analyse",        duration:10, deps:["T1"],       est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"T3", name:"Conception",     duration:8,  deps:["T1"],       est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"T4", name:"Développement",  duration:15, deps:["T2"],       est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"T5", name:"Tests",          duration:7,  deps:["T3","T4"],  est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
+          { id:"F",  name:"Fin",            duration:0,  deps:["T5"],       est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 },
         ]
-        toast.info("Réseau PERT exemple généré — modifiez les tâches selon votre projet")
+        toast.info("Générez d'abord un WBS ou un Gantt pour un PERT basé sur votre projet")
       }
 
       const withLayout = autoLayout(rawTasks)
       await saveTasks(withLayout)
-      toast.success(`PERT généré — ${withLayout.length} nœuds`)
     } catch(e:any) { toast.error(e.message) }
     finally { setLoading(false) }
   }
@@ -452,8 +506,14 @@ export default function PERTPage() {
                     <td colSpan={3}/>
                     <td style={{ padding:"6px 8px" }}>
                       <div style={{ display:"flex", gap:4 }}>
-                        <button onClick={addTask} style={{ padding:"3px 8px", background:"#185FA5", color:"#fff", border:"none", borderRadius:"var(--r6)", cursor:"pointer", fontSize:11 }}>✓</button>
-                        <button onClick={()=>setShowAddRow(false)} style={{ padding:"3px 8px", background:"var(--border)", color:"var(--text-1)", border:"none", borderRadius:"var(--r6)", cursor:"pointer", fontSize:11 }}>✕</button>
+                        <button onClick={addTask}
+                          style={{ padding:"4px 12px", background:"#185FA5", color:"#fff", border:"none", borderRadius:"var(--r6)", cursor:"pointer", fontSize:12, fontWeight:600 }}>
+                          ✓ Ajouter
+                        </button>
+                        <button onClick={()=>setShowAddRow(false)}
+                          style={{ padding:"4px 8px", background:"var(--danger-bg)", color:"var(--danger)", border:"1px solid #FCA5A5", borderRadius:"var(--r6)", cursor:"pointer", fontSize:12 }}>
+                          ✕
+                        </button>
                       </div>
                     </td>
                   </tr>
