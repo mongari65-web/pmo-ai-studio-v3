@@ -11,6 +11,8 @@ const TOP = [
   { href:"/projects",  icon:FolderKanban,    label:"Mes projets" },
   { href:"/guide",     icon:Wand2,            label:"Guide CP", hl:true },
   { href:"/portfolio", icon:BarChart3,        label:"Portfolio" },
+  { href:"/pmp-simulator",  icon:GraduationCap,  label:"Simulateur PMP", hl:true },
+  { href:"/pmp-conseils",   icon:GraduationCap,  label:"Conseils PMP" },
 ]
 const BOT = [
   { href:"/notifications", icon:Bell,       label:"Notifications", badge:true },
