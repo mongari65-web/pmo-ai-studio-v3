@@ -34,3 +34,7 @@ body{background:var(--bg);color:var(--text-1);font-family:'Inter',-apple-system,
 ::selection{background:var(--primary-bg);color:var(--primary)}
 .recharts-cartesian-grid-horizontal line,.recharts-cartesian-grid-vertical line{stroke:#e2e8f0!important}
 .recharts-text{fill:#64748b!important;font-size:11px!important}
+
+/* PERT table row actions */
+tr:hover .row-actions { opacity: 1 !important; }
+.row-actions { transition: opacity 0.15s; }

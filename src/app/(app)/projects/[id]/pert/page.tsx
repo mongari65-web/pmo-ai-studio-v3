@@ -1,598 +1,637 @@
 "use client"
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { useParams } from "next/navigation"
 import AppLayout from "@/components/layout/AppLayout"
 import ToolLayout from "@/components/tools/ToolLayout"
 import { useProject, useToolData } from "@/hooks/useProject"
 import { toast } from "sonner"
-import { ZoomIn, ZoomOut, RotateCcw, Maximize2, Plus, Pencil, Check, X, GitMerge, Zap } from "lucide-react"
+import { Plus, Trash2, ZoomIn, ZoomOut, RotateCcw, GitMerge, Zap, Check, X } from "lucide-react"
 
-interface PERTNode {
-  id: string; name: string; x: number; y: number
-  duration_o: number; duration_m: number; duration_p: number
-  duration_exp: number; variance: number
-  est: number; eft: number; lst: number; lft: number; slack: number
-  critical: boolean; phase: string
+// ── Types ────────────────────────────────────────────────────
+interface PERTTask {
+  id: string        // identifiant unique ex: "T1"
+  name: string      // nom de la tâche
+  duration: number  // durée (jours/semaines)
+  deps: string[]    // liste des ids dépendances
+  // calculés automatiquement
+  est: number; eft: number; lst: number; lft: number; slack: number; critical: boolean
+  // position SVG
+  x: number; y: number
 }
-interface PERTEdge { from: string; to: string }
-interface PERTData { nodes: PERTNode[]; edges: PERTEdge[] }
 
-const PHASE_COLORS = ["#2563eb","#7c3aed","#059669","#d97706","#dc2626","#0891b2"]
-const NODE_W = 130; const NODE_H = 80
+interface PERTData { tasks: PERTTask[] }
+
+const R = 48 // rayon cercle
 
 // ── Calcul PERT (forward + backward pass) ────────────────────
-function calcPERT(nodes: PERTNode[], edges: PERTEdge[]): PERTNode[] {
-  const map = new Map(nodes.map(n => [n.id, { ...n, est:0, eft:0, lst:0, lft:0, slack:0, critical:false }]))
+function computePERT(tasks: PERTTask[]): PERTTask[] {
+  const map = new Map(tasks.map(t => [t.id, { ...t, est:0, eft:0, lst:0, lft:0, slack:0, critical:false }]))
 
-  // Forward pass
-  const topo: string[] = []
-  const inDeg = new Map(nodes.map(n => [n.id, 0]))
-  edges.forEach(e => inDeg.set(e.to, (inDeg.get(e.to)??0)+1))
-  const queue = [...map.keys()].filter(id => (inDeg.get(id)??0) === 0)
+  // Topological sort
   const visited = new Set<string>()
-  while (queue.length) {
-    const id = queue.shift()!
-    if (visited.has(id)) continue
+  const order: string[] = []
+  const visit = (id: string) => {
+    if (visited.has(id)) return
     visited.add(id)
-    topo.push(id)
-    const node = map.get(id)!
-    const preds = edges.filter(e => e.to === id).map(e => map.get(e.from))
-    node.est = preds.length > 0 ? Math.max(...preds.map(p => p?.eft ?? 0)) : 0
-    node.eft = node.est + node.duration_exp
-    edges.filter(e => e.from === id).forEach(e => {
-      inDeg.set(e.to, (inDeg.get(e.to)??1)-1)
-      if ((inDeg.get(e.to)??0) === 0) queue.push(e.to)
-    })
+    const t = map.get(id)!
+    t.deps.forEach(d => { if (map.has(d)) visit(d) })
+    order.push(id)
   }
+  ;[...map.keys()].forEach(visit)
 
-  // Backward pass
-  const maxEFT = Math.max(...[...map.values()].map(n => n.eft), 0)
-  ;[...topo].reverse().forEach(id => {
-    const node = map.get(id)!
-    const succs = edges.filter(e => e.from === id).map(e => map.get(e.to))
-    node.lft = succs.length > 0 ? Math.min(...succs.map(s => s?.lst ?? maxEFT)) : maxEFT
-    node.lst = node.lft - node.duration_exp
-    node.slack = Math.round((node.lst - node.est) * 100) / 100
-    node.critical = node.slack <= 0.01
+  // Forward pass (EST/EFT)
+  order.forEach(id => {
+    const t = map.get(id)!
+    t.est = t.deps.length > 0
+      ? Math.max(...t.deps.map(d => map.get(d)?.eft ?? 0))
+      : 0
+    t.eft = t.est + t.duration
+  })
+
+  // Backward pass (LST/LFT)
+  const maxEFT = Math.max(...[...map.values()].map(t => t.eft), 0)
+  ;[...order].reverse().forEach(id => {
+    const t = map.get(id)!
+    const succs = [...map.values()].filter(s => s.deps.includes(id))
+    t.lft = succs.length > 0 ? Math.min(...succs.map(s => s.lst)) : maxEFT
+    t.lst = t.lft - t.duration
+    t.slack = Math.round((t.lst - t.est) * 100) / 100
+    t.critical = t.slack <= 0
   })
 
   return [...map.values()]
 }
 
-// ── Layout automatique en colonnes par phase ─────────────────
-function autoLayout(nodes: PERTNode[]): PERTNode[] {
-  const phases = Array.from(new Set(nodes.map(n => n.phase)))
-  return nodes.map(n => {
-    const pi = phases.indexOf(n.phase)
-    const phaseNodes = nodes.filter(nn => nn.phase === n.phase)
-    const ni = phaseNodes.findIndex(nn => nn.id === n.id)
-    const totalH = phaseNodes.length * (NODE_H + 30)
-    return { ...n, x: 80 + pi * (NODE_W + 80), y: 60 + ni * (NODE_H + 30) - totalH/2 + 200 }
+// ── Auto-layout en colonnes par rang ─────────────────────────
+function autoLayout(tasks: PERTTask[]): PERTTask[] {
+  const map = new Map(tasks.map(t => [t.id, t]))
+  // Calculer le rang (distance depuis la source)
+  const rank: Record<string, number> = {}
+  const getrank = (id: string): number => {
+    if (rank[id] !== undefined) return rank[id]
+    const t = map.get(id)!
+    rank[id] = t.deps.length === 0 ? 0 : Math.max(...t.deps.map(d => getrank(d))) + 1
+    return rank[id]
+  }
+  tasks.forEach(t => getrank(t.id))
+
+  // Grouper par rang
+  const cols: Record<number, string[]> = {}
+  Object.entries(rank).forEach(([id, r]) => {
+    if (!cols[r]) cols[r] = []
+    cols[r].push(id)
   })
+
+  const COL_W = 160, ROW_H = 130, MARGIN_X = 100, MARGIN_Y = 80
+  const result = tasks.map(t => {
+    const r = rank[t.id] ?? 0
+    const col = cols[r]
+    const idx = col.indexOf(t.id)
+    const totalH = col.length * ROW_H
+    return {
+      ...t,
+      x: MARGIN_X + r * COL_W,
+      y: MARGIN_Y + idx * ROW_H - (totalH - ROW_H) / 2 + (tasks.length > 4 ? 80 : 0)
+    }
+  })
+  return result
 }
 
-// ── Compression PMI ──────────────────────────────────────────
-function fastTrack(nodes: PERTNode[], edges: PERTEdge[]): { nodes: PERTNode[]; edges: PERTEdge[] } {
-  // Fast tracking: paralléliser les phases critiques
-  const critNodes = nodes.filter(n => n.critical)
-  const newEdges = [...edges]
-  // Supprimer 50% des dépendances entre nœuds critiques successifs
-  const critEdges = edges.filter(e => {
-    const from = nodes.find(n => n.id === e.from)
-    const to = nodes.find(n => n.id === e.to)
-    return from?.critical && to?.critical
-  })
-  const toRemove = critEdges.slice(0, Math.floor(critEdges.length / 2))
-  const filteredEdges = newEdges.filter(e => !toRemove.some(r => r.from === e.from && r.to === e.to))
-  return { nodes, edges: filteredEdges }
+// ── Composant cercle PERT ─────────────────────────────────────
+function PERTCircle({ task, selected, onSelect, onDrag, dragging }: {
+  task: PERTTask; selected: boolean
+  onSelect: () => void; onDrag: (e: React.MouseEvent) => void; dragging: boolean
+}) {
+  const color = task.critical ? "#dc2626" : "#185FA5"
+  const fill  = task.critical ? "#fef2f2" : "#eff6ff"
+  const textC = task.critical ? "#991b1b" : "#1e40af"
+
+  return (
+    <g transform={`translate(${task.x},${task.y})`}
+      onMouseDown={onDrag} onClick={onSelect}
+      style={{ cursor: dragging ? "grabbing" : "grab" }}>
+
+      {/* Ombre */}
+      <circle r={R+2} fill="rgba(0,0,0,0.06)" transform="translate(2,2)"/>
+
+      {/* Cercle principal */}
+      <circle r={R} fill={fill} stroke={color} strokeWidth={selected ? 3 : 2}
+        filter={selected ? `drop-shadow(0 0 6px ${color}88)` : "none"}/>
+
+      {/* Lignes de division */}
+      {/* Horizontal */}
+      <line x1={-R} y1={0} x2={R} y2={0} stroke={color} strokeWidth={1.5}/>
+      {/* Vertical haut */}
+      <line x1={0} y1={-R} x2={0} y2={0} stroke={color} strokeWidth={1.5}/>
+      {/* Vertical bas */}
+      <line x1={0} y1={0} x2={0} y2={R} stroke={color} strokeWidth={1.5}/>
+
+      {/* Quadrants : EST (haut gauche), EFT (haut droit), LST (bas gauche), LFT (bas droit) */}
+      {/* Numéro au centre */}
+      <text x={0} y={6} textAnchor="middle" fontSize="16" fontWeight="800" fill={color}>{task.id}</text>
+
+      {/* EST haut gauche */}
+      <text x={-R/2} y={-R/2+8} textAnchor="middle" fontSize="10" fontWeight="700" fill={textC}>{task.est}</text>
+      {/* EFT haut droit */}
+      <text x={R/2}  y={-R/2+8} textAnchor="middle" fontSize="10" fontWeight="700" fill={textC}>{task.eft}</text>
+      {/* LST bas gauche */}
+      <text x={-R/2} y={R/2+8}  textAnchor="middle" fontSize="10" fontWeight="700" fill={textC}>{task.lst}</text>
+      {/* LFT bas droit */}
+      <text x={R/2}  y={R/2+8}  textAnchor="middle" fontSize="10" fontWeight="700" fill={textC}>{task.lft}</text>
+
+      {/* Badge critique */}
+      {task.critical && (
+        <g transform={`translate(${R-14},-${R-14})`}>
+          <circle r={9} fill="#dc2626"/>
+          <text x={0} y={4} textAnchor="middle" fontSize="9" fontWeight="800" fill="#fff">CR</text>
+        </g>
+      )}
+    </g>
+  )
 }
 
-function crashing(nodes: PERTNode[]): PERTNode[] {
-  // Crashing: réduire la durée des tâches critiques vers duration_o
-  return nodes.map(n => {
-    if (!n.critical) return n
-    const newDur = Math.max(n.duration_o, Math.round(n.duration_exp * 0.75))
-    return { ...n, duration_exp: newDur, eft: n.est + newDur }
-  })
+// ── Flèche entre deux cercles ─────────────────────────────────
+function Arrow({ from, to, label, critical }: { from: PERTTask; to: PERTTask; label: string; critical: boolean }) {
+  const dx = to.x - from.x, dy = to.y - from.y
+  const len = Math.sqrt(dx*dx + dy*dy)
+  const ux = dx/len, uy = dy/len
+  const x1 = from.x + ux*R, y1 = from.y + uy*R
+  const x2 = to.x - ux*(R+6), y2 = to.y - uy*(R+6)
+  const mx = (x1+x2)/2, my = (y1+y2)/2
+  const color = critical ? "#dc2626" : "#64748b"
+
+  return (
+    <g>
+      <defs>
+        <marker id={`arr-${critical?"c":"n"}`} markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill={color}/>
+        </marker>
+      </defs>
+      <line x1={x1} y1={y1} x2={x2} y2={y2}
+        stroke={color} strokeWidth={critical ? 2.5 : 1.5}
+        markerEnd={`url(#arr-${critical?"c":"n"})`}
+        style={{ filter: critical ? `drop-shadow(0 0 3px ${color}80)` : "none" }}/>
+      {/* Label durée sur l'arc */}
+      <rect x={mx-18} y={my-10} width={36} height={18} rx={4}
+        fill="#fff" stroke={color} strokeWidth={1} opacity={0.9}/>
+      <text x={mx} y={my+5} textAnchor="middle" fontSize="11" fontWeight="700" fill={color}>
+        {label}
+      </text>
+    </g>
+  )
 }
 
+// ── Page principale ────────────────────────────────────────────
 export default function PERTPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
   const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "pert")
-  const [pert, setPert] = useState<PERTData>({ nodes: [], edges: [] })
+
+  const [tasks, setTasks] = useState<PERTTask[]>([])
   const [selected, setSelected] = useState<string|null>(null)
-  const [editNode, setEditNode] = useState<PERTNode|null>(null)
-  const [addingEdge, setAddingEdge] = useState<string|null>(null) // from node id
   const [scale, setScale] = useState(1)
-  const [offset, setOffset] = useState({ x: 40, y: 20 })
-  const [dragging, setDragging] = useState<{ id: string; ox: number; oy: number }|null>(null)
-  const [panning, setPanning] = useState<{ sx: number; sy: number; ox: number; oy: number }|null>(null)
+  const [offset, setOffset] = useState({ x: 40, y: 60 })
+  const [draggingNode, setDraggingNode] = useState<{ id:string; startX:number; startY:number; nodeX:number; nodeY:number }|null>(null)
+  const [panning, setPanning] = useState<{ startX:number; startY:number; ox:number; oy:number }|null>(null)
+  const [editingRow, setEditingRow] = useState<string|null>(null)
+  const [editBuf, setEditBuf] = useState<Partial<PERTTask>>({})
+  const [showAddRow, setShowAddRow] = useState(false)
+  const [newTask, setNewTask] = useState({ id:"", name:"", duration:5, deps:"" })
   const svgRef = useRef<SVGSVGElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  // Charger les données
   useEffect(() => {
-    if (data?.nodes?.length > 0) {
-      const recalc = calcPERT(data.nodes, data.edges ?? [])
-      setPert({ nodes: recalc, edges: data.edges ?? [] })
+    if (data?.tasks?.length > 0) {
+      const computed = computePERT(data.tasks)
+      setTasks(computed)
     }
   }, [data])
 
+  // Recalculer PERT à chaque changement de tâches
+  const computed = useMemo(() => computePERT(tasks), [tasks])
+
+  const saveTasks = useCallback(async (newTasks: PERTTask[]) => {
+    const recalc = computePERT(newTasks)
+    setTasks(recalc)
+    await save({ tasks: recalc })
+  }, [save])
+
+  // Générer un exemple
   const generate = async () => {
     if (!project) return
     setLoading(true); toast.info("Génération PERT...")
     try {
-      // Générer depuis les tâches Gantt si disponibles
-      const phases = ["Initialisation","Analyse","Conception","Réalisation","Déploiement"]
-      const rawNodes: PERTNode[] = []
-      const rawEdges: PERTEdge[] = []
-      let nodeId = 0
-
-      phases.forEach((phase, pi) => {
-        const count = [1, 2, 3, 2, 1][pi]
-        const phaseNodeIds: string[] = []
-        for (let i = 0; i < count; i++) {
-          const id = `N${pi}_${i}`
-          const o = 2 + pi, m = 4 + pi * 2, p = 8 + pi * 3
-          const exp = Math.round((o + 4*m + p) / 6)
-          const variance = Math.pow((p-o)/6, 2)
-          rawNodes.push({
-            id, name: `${phase} ${count > 1 ? i+1 : ""}`.trim(), phase,
-            duration_o: o, duration_m: m, duration_p: p,
-            duration_exp: exp, variance,
-            x: 0, y: 0, est: 0, eft: 0, lst: 0, lft: 0, slack: 0, critical: false
-          })
-          phaseNodeIds.push(id)
-          nodeId++
-        }
-        // Liens intra-phase (série)
-        for (let i = 0; i < phaseNodeIds.length - 1; i++) {
-          rawEdges.push({ from: phaseNodeIds[i], to: phaseNodeIds[i+1] })
-        }
-        // Liens inter-phase (dernier nœud phase précédente → premier nœud phase courante)
-        if (pi > 0) {
-          const prevPhase = phases[pi-1]
-          const prevNodes = rawNodes.filter(n => n.phase === prevPhase)
-          rawEdges.push({ from: prevNodes[prevNodes.length-1].id, to: phaseNodeIds[0] })
-        }
+      const res = await fetch("/api/generate", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ tool:"pert", projectName:project.name, projectDescription:project.description })
       })
+      const json = await res.json()
+      if (json.error) throw new Error(json.error)
 
-      const laid = autoLayout(rawNodes)
-      const recalc = calcPERT(laid, rawEdges)
-      const newPert = { nodes: recalc, edges: rawEdges }
-      setPert(newPert); await save(newPert)
-      toast.success(`PERT généré — ${recalc.length} nœuds, ${rawEdges.length} liens`)
-    } catch(e: any) { toast.error(e.message) }
+      const rawTasks: PERTTask[] = (json.data?.nodes ?? json.data?.tasks ?? []).map((n: any, i: number) => ({
+        id: n.id ?? `T${i+1}`,
+        name: n.name ?? `Tâche ${i+1}`,
+        duration: n.duration_exp ?? n.duration ?? 5,
+        deps: n.deps ?? [],
+        est:0, eft:0, lst:0, lft:0, slack:0, critical:false,
+        x:0, y:0
+      }))
+
+      const withLayout = autoLayout(rawTasks)
+      await saveTasks(withLayout)
+      toast.success(`PERT généré — ${withLayout.length} tâches`)
+    } catch(e:any) { toast.error(e.message) }
     finally { setLoading(false) }
   }
 
-  const savePert = useCallback(async (p: PERTData) => {
-    const recalc = calcPERT(p.nodes, p.edges)
-    const updated = { nodes: recalc, edges: p.edges }
-    setPert(updated); await save(updated)
-  }, [save])
+  // Ajouter une tâche
+  const addTask = async () => {
+    if (!newTask.id.trim() || !newTask.name.trim()) { toast.error("ID et nom requis"); return }
+    if (tasks.find(t => t.id === newTask.id)) { toast.error("ID déjà utilisé"); return }
+    const deps = newTask.deps.split(",").map(d=>d.trim()).filter(Boolean)
+    const t: PERTTask = {
+      id: newTask.id.trim(), name: newTask.name.trim(),
+      duration: newTask.duration, deps,
+      est:0, eft:0, lst:0, lft:0, slack:0, critical:false,
+      x:0, y:0
+    }
+    const newList = autoLayout([...tasks, t])
+    await saveTasks(newList)
+    setNewTask({ id:"", name:"", duration:5, deps:"" })
+    setShowAddRow(false)
+    toast.success(`Tâche ${t.id} ajoutée`)
+  }
+
+  // Supprimer une tâche
+  const deleteTask = async (tid: string) => {
+    const newList = tasks.filter(t=>t.id!==tid).map(t=>({...t, deps:t.deps.filter(d=>d!==tid)}))
+    const withLayout = autoLayout(newList)
+    await saveTasks(withLayout)
+    if (selected===tid) setSelected(null)
+    toast.success(`Tâche ${tid} supprimée`)
+  }
+
+  // Éditer une ligne du tableau
+  const startEdit = (t: PERTTask) => {
+    setEditingRow(t.id)
+    setEditBuf({ id:t.id, name:t.name, duration:t.duration, deps:t.deps })
+  }
+  const cancelEdit = () => { setEditingRow(null); setEditBuf({}) }
+  const confirmEdit = async () => {
+    const deps = typeof editBuf.deps === "string"
+      ? (editBuf.deps as string).split(",").map(d=>d.trim()).filter(Boolean)
+      : (editBuf.deps as string[]|undefined) ?? []
+    const newList = tasks.map(t => t.id===editingRow
+      ? { ...t, name:editBuf.name??t.name, duration:editBuf.duration??t.duration, deps }
+      : t)
+    const withLayout = autoLayout(newList)
+    await saveTasks(withLayout)
+    setEditingRow(null); setEditBuf({})
+    toast.success("Tâche mise à jour")
+  }
+
+  // Relayout
+  const relayout = async () => {
+    const withLayout = autoLayout(tasks)
+    await saveTasks(withLayout)
+    toast.success("Diagramme réorganisé")
+  }
 
   // ── Wheel zoom ───────────────────────────────────────────────
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
-    const handler = (e: WheelEvent) => {
+    const h = (e: WheelEvent) => {
       e.preventDefault()
-      setScale(s => Math.min(3, Math.max(0.2, s * (e.deltaY > 0 ? 0.9 : 1.1))))
+      setScale(s => Math.min(3, Math.max(0.25, s * (e.deltaY>0?0.9:1.1))))
     }
-    el.addEventListener("wheel", handler, { passive: false })
-    return () => el.removeEventListener("wheel", handler)
+    el.addEventListener("wheel", h, { passive:false })
+    return () => el.removeEventListener("wheel", h)
   }, [])
 
-  // ── SVG coords helper ────────────────────────────────────────
-  const svgCoords = (e: React.MouseEvent): { x: number; y: number } => {
+  // ── Mouse events SVG ─────────────────────────────────────────
+  const svgCoords = (e: MouseEvent | React.MouseEvent): {x:number;y:number} => {
     const rect = containerRef.current!.getBoundingClientRect()
-    return {
-      x: (e.clientX - rect.left - offset.x) / scale,
-      y: (e.clientY - rect.top - offset.y) / scale,
-    }
+    return { x:(e.clientX-rect.left-offset.x)/scale, y:(e.clientY-rect.top-offset.y)/scale }
   }
 
-  // ── Mouse events ─────────────────────────────────────────────
-  const onNodeMouseDown = (e: React.MouseEvent, node: PERTNode) => {
+  const onNodeMouseDown = (e: React.MouseEvent, taskId: string) => {
     e.stopPropagation()
-    if (addingEdge) {
-      // Créer un lien
-      if (addingEdge !== node.id && !pert.edges.some(ed => ed.from === addingEdge && ed.to === node.id)) {
-        const newEdges = [...pert.edges, { from: addingEdge, to: node.id }]
-        savePert({ ...pert, edges: newEdges })
-        toast.success("Lien créé")
-      }
-      setAddingEdge(null)
-      return
-    }
-    setSelected(node.id)
-    const pt = svgCoords(e)
-    setDragging({ id: node.id, ox: pt.x - node.x, oy: pt.y - node.y })
+    setSelected(taskId)
+    const node = tasks.find(t=>t.id===taskId)!
+    setDraggingNode({ id:taskId, startX:e.clientX, startY:e.clientY, nodeX:node.x, nodeY:node.y })
   }
 
   const onSVGMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as SVGElement).tagName === "svg" || (e.target as SVGElement).tagName === "rect") {
-      setSelected(null); setAddingEdge(null)
-      setPanning({ sx: e.clientX, sy: e.clientY, ox: offset.x, oy: offset.y })
+    if ((e.target as SVGElement).tagName==="svg" || (e.target as SVGElement).tagName==="rect") {
+      setSelected(null)
+      setPanning({ startX:e.clientX, startY:e.clientY, ox:offset.x, oy:offset.y })
     }
   }
 
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (dragging) {
-      const pt = svgCoords(e)
-      setPert(prev => ({ ...prev, nodes: prev.nodes.map(n => n.id === dragging.id ? { ...n, x: pt.x - dragging.ox, y: pt.y - dragging.oy } : n) }))
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (draggingNode) {
+        const dx = (e.clientX-draggingNode.startX)/scale
+        const dy = (e.clientY-draggingNode.startY)/scale
+        setTasks(prev => prev.map(t => t.id===draggingNode.id
+          ? { ...t, x:draggingNode.nodeX+dx, y:draggingNode.nodeY+dy } : t))
+      }
+      if (panning) {
+        setOffset({ x:panning.ox+(e.clientX-panning.startX), y:panning.oy+(e.clientY-panning.startY) })
+      }
     }
-    if (panning) {
-      setOffset({ x: panning.ox + (e.clientX - panning.sx), y: panning.oy + (e.clientY - panning.sy) })
+    const onUp = async () => {
+      if (draggingNode) await save({ tasks })
+      setDraggingNode(null); setPanning(null)
     }
-  }
+    window.addEventListener("mousemove", onMove)
+    window.addEventListener("mouseup", onUp)
+    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp) }
+  }, [draggingNode, panning, tasks, scale, save])
 
-  const onMouseUp = async () => {
-    if (dragging) await savePert(pert)
-    setDragging(null); setPanning(null)
-  }
+  // ── Dimensions SVG ───────────────────────────────────────────
+  const svgW = computed.reduce((m,t)=>Math.max(m,t.x+R+80),600)
+  const svgH = computed.reduce((m,t)=>Math.max(m,Math.abs(t.y)+R+80),400)
 
-  const deleteEdge = async (from: string, to: string) => {
-    const newEdges = pert.edges.filter(e => !(e.from === from && e.to === to))
-    await savePert({ ...pert, edges: newEdges })
-    toast.success("Lien supprimé")
-  }
+  const selectedTask = computed.find(t=>t.id===selected)
+  const totalDur = Math.max(...computed.map(t=>t.eft),0)
+  const critCount = computed.filter(t=>t.critical).length
 
-  const applyFastTrack = async () => {
-    const { nodes, edges } = fastTrack(pert.nodes, pert.edges)
-    await savePert({ nodes, edges })
-    toast.success("Fast Tracking appliqué — tâches critiques parallélisées")
-  }
-
-  const applyCrashing = async () => {
-    const nodes = crashing(pert.nodes)
-    await savePert({ ...pert, nodes })
-    toast.success("Crashing appliqué — durées critiques réduites vers optimiste")
-  }
-
-  const phases = Array.from(new Set(pert.nodes.map(n => n.phase)))
-  const phaseColor = (phase: string) => PHASE_COLORS[phases.indexOf(phase) % PHASE_COLORS.length]
-  const totalDuration = Math.max(...pert.nodes.map(n => n.eft), 0)
-  const critPath = pert.nodes.filter(n => n.critical).map(n => n.name).join(" → ")
-
-  // ── Arrow path between nodes ─────────────────────────────────
-  const edgePath = (from: PERTNode, to: PERTNode) => {
-    const x1 = from.x + NODE_W, y1 = from.y + NODE_H/2
-    const x2 = to.x, y2 = to.y + NODE_H/2
-    const mx = (x1 + x2) / 2
-    return `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`
-  }
+  const INPUT = { style:{ width:"100%", padding:"5px 8px", border:"1px solid var(--border)", borderRadius:"var(--r6)", fontSize:12, color:"var(--text-1)", background:"#fff", outline:"none" } as const }
 
   return (
     <AppLayout>
       <ToolLayout title="Diagramme PERT" icon="🔀" subtitle="// PERT — CHEMIN CRITIQUE"
         history={history}
-        onLoadHistory={(e) => { loadHistory(e); if(e.data?.nodes) { const r = calcPERT(e.data.nodes, e.data.edges??[]); setPert({ nodes: r, edges: e.data.edges??[] }) }}}
+        onLoadHistory={e=>{ loadHistory(e); if(e.data?.tasks){const r=computePERT(e.data.tasks);setTasks(r)}}}
         onGenerate={generate} generateLabel="Générer PERT" generating={loading}
-        projectName={project?.name} jsonData={pert}
+        projectName={project?.name} jsonData={{ tasks:computed }}
         exportFilename={`PERT_${project?.name??""}`}>
 
-        {pert.nodes.length === 0 && !loading && (
-          <div className="bg-card border border-dashed border-border rounded-xl p-16 text-center">
-            <div className="text-5xl mb-3">🔀</div>
-            <p className="font-semibold text-foreground mb-1">Aucun diagramme PERT</p>
-            <p className="text-sm text-muted-foreground">Cliquez sur "Générer PERT"</p>
+        {computed.length===0 && !loading && (
+          <div style={{ background:"var(--card)", border:"1px dashed var(--border)", borderRadius:"var(--r12)", padding:48, textAlign:"center" }}>
+            <div style={{ fontSize:48, marginBottom:12 }}>🔀</div>
+            <p style={{ fontSize:15, fontWeight:600, color:"var(--text-2)", margin:"0 0 8px" }}>Aucun diagramme PERT</p>
+            <p style={{ fontSize:13, color:"var(--text-3)", margin:0 }}>Générez automatiquement ou ajoutez des tâches dans le tableau</p>
           </div>
         )}
 
-        {pert.nodes.length > 0 && (
-          <div className="space-y-3">
-            {/* KPIs + compression PMI */}
-            <div className="grid grid-cols-4 gap-3">
-              <div className="bg-card border border-border rounded-xl p-3">
-                <p className="text-xs text-muted-foreground mb-1">Durée totale</p>
-                <p className="text-xl font-bold text-foreground">{totalDuration}j</p>
+        {/* KPIs */}
+        {computed.length>0 && (
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:14 }}>
+            {[
+              { label:"Tâches",        value:computed.length,                            color:"var(--primary)" },
+              { label:"Durée totale",  value:`${totalDur}j`,                             color:"var(--text-1)" },
+              { label:"Nœuds critiques",value:critCount,                                 color:"#dc2626" },
+              { label:"Marge max",     value:`${Math.max(...computed.map(t=>t.slack),0)}j`, color:"#27500A" },
+            ].map(k=>(
+              <div key={k.label} style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r8)", padding:"12px 14px" }}>
+                <p style={{ fontSize:10, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:"0.6px", margin:"0 0 4px" }}>{k.label}</p>
+                <p style={{ fontSize:20, fontWeight:700, color:k.color, margin:0 }}>{k.value}</p>
               </div>
-              <div className="bg-card border border-red-500/20 rounded-xl p-3">
-                <p className="text-xs text-muted-foreground mb-1">Nœuds critiques</p>
-                <p className="text-xl font-bold text-red-400">{pert.nodes.filter(n=>n.critical).length}</p>
-              </div>
-              <div className="col-span-2 bg-card border border-border rounded-xl p-3">
-                <p className="text-xs text-muted-foreground mb-1">Chemin critique</p>
-                <p className="text-xs text-red-400 font-medium truncate">{critPath || "—"}</p>
+            ))}
+          </div>
+        )}
+
+        {/* Layout 2 colonnes : tableau + SVG */}
+        <div style={{ display:"grid", gridTemplateColumns:"380px 1fr", gap:14 }}>
+
+          {/* ── TABLEAU DES TÂCHES ── */}
+          <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r12)", overflow:"hidden", alignSelf:"start" }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 14px", borderBottom:"1px solid var(--border)", background:"var(--bg)" }}>
+              <span style={{ fontSize:12, fontWeight:600, color:"var(--text-1)" }}>📋 Tâches & Dépendances</span>
+              <div style={{ display:"flex", gap:6 }}>
+                <button onClick={relayout}
+                  style={{ fontSize:11, padding:"4px 10px", background:"var(--primary-bg)", border:"1px solid #B5D4F4", borderRadius:"var(--r6)", color:"var(--primary-t)", cursor:"pointer" }}>
+                  ♻️ Relayout
+                </button>
+                <button onClick={()=>setShowAddRow(true)}
+                  style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, padding:"4px 10px", background:"var(--primary)", border:"none", borderRadius:"var(--r6)", color:"#fff", cursor:"pointer" }}>
+                  <Plus size={12}/> Ajouter
+                </button>
               </div>
             </div>
 
-            {/* Toolbar */}
-            <div className="flex gap-2 flex-wrap items-center">
-              {/* Phase legend */}
-              {phases.map((p,i) => (
-                <div key={p} className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-sm" style={{ background: PHASE_COLORS[i%PHASE_COLORS.length] }}/>
-                  <span className="text-xs text-muted-foreground">{p}</span>
+            <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+              <thead>
+                <tr style={{ background:"var(--bg)", borderBottom:"1px solid var(--border)" }}>
+                  {["ID","Nom","Durée","Dépendances","EST","EFT","Marge",""].map(h=>(
+                    <th key={h} style={{ padding:"7px 10px", textAlign:"left", fontSize:10, fontWeight:600, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:"0.5px", whiteSpace:"nowrap" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {/* Ligne d'ajout */}
+                {showAddRow && (
+                  <tr style={{ background:"#eff6ff", borderBottom:"1px solid var(--border)" }}>
+                    <td style={{ padding:"6px 8px" }}>
+                      <input value={newTask.id} onChange={e=>setNewTask(p=>({...p,id:e.target.value}))} placeholder="T6" {...INPUT}/>
+                    </td>
+                    <td style={{ padding:"6px 8px" }}>
+                      <input value={newTask.name} onChange={e=>setNewTask(p=>({...p,name:e.target.value}))} placeholder="Nom..." {...INPUT}/>
+                    </td>
+                    <td style={{ padding:"6px 8px" }}>
+                      <input type="number" value={newTask.duration} onChange={e=>setNewTask(p=>({...p,duration:+e.target.value}))} min={1} style={{...INPUT.style, width:55}}/>
+                    </td>
+                    <td style={{ padding:"6px 8px" }}>
+                      <input value={newTask.deps} onChange={e=>setNewTask(p=>({...p,deps:e.target.value}))} placeholder="T1,T2" {...INPUT}/>
+                    </td>
+                    <td colSpan={3}/>
+                    <td style={{ padding:"6px 8px" }}>
+                      <div style={{ display:"flex", gap:4 }}>
+                        <button onClick={addTask} style={{ padding:"3px 8px", background:"#185FA5", color:"#fff", border:"none", borderRadius:"var(--r6)", cursor:"pointer", fontSize:11 }}>✓</button>
+                        <button onClick={()=>setShowAddRow(false)} style={{ padding:"3px 8px", background:"var(--border)", color:"var(--text-1)", border:"none", borderRadius:"var(--r6)", cursor:"pointer", fontSize:11 }}>✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+
+                {computed.map((task,i) => (
+                  <tr key={task.id}
+                    onClick={()=>setSelected(task.id===selected?null:task.id)}
+                    style={{ borderBottom:"1px solid var(--border)", background:task.id===selected?"#eff6ff":task.critical?"#fef2f2":i%2===0?"#fff":"var(--bg)", cursor:"pointer", borderLeft:`3px solid ${task.critical?"#dc2626":"transparent"}` }}>
+
+                    {editingRow===task.id ? (
+                      <>
+                        <td style={{ padding:"5px 8px" }}>
+                          <span style={{ fontSize:12, fontWeight:700, color:task.critical?"#dc2626":"var(--primary)" }}>{task.id}</span>
+                        </td>
+                        <td style={{ padding:"5px 8px" }}>
+                          <input value={editBuf.name??""} onChange={e=>setEditBuf(p=>({...p,name:e.target.value}))} {...INPUT}/>
+                        </td>
+                        <td style={{ padding:"5px 8px" }}>
+                          <input type="number" value={editBuf.duration??0} onChange={e=>setEditBuf(p=>({...p,duration:+e.target.value}))} min={1} style={{...INPUT.style,width:55}}/>
+                        </td>
+                        <td style={{ padding:"5px 8px" }}>
+                          <input value={Array.isArray(editBuf.deps)?(editBuf.deps as string[]).join(","):((editBuf.deps as any)??"")} 
+                            onChange={e=>setEditBuf(p=>({...p,deps:e.target.value.split(",").map((d:string)=>d.trim()).filter(Boolean)}))} placeholder="T1,T2" {...INPUT}/>
+                        </td>
+                        <td colSpan={3}/>
+                        <td style={{ padding:"5px 8px" }}>
+                          <div style={{ display:"flex", gap:4 }}>
+                            <button onClick={confirmEdit} style={{ padding:"3px 8px", background:"#185FA5", color:"#fff", border:"none", borderRadius:"var(--r6)", cursor:"pointer" }}>✓</button>
+                            <button onClick={cancelEdit} style={{ padding:"3px 8px", background:"var(--border)", color:"var(--text-1)", border:"none", borderRadius:"var(--r6)", cursor:"pointer" }}>✕</button>
+                          </div>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td style={{ padding:"7px 10px", fontWeight:700, color:task.critical?"#dc2626":"var(--primary)" }}>{task.id}</td>
+                        <td style={{ padding:"7px 10px", color:"var(--text-1)", maxWidth:120, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }} title={task.name}>{task.name}</td>
+                        <td style={{ padding:"7px 10px", textAlign:"center", fontWeight:600, color:"var(--text-1)" }}>{task.duration}j</td>
+                        <td style={{ padding:"7px 10px", color:"var(--text-2)", fontSize:11 }}>{task.deps.join(", ")||"—"}</td>
+                        <td style={{ padding:"7px 10px", textAlign:"center", color:"#185FA5", fontWeight:600 }}>{task.est}</td>
+                        <td style={{ padding:"7px 10px", textAlign:"center", color:"#185FA5", fontWeight:600 }}>{task.eft}</td>
+                        <td style={{ padding:"7px 10px", textAlign:"center", fontWeight:700, color:task.critical?"#dc2626":"#27500A" }}>
+                          {task.critical ? <span style={{ fontSize:10, background:"#FCEBEB", color:"#A32D2D", borderRadius:10, padding:"2px 6px" }}>Critique</span> : task.slack+"j"}
+                        </td>
+                        <td style={{ padding:"7px 10px" }}>
+                          <div style={{ display:"flex", gap:4, opacity:0 }} className="row-actions"
+                            onMouseEnter={e=>(e.currentTarget as any).style.opacity=1}
+                            onMouseLeave={e=>(e.currentTarget as any).style.opacity=0}>
+                            <button onClick={e=>{e.stopPropagation();startEdit(task)}}
+                              style={{ fontSize:10, padding:"2px 7px", background:"var(--primary-bg)", border:"1px solid #B5D4F4", borderRadius:"var(--r6)", color:"var(--primary-t)", cursor:"pointer" }}>✏️</button>
+                            <button onClick={e=>{e.stopPropagation();deleteTask(task.id)}}
+                              style={{ fontSize:10, padding:"2px 7px", background:"#FCEBEB", border:"1px solid #FCA5A5", borderRadius:"var(--r6)", color:"#A32D2D", cursor:"pointer" }}>🗑️</button>
+                          </div>
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Légende */}
+            <div style={{ padding:"10px 14px", borderTop:"1px solid var(--border)", background:"var(--bg)", display:"flex", gap:12, flexWrap:"wrap" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                <div style={{ width:12, height:12, borderRadius:"50%", background:"#fef2f2", border:"2px solid #dc2626" }}/>
+                <span style={{ fontSize:10, color:"var(--text-3)" }}>Chemin critique</span>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                <div style={{ width:12, height:12, borderRadius:"50%", background:"#eff6ff", border:"2px solid #185FA5" }}/>
+                <span style={{ fontSize:10, color:"var(--text-3)" }}>Normal</span>
+              </div>
+              <span style={{ fontSize:10, color:"var(--text-3)", marginLeft:"auto" }}>Clic → sélectionner · Glisser → déplacer</span>
+            </div>
+          </div>
+
+          {/* ── DIAGRAMME PERT SVG ── */}
+          <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r12)", overflow:"hidden", display:"flex", flexDirection:"column" }}>
+            {/* Toolbar SVG */}
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"10px 14px", borderBottom:"1px solid var(--border)", background:"var(--bg)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                {/* Légende quadrants */}
+                <div style={{ background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r6)", padding:"4px 10px", fontSize:10, color:"var(--text-2)" }}>
+                  <span style={{ color:"#185FA5", fontWeight:600 }}>EST | EFT</span> · ID · <span style={{ color:"#185FA5", fontWeight:600 }}>LST | LFT</span>
                 </div>
-              ))}
-              <div className="flex items-center gap-1.5 ml-2">
-                <div className="w-8 h-0.5 bg-red-500"/>
-                <span className="text-xs text-muted-foreground">Critique</span>
               </div>
-
-              {/* PMI Compression */}
-              <div className="ml-auto flex gap-2">
-                <button onClick={applyFastTrack}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-500/10 border border-purple-500/30 text-purple-400 rounded-lg text-xs font-medium hover:bg-purple-500/20 transition-colors"
-                  title="Fast Tracking — paralléliser les tâches critiques">
-                  <GitMerge size={13}/> Fast Tracking
-                </button>
-                <button onClick={applyCrashing}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-lg text-xs font-medium hover:bg-amber-500/20 transition-colors"
-                  title="Crashing — réduire les durées critiques (coût supplémentaire)">
-                  <Zap size={13}/> Crashing
-                </button>
-                <button onClick={() => setAddingEdge(addingEdge ? null : "select")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-lg text-xs font-medium transition-colors ${addingEdge ? "bg-blue-500 border-blue-500 text-white" : "bg-card border-border text-muted-foreground hover:text-foreground"}`}
-                  title="Créer un lien : cliquez sur le nœud source puis le nœud cible">
-                  <Plus size={13}/> {addingEdge ? "Cliquez la cible" : "Ajouter lien"}
-                </button>
-              </div>
-
-              {/* Zoom controls */}
-              <div className="flex gap-1 bg-card border border-border rounded-lg p-0.5">
-                <button onClick={() => setScale(s => Math.min(3, s*1.2))} className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground rounded" title="Zoom +"><ZoomIn size={13}/></button>
-                <button onClick={() => setScale(s => Math.max(0.2, s*0.8))} className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground rounded" title="Zoom -"><ZoomOut size={13}/></button>
-                <span className="flex items-center px-1.5 text-[10px] text-muted-foreground min-w-8 justify-center">{Math.round(scale*100)}%</span>
-                <button onClick={() => { setScale(1); setOffset({ x: 40, y: 20 }) }} className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground rounded" title="Reset"><RotateCcw size={12}/></button>
+              <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+                <button onClick={()=>setScale(s=>Math.min(3,s*1.2))} style={{ width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r6)", cursor:"pointer" }}><ZoomIn size={13}/></button>
+                <button onClick={()=>setScale(s=>Math.max(0.25,s*0.8))} style={{ width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r6)", cursor:"pointer" }}><ZoomOut size={13}/></button>
+                <span style={{ fontSize:10, color:"var(--text-3)", minWidth:32, textAlign:"center" }}>{Math.round(scale*100)}%</span>
+                <button onClick={()=>{setScale(1);setOffset({x:40,y:60})}} style={{ width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r6)", cursor:"pointer" }}><RotateCcw size={12}/></button>
               </div>
             </div>
 
-            {addingEdge && addingEdge !== "select" && (
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg px-4 py-2 text-xs text-blue-400">
-                Source : <strong>{pert.nodes.find(n=>n.id===addingEdge)?.name}</strong> — Cliquez maintenant sur le nœud de destination
-              </div>
-            )}
+            {/* SVG canvas */}
+            <div ref={containerRef} style={{ flex:1, overflow:"hidden", minHeight:480, position:"relative",
+              cursor:panning?"grabbing":draggingNode?"grabbing":"grab",
+              background:"repeating-linear-gradient(0deg,transparent,transparent 39px,#f1f5f9 39px,#f1f5f9 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,#f1f5f9 39px,#f1f5f9 40px)" }}>
 
-            {/* SVG Canvas */}
-            <div ref={containerRef}
-              className="bg-card border border-border rounded-xl overflow-hidden relative"
-              style={{ height: 560, cursor: addingEdge ? "crosshair" : panning ? "grabbing" : "grab" }}
-              onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}>
-
-              {/* Zoom indicator */}
-              <div className="absolute bottom-3 left-3 z-10">
-                <span className="text-xs text-muted-foreground bg-card/80 border border-border rounded px-2 py-1">
-                  Molette = zoom · Glisser = déplacer · Cliquer nœud = sélectionner
-                </span>
+              {/* Hint */}
+              <div style={{ position:"absolute", bottom:10, left:12, fontSize:10, color:"var(--text-3)", zIndex:10 }}>
+                Molette = zoom · Glisser fond = déplacer · Glisser cercle = repositionner
               </div>
 
               <svg ref={svgRef} width="100%" height="100%"
                 onMouseDown={onSVGMouseDown}
-                style={{ display: "block" }}>
-                <defs>
-                  <pattern id="pertgrid" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M40 0L0 0 0 40" fill="none" stroke="#1e293b" strokeWidth="0.5"/>
-                  </pattern>
-                  {/* Normal arrow */}
-                  <marker id="arrow-normal" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                    <polygon points="0 0, 8 3, 0 6" fill="#475569"/>
-                  </marker>
-                  {/* Critical arrow */}
-                  <marker id="arrow-critical" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                    <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
-                  </marker>
-                </defs>
-
-                <rect width="100%" height="100%" fill="url(#pertgrid)" opacity="0.6"/>
+                style={{ display:"block" }}>
 
                 <g transform={`translate(${offset.x},${offset.y}) scale(${scale})`}>
+                  {/* Grille de fond */}
+                  <defs>
+                    <marker id="arr-c" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+                      <polygon points="0 0,8 3,0 6" fill="#dc2626"/>
+                    </marker>
+                    <marker id="arr-n" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+                      <polygon points="0 0,8 3,0 6" fill="#64748b"/>
+                    </marker>
+                  </defs>
 
-                  {/* ── EDGES ── */}
-                  {pert.edges.map((edge, i) => {
-                    const from = pert.nodes.find(n => n.id === edge.from)
-                    const to = pert.nodes.find(n => n.id === edge.to)
-                    if (!from || !to) return null
-                    const isCrit = from.critical && to.critical
-                    const path = edgePath(from, to)
-                    // Midpoint for delete button
-                    const mx = (from.x + NODE_W + to.x) / 2
-                    const my = (from.y + to.y + NODE_H) / 2
-                    return (
-                      <g key={`${edge.from}-${edge.to}`}>
-                        <path d={path} fill="none"
-                          stroke={isCrit ? "#ef4444" : "#475569"}
-                          strokeWidth={isCrit ? 2.5 : 1.5}
-                          strokeDasharray={isCrit ? "none" : "none"}
-                          markerEnd={`url(#arrow-${isCrit ? "critical" : "normal"})`}
-                          style={{ filter: isCrit ? "drop-shadow(0 0 3px rgba(239,68,68,0.5))" : "none" }}/>
-                        {/* Invisible wider click target */}
-                        <path d={path} fill="none" stroke="transparent" strokeWidth={12}
-                          style={{ cursor: "pointer" }}
-                          onClick={() => deleteEdge(edge.from, edge.to)}>
-                          <title>Cliquer pour supprimer ce lien</title>
-                        </path>
-                      </g>
-                    )
-                  })}
+                  {/* ── Flèches ── */}
+                  {computed.flatMap(task =>
+                    task.deps.map(depId => {
+                      const from = computed.find(t=>t.id===depId)
+                      if (!from) return null
+                      const isCrit = from.critical && task.critical
+                      return (
+                        <Arrow key={`${depId}-${task.id}`}
+                          from={from} to={task}
+                          label={`${task.name.slice(0,1)} ${task.duration}`}
+                          critical={isCrit}/>
+                      )
+                    })
+                  )}
 
-                  {/* ── NODES ── */}
-                  {pert.nodes.map(node => {
-                    const color = phaseColor(node.phase)
-                    const isSel = selected === node.id
-                    const isCrit = node.critical
-                    const isAddSrc = addingEdge === node.id
-
-                    return (
-                      <g key={node.id}
-                        onMouseDown={e => onNodeMouseDown(e, node)}
-                        onClick={() => { if (!addingEdge || addingEdge === "select") { setAddingEdge(node.id); setSelected(node.id) } }}
-                        style={{ cursor: addingEdge ? "crosshair" : "grab" }}>
-
-                        {/* Shadow/glow for critical */}
-                        {isCrit && (
-                          <rect x={node.x-2} y={node.y-2} width={NODE_W+4} height={NODE_H+4} rx={8}
-                            fill="none" stroke="#ef4444" strokeWidth={1} opacity={0.3}/>
-                        )}
-
-                        {/* Main box */}
-                        <rect x={node.x} y={node.y} width={NODE_W} height={NODE_H} rx={6}
-                          fill="#0f172a"
-                          stroke={isAddSrc ? "#60a5fa" : isSel ? color : isCrit ? "#ef4444" : color}
-                          strokeWidth={isAddSrc ? 3 : isSel ? 2.5 : isCrit ? 2 : 1.5}/>
-
-                        {/* Header bar */}
-                        <rect x={node.x} y={node.y} width={NODE_W} height={16} rx={6} fill={isCrit ? "#7f1d1d" : color + "55"}/>
-                        <rect x={node.x} y={node.y+10} width={NODE_W} height={6} fill={isCrit ? "#7f1d1d" : color + "55"}/>
-
-                        {/* Name */}
-                        <text x={node.x + NODE_W/2} y={node.y + 12} textAnchor="middle"
-                          fill={isCrit ? "#fca5a5" : "#f1f5f9"} fontSize="9" fontWeight="600">
-                          {node.name.length > 17 ? node.name.slice(0,16)+"…" : node.name}
-                        </text>
-
-                        {/* Divider */}
-                        <line x1={node.x} y1={node.y+22} x2={node.x+NODE_W} y2={node.y+22} stroke="#1e293b" strokeWidth={0.5}/>
-                        <line x1={node.x+NODE_W/2} y1={node.y+16} x2={node.x+NODE_W/2} y2={node.y+22} stroke="#1e293b" strokeWidth={0.5}/>
-
-                        {/* EST | EFT */}
-                        <text x={node.x+NODE_W/4} y={node.y+20} textAnchor="middle" fill="#60a5fa" fontSize="8">EST:{node.est}</text>
-                        <text x={node.x+3*NODE_W/4} y={node.y+20} textAnchor="middle" fill="#60a5fa" fontSize="8">EFT:{node.eft}</text>
-
-                        {/* Duration center */}
-                        <text x={node.x+NODE_W/2} y={node.y+42} textAnchor="middle"
-                          fill={isCrit?"#fca5a5":"#f1f5f9"} fontSize="16" fontWeight="700">{node.duration_exp}j</text>
-
-                        {/* o/m/p */}
-                        <text x={node.x+NODE_W/2} y={node.y+53} textAnchor="middle" fill="#475569" fontSize="8">
-                          o:{node.duration_o} m:{node.duration_m} p:{node.duration_p}
-                        </text>
-
-                        {/* Divider bottom */}
-                        <line x1={node.x} y1={node.y+57} x2={node.x+NODE_W} y2={node.y+57} stroke="#1e293b" strokeWidth={0.5}/>
-                        <line x1={node.x+NODE_W/2} y1={node.y+57} x2={node.x+NODE_W/2} y2={node.y+NODE_H} stroke="#1e293b" strokeWidth={0.5}/>
-
-                        {/* LST | LFT */}
-                        <text x={node.x+NODE_W/4} y={node.y+69} textAnchor="middle" fill="#a78bfa" fontSize="8">LST:{node.lst}</text>
-                        <text x={node.x+3*NODE_W/4} y={node.y+69} textAnchor="middle" fill="#a78bfa" fontSize="8">LFT:{node.lft}</text>
-
-                        {/* Critical badge */}
-                        {isCrit ? (
-                          <g>
-                            <rect x={node.x+NODE_W-26} y={node.y+1} width={24} height={13} rx={3} fill="#ef4444"/>
-                            <text x={node.x+NODE_W-14} y={node.y+10} textAnchor="middle" fill="#fff" fontSize="8" fontWeight="700">CR</text>
-                          </g>
-                        ) : (
-                          <text x={node.x+NODE_W-4} y={node.y+12} textAnchor="end" fill="#22c55e" fontSize="8">▼{node.slack.toFixed(0)}</text>
-                        )}
-                      </g>
-                    )
-                  })}
+                  {/* ── Nœuds ── */}
+                  {computed.map(task => (
+                    <PERTCircle key={task.id} task={task}
+                      selected={selected===task.id}
+                      onSelect={()=>setSelected(task.id===selected?null:task.id)}
+                      onDrag={e=>onNodeMouseDown(e,task.id)}
+                      dragging={draggingNode?.id===task.id}/>
+                  ))}
                 </g>
               </svg>
             </div>
 
-            {/* Edit panel */}
-            {selected && !addingEdge && (() => {
-              const node = pert.nodes.find(n => n.id === selected)
-              if (!node) return null
-              if (editNode?.id === selected) {
-                return (
-                  <div className="bg-card border border-primary/40 rounded-xl p-4">
-                    <p className="text-sm font-semibold text-foreground mb-3">✏️ Modifier : {editNode.name}</p>
-                    <div className="grid grid-cols-5 gap-3">
-                      <div className="col-span-2">
-                        <label className="text-xs text-muted-foreground block mb-1">Nom</label>
-                        <input value={editNode.name} onChange={e => setEditNode({...editNode, name:e.target.value})}
-                          className="w-full bg-background border border-border rounded px-2 py-1.5 text-sm text-foreground"/>
-                      </div>
-                      {[
-                        { label:"Optimiste (o)", key:"duration_o" },
-                        { label:"Probable (m)", key:"duration_m" },
-                        { label:"Pessimiste (p)", key:"duration_p" },
-                        { label:"Phase", key:"phase" },
-                      ].map(f => (
-                        <div key={f.key}>
-                          <label className="text-xs text-muted-foreground block mb-1">{f.label}</label>
-                          <input type={f.key.includes("duration")?"number":"text"}
-                            value={(editNode as any)[f.key]}
-                            onChange={e => {
-                              const val = f.key.includes("duration") ? +e.target.value : e.target.value
-                              const updated: any = {...editNode, [f.key]: val}
-                              if (f.key.includes("duration")) {
-                                updated.duration_exp = Math.round((updated.duration_o + 4*updated.duration_m + updated.duration_p) / 6)
-                                updated.variance = Math.pow((updated.duration_p - updated.duration_o)/6, 2)
-                              }
-                              setEditNode(updated)
-                            }}
-                            className="w-full bg-background border border-border rounded px-2 py-1.5 text-sm text-foreground"/>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex gap-2 mt-3">
-                      <button onClick={async () => {
-                        const updated = pert.nodes.map(n => n.id===editNode.id ? editNode : n)
-                        await savePert({ ...pert, nodes: updated })
-                        setEditNode(null); toast.success("Nœud mis à jour")
-                      }} className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-medium">
-                        <Check size={13}/> Sauvegarder
-                      </button>
-                      <button onClick={() => setEditNode(null)} className="px-3 py-1.5 bg-muted text-foreground rounded-lg text-xs">
-                        Annuler
-                      </button>
-                      <button onClick={async () => {
-                        const newNodes = pert.nodes.filter(n => n.id !== selected)
-                        const newEdges = pert.edges.filter(e => e.from !== selected && e.to !== selected)
-                        await savePert({ nodes: newNodes, edges: newEdges })
-                        setSelected(null); setEditNode(null)
-                        toast.success("Nœud supprimé")
-                      }} className="ml-auto px-3 py-1.5 bg-destructive/20 text-destructive rounded-lg text-xs">
-                        Supprimer nœud
-                      </button>
-                    </div>
-                  </div>
-                )
-              }
-              return (
-                <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-6 flex-wrap">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">Nœud sélectionné</p>
-                    <p className="font-semibold text-foreground">{node.name}</p>
-                    <p className="text-xs text-muted-foreground">{node.phase}</p>
-                  </div>
-                  {[
-                    { label:"Durée espérée", value:`${node.duration_exp}j`, color:"#e2e8f0" },
-                    { label:"o/m/p", value:`${node.duration_o}/${node.duration_m}/${node.duration_p}`, color:"#94a3b8" },
-                    { label:"EST → EFT", value:`${node.est} → ${node.eft}`, color:"#60a5fa" },
-                    { label:"LST → LFT", value:`${node.lst} → ${node.lft}`, color:"#a78bfa" },
-                    { label:"Marge", value:node.critical?"Critique ⚠️":`${node.slack.toFixed(0)}j`, color:node.critical?"#ef4444":"#22c55e" },
-                    { label:"Variance", value:node.variance.toFixed(2), color:"#f59e0b" },
-                  ].map(item => (
-                    <div key={item.label}>
-                      <p className="text-xs text-muted-foreground mb-0.5">{item.label}</p>
-                      <p className="text-sm font-bold" style={{ color: item.color }}>{item.value}</p>
-                    </div>
-                  ))}
-                  <div className="ml-auto flex gap-2">
-                    <button onClick={() => setEditNode({...node})}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-card border border-border text-muted-foreground hover:text-foreground rounded-lg text-xs transition-colors">
-                      <Pencil size={13}/> Modifier
-                    </button>
-                    <button onClick={() => setAddingEdge(node.id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-lg text-xs">
-                      <Plus size={13}/> Lier
-                    </button>
-                  </div>
+            {/* Détail nœud sélectionné */}
+            {selectedTask && (
+              <div style={{ padding:"12px 16px", borderTop:"1px solid var(--border)", background:selectedTask.critical?"#fef2f2":"var(--bg)", display:"flex", gap:20, flexWrap:"wrap", alignItems:"center" }}>
+                <div>
+                  <p style={{ fontSize:12, fontWeight:700, color:selectedTask.critical?"#dc2626":"var(--text-1)", margin:0 }}>{selectedTask.id} — {selectedTask.name}</p>
+                  <p style={{ fontSize:11, color:"var(--text-3)", margin:"2px 0 0" }}>Durée : {selectedTask.duration}j · Dépend de : {selectedTask.deps.join(", ")||"—"}</p>
                 </div>
-              )
-            })()}
-
-            {/* Guide compression PMI */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-purple-500/5 border border-purple-500/20 rounded-xl p-4">
-                <p className="text-xs font-semibold text-purple-400 mb-1 flex items-center gap-1.5"><GitMerge size={12}/> Fast Tracking (PMI)</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">Paralléliser des tâches normalement séquentielles. Réduit la durée mais augmente les risques. Applique automatiquement sur le chemin critique.</p>
+                {[
+                  { label:"EST", value:selectedTask.est, color:"#185FA5" },
+                  { label:"EFT", value:selectedTask.eft, color:"#185FA5" },
+                  { label:"LST", value:selectedTask.lst, color:"#3C3489" },
+                  { label:"LFT", value:selectedTask.lft, color:"#3C3489" },
+                  { label:"Marge", value:selectedTask.critical?"Critique ⚠️":`${selectedTask.slack}j`, color:selectedTask.critical?"#A32D2D":"#27500A" },
+                ].map(k=>(
+                  <div key={k.label} style={{ textAlign:"center" }}>
+                    <p style={{ fontSize:10, color:"var(--text-3)", margin:"0 0 2px", textTransform:"uppercase" }}>{k.label}</p>
+                    <p style={{ fontSize:15, fontWeight:700, color:k.color, margin:0 }}>{k.value}</p>
+                  </div>
+                ))}
               </div>
-              <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
-                <p className="text-xs font-semibold text-amber-400 mb-1 flex items-center gap-1.5"><Zap size={12}/> Crashing (PMI)</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">Ajouter des ressources pour réduire les durées critiques vers leur estimé optimiste. Coût supplémentaire mais délai garanti.</p>
-              </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Guide */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10, marginTop:14 }}>
+          <div style={{ background:"#EEEDFE", border:"1px solid #C4C2F5", borderRadius:"var(--r8)", padding:"12px 14px" }}>
+            <p style={{ fontSize:11, fontWeight:600, color:"#3C3489", margin:"0 0 4px" }}>
+              <GitMerge size={12} style={{ display:"inline", marginRight:4 }}/>Fast Tracking (PMI)
+            </p>
+            <p style={{ fontSize:11, color:"#4C4A8A", margin:0, lineHeight:1.5 }}>
+              Paralléliser des tâches normalement séquentielles pour réduire la durée du projet. Risque accru.
+            </p>
+          </div>
+          <div style={{ background:"#FAEEDA", border:"1px solid #EF9F27", borderRadius:"var(--r8)", padding:"12px 14px" }}>
+            <p style={{ fontSize:11, fontWeight:600, color:"#854F0B", margin:"0 0 4px" }}>
+              <Zap size={12} style={{ display:"inline", marginRight:4 }}/>Crashing (PMI)
+            </p>
+            <p style={{ fontSize:11, color:"#7A4809", margin:0, lineHeight:1.5 }}>
+              Ajouter des ressources sur les tâches critiques pour réduire leur durée. Coût supplémentaire.
+            </p>
+          </div>
+        </div>
+
       </ToolLayout>
     </AppLayout>
   )
