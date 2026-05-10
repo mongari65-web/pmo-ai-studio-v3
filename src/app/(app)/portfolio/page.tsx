@@ -71,20 +71,32 @@ export default function PortfolioPage() {
     })
     const globalCPI = totalAC > 0 ? totalEV / totalAC : null
 
-    // Risques critiques totaux
+    // Risques critiques par projet
     let criticalRisks = 0
+    const raidAlerts: { projectId: string; projectName: string; count: number }[] = []
     toolData.filter(t => t.tool_type === "raid").forEach(t => {
-      criticalRisks += (t.data?.items ?? []).filter((i: any) => i.priority === "Critique" && i.status === "Ouvert").length
+      const count = (t.data?.items ?? []).filter((i: any) => i.priority === "Critique" && i.status === "Ouvert").length
+      criticalRisks += count
+      if (count > 0) {
+        const proj = projects.find(p => p.id === t.project_id)
+        if (proj) raidAlerts.push({ projectId: proj.id, projectName: proj.name, count })
+      }
     })
 
-    // Jalons en retard
+    // Jalons en retard par projet
     const today = new Date().toISOString().split("T")[0]
     let lateJalons = 0
+    const jalonAlerts: { projectId: string; projectName: string; count: number }[] = []
     toolData.filter(t => t.tool_type === "jalons").forEach(t => {
-      lateJalons += (t.data?.jalons ?? []).filter((j: any) => j.date < today && j.status !== "Atteint").length
+      const count = (t.data?.jalons ?? []).filter((j: any) => j.date < today && j.status !== "Atteint").length
+      lateJalons += count
+      if (count > 0) {
+        const proj = projects.find(p => p.id === t.project_id)
+        if (proj) jalonAlerts.push({ projectId: proj.id, projectName: proj.name, count })
+      }
     })
 
-    return { active: active.length, completed: completed.length, totalBudget, avgCompletion, globalCPI, criticalRisks, lateJalons, totalBAC }
+    return { active: active.length, completed: completed.length, totalBudget, avgCompletion, globalCPI, criticalRisks, lateJalons, totalBAC, raidAlerts, jalonAlerts }
   }, [projects, toolData])
 
   // ── Charts data ────────────────────────────────────────────
@@ -188,21 +200,45 @@ export default function PortfolioPage() {
           ))}
         </div>
 
-        {/* Alertes portfolio */}
+        {/* Alertes portfolio cliquables */}
         {(kpis.criticalRisks > 0 || kpis.lateJalons > 0) && (
-          <div className="flex gap-3">
-            {kpis.criticalRisks > 0 && (
-              <div className="flex-1 flex items-center gap-3 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
-                <AlertTriangle size={16} className="text-red-400 flex-shrink-0"/>
-                <p className="text-sm text-red-400 font-medium">{kpis.criticalRisks} risque{kpis.criticalRisks>1?"s":""} critique{kpis.criticalRisks>1?"s":""} ouvert{kpis.criticalRisks>1?"s":""} sur le portfolio</p>
-              </div>
-            )}
-            {kpis.lateJalons > 0 && (
-              <div className="flex-1 flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
-                <Clock size={16} className="text-amber-400 flex-shrink-0"/>
-                <p className="text-sm text-amber-400 font-medium">{kpis.lateJalons} jalon{kpis.lateJalons>1?"s":""} en retard sur le portfolio</p>
-              </div>
-            )}
+          <div className="space-y-2">
+            {/* RAID critiques — 1 ligne par projet */}
+            {kpis.raidAlerts?.map(alert => (
+              <Link key={alert.projectId} href={`/projects/${alert.projectId}/raid`}
+                className="flex items-center justify-between gap-3 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 hover:bg-red-500/15 hover:border-red-500/40 transition-all group">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle size={16} className="text-red-400 flex-shrink-0"/>
+                  <div>
+                    <p className="text-sm text-red-400 font-medium">
+                      {alert.count} risque{alert.count>1?"s":""} critique{alert.count>1?"s":""} ouvert{alert.count>1?"s":""}
+                    </p>
+                    <p className="text-xs text-red-400/70">{alert.projectName}</p>
+                  </div>
+                </div>
+                <span className="text-xs text-red-400 group-hover:text-red-300 flex items-center gap-1">
+                  Voir le RAID <ArrowUpRight size={12}/>
+                </span>
+              </Link>
+            ))}
+            {/* Jalons en retard — 1 ligne par projet */}
+            {kpis.jalonAlerts?.map(alert => (
+              <Link key={alert.projectId} href={`/projects/${alert.projectId}/jalons`}
+                className="flex items-center justify-between gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 hover:bg-amber-500/15 hover:border-amber-500/40 transition-all group">
+                <div className="flex items-center gap-3">
+                  <Clock size={16} className="text-amber-400 flex-shrink-0"/>
+                  <div>
+                    <p className="text-sm text-amber-400 font-medium">
+                      {alert.count} jalon{alert.count>1?"s":""} en retard
+                    </p>
+                    <p className="text-xs text-amber-400/70">{alert.projectName}</p>
+                  </div>
+                </div>
+                <span className="text-xs text-amber-400 group-hover:text-amber-300 flex items-center gap-1">
+                  Voir les jalons <ArrowUpRight size={12}/>
+                </span>
+              </Link>
+            ))}
           </div>
         )}
 
