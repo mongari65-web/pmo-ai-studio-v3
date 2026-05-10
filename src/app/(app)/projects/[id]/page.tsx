@@ -135,7 +135,11 @@ export default function ProjectPage() {
 
           {/* Members button */}
         <div className="flex justify-end">
-          <Link href={`/projects/${id}/members`}
+          <Link href={`/projects/${id}/report`}
+              className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 rounded-lg text-sm font-medium transition-colors">
+              <FileText size={14}/> Rapport PDF
+            </Link>
+            <Link href={`/projects/${id}/members`}
             className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 rounded-lg text-sm font-medium transition-colors">
             <UserPlus size={14}/> Gérer les membres
           </Link>
