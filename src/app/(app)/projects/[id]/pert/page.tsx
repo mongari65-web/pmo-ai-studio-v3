@@ -629,32 +629,42 @@ export default function PERTPage() {
               </div>
             </div>
 
-            {/* SVG canvas */}
-            <div ref={containerRef} style={{ flex:1, overflowX:"scroll", overflowY:"hidden", scrollbarWidth:"thin", scrollbarColor:"#94a3b8 #f1f5f9", minHeight:480, position:"relative",
-              cursor:panning?"grabbing":draggingNode?"grabbing":"grab",
-              background:"repeating-linear-gradient(0deg,transparent,transparent 39px,#f1f5f9 39px,#f1f5f9 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,#f1f5f9 39px,#f1f5f9 40px)" }}>
-
+            {/* SVG canvas avec scroll horizontal garanti */}
+            <div style={{
+              width: "100%",
+              overflowX: "scroll",
+              overflowY: "hidden",
+              minHeight: 500,
+              position: "relative",
+              background: "repeating-linear-gradient(0deg,transparent,transparent 39px,#f1f5f9 39px,#f1f5f9 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,#f1f5f9 39px,#f1f5f9 40px)",
+              borderBottom: "1px solid var(--border)"
+            }}>
               {/* Hint */}
-              <div style={{ position:"absolute", bottom:10, left:12, fontSize:10, color:"var(--text-3)", zIndex:10 }}>
-                Molette = zoom · Glisser fond = déplacer · Glisser cercle = repositionner
+              <div style={{ position:"absolute", bottom:8, left:12, fontSize:10, color:"var(--text-3)", zIndex:10, background:"rgba(255,255,255,0.8)", padding:"2px 8px", borderRadius:4 }}>
+                Molette = zoom · Glisser fond = déplacer · Glisser cercle = repositionner · Scrollbar bas = naviguer
               </div>
 
-              <svg ref={svgRef}
-                width={Math.max(1200, svgW + 200)}
-                height={Math.max(480, (svgH + 100) * scale)}
+              <svg
+                ref={svgRef}
+                width={Math.max(2400, computed.length * 200)}
+                height={Math.max(520, svgH + 120)}
                 onMouseDown={onSVGMouseDown}
-                style={{ display:"block", minWidth:"100%" }}>
+                onWheel={e => {
+                  e.preventDefault()
+                  setScale(s => Math.min(3, Math.max(0.25, s * (e.deltaY > 0 ? 0.9 : 1.1))))
+                }}
+                style={{ display:"block", cursor: panning ? "grabbing" : draggingNode ? "grabbing" : "grab" }}>
+
+                <defs>
+                  <marker id="arr-c" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+                    <polygon points="0 0,8 3,0 6" fill="#dc2626"/>
+                  </marker>
+                  <marker id="arr-n" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+                    <polygon points="0 0,8 3,0 6" fill="#64748b"/>
+                  </marker>
+                </defs>
 
                 <g transform={`translate(${offset.x},${offset.y}) scale(${scale})`}>
-                  {/* Grille de fond */}
-                  <defs>
-                    <marker id="arr-c" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
-                      <polygon points="0 0,8 3,0 6" fill="#dc2626"/>
-                    </marker>
-                    <marker id="arr-n" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
-                      <polygon points="0 0,8 3,0 6" fill="#64748b"/>
-                    </marker>
-                  </defs>
 
                   {/* ── Flèches ── */}
                   {computed.flatMap(task =>
@@ -665,7 +675,7 @@ export default function PERTPage() {
                       return (
                         <Arrow key={`${depId}-${task.id}`}
                           from={from} to={task}
-                          label={`${task.name.slice(0,1)} ${task.duration}`}
+                          label={`${task.name.slice(0,2)} ${task.duration}`}
                           critical={isCrit}/>
                       )
                     })
@@ -673,7 +683,7 @@ export default function PERTPage() {
 
                   {/* Message si vide */}
                   {computed.length===0 && (
-                    <g transform={`translate(300,200)`}>
+                    <g transform="translate(400,200)">
                       <text textAnchor="middle" fontSize="14" fill="#94a3b8" dy="-10">Ajoutez une tâche dans le tableau</text>
                       <text textAnchor="middle" fontSize="12" fill="#cbd5e1" dy="15">ou cliquez sur "Générer PERT"</text>
                     </g>
@@ -691,7 +701,7 @@ export default function PERTPage() {
               </svg>
             </div>
 
-            {/* Détail nœud sélectionné */}
+            {/* Détail nœud            {/* Détail nœud sélectionné */}
             {selectedTask && (
               <div style={{ padding:"12px 16px", borderTop:"1px solid var(--border)", background:selectedTask.critical?"#fef2f2":"var(--bg)", display:"flex", gap:20, flexWrap:"wrap", alignItems:"center" }}>
                 <div>
