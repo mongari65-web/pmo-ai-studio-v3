@@ -3,7 +3,7 @@ import { useParams } from "next/navigation"
 import { useProject } from "@/hooks/useProject"
 import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
-import { ArrowLeft, Users, Calendar, DollarSign, Tag } from "lucide-react"
+import { ArrowLeft, Users, Calendar, DollarSign, Tag, UserPlus } from "lucide-react"
 
 const TOOLS = [
   { key:"wbs",          label:"WBS Dict",      icon:"🗂️",  desc:"Structure découpage" },
@@ -133,7 +133,15 @@ export default function ProjectPage() {
             ))}
           </div>
 
-          {/* Team */}
+          {/* Members button */}
+        <div className="flex justify-end">
+          <Link href={`/projects/${id}/members`}
+            className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 rounded-lg text-sm font-medium transition-colors">
+            <UserPlus size={14}/> Gérer les membres
+          </Link>
+        </div>
+
+        {/* Team */}
           {project.team?.length > 0 && (
             <div className="mt-4 bg-card border border-border rounded-xl p-4">
               <div className="flex items-center gap-2 mb-3">

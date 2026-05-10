@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { History, ChevronDown } from "lucide-react"
 import ExportMenu from "./ExportMenu"
+import CollabBar from "@/components/collaboration/CollabBar"
 
 interface ToolLayoutProps {
   title: string
@@ -22,6 +23,7 @@ interface ToolLayoutProps {
   svgRef?: React.RefObject<SVGElement>
   jsonData?: any
   pptxSlides?: Array<{ title: string; content: string[] }>
+  projectId?: string
 }
 
 export default function ToolLayout({
@@ -30,7 +32,7 @@ export default function ToolLayout({
   onAdd, addLabel = "+ Ajouter",
   children, projectName,
   exportRows, exportFilename = "export", contentId = "tool-content",
-  svgRef, jsonData, pptxSlides
+  svgRef, jsonData, pptxSlides, projectId
 }: ToolLayoutProps) {
   const [histOpen, setHistOpen] = useState(false)
 
@@ -90,6 +92,11 @@ export default function ToolLayout({
             jsonData,
             pptxSlides,
           }}/>
+
+          {/* Collab */}
+          {projectId && (
+            <CollabBar projectId={projectId} toolType={exportFilename?.split("_")[0]?.toLowerCase() ?? "tool"} projectName={projectName}/>
+          )}
 
           {/* Generate */}
           {onGenerate && (
