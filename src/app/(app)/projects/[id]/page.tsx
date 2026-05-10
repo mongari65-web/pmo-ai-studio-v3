@@ -3,7 +3,7 @@ import { useParams } from "next/navigation"
 import { useProject } from "@/hooks/useProject"
 import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
-import { ArrowLeft, Users, Calendar, DollarSign, Tag, UserPlus } from "lucide-react"
+import { ArrowLeft, Users, Calendar, DollarSign, Tag, UserPlus, FileText } from "lucide-react"
 
 const TOOLS = [
   { key:"wbs",          label:"WBS Dict",      icon:"🗂️",  desc:"Structure découpage" },
