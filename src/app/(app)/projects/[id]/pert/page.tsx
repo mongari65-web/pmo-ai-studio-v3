@@ -630,7 +630,7 @@ export default function PERTPage() {
             </div>
 
             {/* SVG canvas */}
-            <div ref={containerRef} style={{ flex:1, overflowX:"auto", overflowY:"hidden", minHeight:480, position:"relative",
+            <div ref={containerRef} style={{ flex:1, overflowX:"scroll", overflowY:"hidden", scrollbarWidth:"thin", scrollbarColor:"#94a3b8 #f1f5f9", minHeight:480, position:"relative",
               cursor:panning?"grabbing":draggingNode?"grabbing":"grab",
               background:"repeating-linear-gradient(0deg,transparent,transparent 39px,#f1f5f9 39px,#f1f5f9 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,#f1f5f9 39px,#f1f5f9 40px)" }}>
 
@@ -640,7 +640,7 @@ export default function PERTPage() {
               </div>
 
               <svg ref={svgRef}
-                width={Math.max(800, (svgW + 100) * scale)}
+                width={Math.max(1200, svgW + 200)}
                 height={Math.max(480, (svgH + 100) * scale)}
                 onMouseDown={onSVGMouseDown}
                 style={{ display:"block", minWidth:"100%" }}>
