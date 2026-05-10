@@ -65,33 +65,47 @@ function computePERT(tasks: PERTTask[]): PERTTask[] {
 // ── Auto-layout en colonnes par rang ─────────────────────────
 function autoLayout(tasks: PERTTask[]): PERTTask[] {
   const map = new Map(tasks.map(t => [t.id, t]))
-  // Calculer le rang (distance depuis la source)
+
+  // Calculer le rang (niveau dans le réseau)
   const rank: Record<string, number> = {}
-  const getrank = (id: string): number => {
+  const visited = new Set<string>()
+  const getrank = (id: string, depth = 0): number => {
+    if (depth > 100) return 0 // protection cycle
     if (rank[id] !== undefined) return rank[id]
-    const t = map.get(id)!
-    rank[id] = t.deps.length === 0 ? 0 : Math.max(...t.deps.map(d => getrank(d))) + 1
+    if (visited.has(id)) return 0
+    visited.add(id)
+    const t = map.get(id)
+    if (!t) { rank[id] = 0; return 0 }
+    rank[id] = t.deps.length === 0 ? 0 : Math.max(...t.deps.map(d => getrank(d, depth+1))) + 1
     return rank[id]
   }
   tasks.forEach(t => getrank(t.id))
 
-  // Grouper par rang
+  // Grouper par rang — tâches du même rang = parallèles = même colonne
   const cols: Record<number, string[]> = {}
   Object.entries(rank).forEach(([id, r]) => {
     if (!cols[r]) cols[r] = []
     cols[r].push(id)
   })
 
-  const COL_W = 160, ROW_H = 130, MARGIN_X = 100, MARGIN_Y = 80
+  const maxRank = Math.max(...Object.values(rank), 0)
+  const maxColSize = Math.max(...Object.values(cols).map(c => c.length), 1)
+
+  // Espacement adaptatif
+  const COL_W = Math.max(140, Math.min(180, 1200 / (maxRank + 1)))
+  const ROW_H = Math.max(110, Math.min(150, 600 / maxColSize))
+  const MARGIN_X = 80
+  const CENTER_Y = Math.max(200, (maxColSize * ROW_H) / 2 + 80)
+
   const result = tasks.map(t => {
     const r = rank[t.id] ?? 0
-    const col = cols[r]
+    const col = cols[r] ?? [t.id]
     const idx = col.indexOf(t.id)
-    const totalH = col.length * ROW_H
+    const colH = col.length * ROW_H
     return {
       ...t,
       x: MARGIN_X + r * COL_W,
-      y: MARGIN_Y + idx * ROW_H - (totalH - ROW_H) / 2 + (tasks.length > 4 ? 80 : 0)
+      y: CENTER_Y - colH / 2 + idx * ROW_H + ROW_H / 2
     }
   })
   return result
@@ -197,6 +211,12 @@ export default function PERTPage() {
   const [editBuf, setEditBuf] = useState<Partial<PERTTask>>({})
   const [showAddRow, setShowAddRow] = useState(false)
   const [newTask, setNewTask] = useState({ id:"", name:"", duration:5, deps:"" })
+
+  // Auto-incrément ID
+  const nextId = useMemo(() => {
+    const nums = tasks.map(t => parseInt(t.id.replace(/[^0-9]/g, ""))).filter(n => !isNaN(n))
+    return nums.length > 0 ? `T${Math.max(...nums) + 1}` : "T1"
+  }, [tasks])
   const svgRef = useRef<SVGSVGElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -244,40 +264,42 @@ export default function PERTPage() {
 
       // Depuis le WBS (priorité)
       if (wbsData?.data?.items?.length > 0) {
-        const items = (wbsData!.data.items as any[]).filter((i: any) => i.level === 2 || i.code?.includes("."))
-        // Construire les dépendances séquentielles par phase
-        const phases: Record<string, string[]> = {}
+        const items = (wbsData!.data.items as any[]).filter((i: any) => i.level === 2 || (i.code && i.code.includes(".")))
+        // Regrouper les tâches par phase (code N1 = première partie ex: "1" pour 1.0, 1.1)
+        const phaseMap: Record<string, any[]> = {}
         items.forEach((item: any) => {
-          const phase = item.code?.split(".")[0] ?? "1"
-          if (!phases[phase]) phases[phase] = []
-          phases[phase].push(item.code)
+          const phaseKey = String(item.code ?? "").split(".")[0] || "1"
+          if (!phaseMap[phaseKey]) phaseMap[phaseKey] = []
+          phaseMap[phaseKey].push(item)
         })
+        const phases = Object.keys(phaseMap).sort()
 
-        const phaseKeys = Object.keys(phases).sort()
         rawTasks.push({ id:"D", name:"Début", duration:0, deps:[], est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 })
+        let taskCounter = 0
+        let prevPhaseIds: string[] = ["D"]
 
-        let prevPhaseLastId = "D"
-        phaseKeys.forEach(phaseKey => {
-          const phaseItems = phases[phaseKey]
-          let prevId = prevPhaseLastId
-          phaseItems.forEach((code: string, idx: number) => {
-            const item = items.find((i: any) => i.code === code)
-            if (!item) return
-            const taskId = code.replace(".", "_")
-            // Extraire durée (ex: "2 sem" → 2)
+        phases.forEach(phaseKey => {
+          const phaseItems = phaseMap[phaseKey]
+          const currentPhaseIds: string[] = []
+
+          // Tâches de la même phase démarrent EN PARALLÈLE depuis la fin de la phase précédente
+          phaseItems.forEach((item: any) => {
+            taskCounter++
+            const taskId = `T${taskCounter}`
             const durStr = String(item.duration ?? "5")
-            const dur = parseInt(durStr.match(/\d+/)?.[0] ?? "5")
+            const durNum = parseInt(durStr.replace(/[^0-9]/g, "") || "5")
             rawTasks.push({
-              id: taskId, name: item.name ?? code,
-              duration: dur,
-              deps: [prevId],
+              id: taskId,
+              name: item.name ?? `Tâche ${taskCounter}`,
+              duration: isNaN(durNum) ? 5 : durNum,
+              deps: [...prevPhaseIds], // dépend de TOUTES les tâches de la phase précédente
               est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0
             })
-            prevId = taskId
+            currentPhaseIds.push(taskId)
           })
-          prevPhaseLastId = prevId
+          prevPhaseIds = currentPhaseIds
         })
-        rawTasks.push({ id:"F", name:"Fin", duration:0, deps:[prevPhaseLastId], est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 })
+        rawTasks.push({ id:"F", name:"Fin", duration:0, deps:[...prevPhaseIds], est:0,eft:0,lst:0,lft:0,slack:0,critical:false,x:0,y:0 })
         toast.success(`PERT généré depuis le WBS — ${rawTasks.length} nœuds`)
       }
       // Depuis le Gantt
@@ -472,7 +494,7 @@ export default function PERTPage() {
                   style={{ fontSize:11, padding:"4px 10px", background:"var(--primary-bg)", border:"1px solid #B5D4F4", borderRadius:"var(--r6)", color:"var(--primary-t)", cursor:"pointer" }}>
                   ♻️ Relayout
                 </button>
-                <button onClick={()=>setShowAddRow(true)}
+                <button onClick={()=>{ setShowAddRow(true); setNewTask(p=>({...p, id:nextId})) }}
                   style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, padding:"4px 10px", background:"var(--primary)", border:"none", borderRadius:"var(--r6)", color:"#fff", cursor:"pointer" }}>
                   <Plus size={12}/> Ajouter
                 </button>
@@ -608,7 +630,7 @@ export default function PERTPage() {
             </div>
 
             {/* SVG canvas */}
-            <div ref={containerRef} style={{ flex:1, overflow:"hidden", minHeight:480, position:"relative",
+            <div ref={containerRef} style={{ flex:1, overflowX:"auto", overflowY:"hidden", minHeight:480, position:"relative",
               cursor:panning?"grabbing":draggingNode?"grabbing":"grab",
               background:"repeating-linear-gradient(0deg,transparent,transparent 39px,#f1f5f9 39px,#f1f5f9 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,#f1f5f9 39px,#f1f5f9 40px)" }}>
 
@@ -617,9 +639,11 @@ export default function PERTPage() {
                 Molette = zoom · Glisser fond = déplacer · Glisser cercle = repositionner
               </div>
 
-              <svg ref={svgRef} width="100%" height="100%"
+              <svg ref={svgRef}
+                width={Math.max(800, (svgW + 100) * scale)}
+                height={Math.max(480, (svgH + 100) * scale)}
                 onMouseDown={onSVGMouseDown}
-                style={{ display:"block" }}>
+                style={{ display:"block", minWidth:"100%" }}>
 
                 <g transform={`translate(${offset.x},${offset.y}) scale(${scale})`}>
                   {/* Grille de fond */}
