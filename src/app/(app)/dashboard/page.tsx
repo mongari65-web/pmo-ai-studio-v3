@@ -6,7 +6,7 @@ import Link from "next/link"
 import {
   Plus, FolderKanban, TrendingUp, TrendingDown,
   AlertTriangle, CheckCircle2, Wand2, Bell, ArrowRight,
-  Target, Clock, DollarSign, Users
+  Target, Clock, DollarSign
 } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
@@ -16,17 +16,25 @@ interface Project {
   icon: string; created_at: string; budget: number
 }
 
-interface ToolSummary {
-  project_id: string
-  tool_type: string
-  data: any
+interface Alert {
+  type: string
+  message: string
+  project: string
+  projectId: string
+  href: string
+  severity: string
+}
+
+const SEVERITY_CFG = {
+  danger:  { bg: "rgba(239,68,68,0.1)",   border: "#ef4444", icon: AlertTriangle, color: "#ef4444" },
+  warning: { bg: "rgba(245,158,11,0.1)",  border: "#f59e0b", icon: Clock,         color: "#f59e0b" },
+  info:    { bg: "rgba(59,130,246,0.1)",  border: "#3b82f6", icon: CheckCircle2,  color: "#3b82f6" },
 }
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [user, setUser] = useState<any>(null)
-  const [toolData, setToolData] = useState<ToolSummary[]>([])
-  const [alerts, setAlerts] = useState<{ type: string; message: string; project: string; projectId?: string; href?: string; severity: string }[]>([])
+  const [alerts, setAlerts] = useState<Alert[]>([])
   const supabase = createClient()
 
   useEffect(() => {
@@ -41,37 +49,56 @@ export default function DashboardPage() {
 
     const { data: tools } = await supabase
       .from("project_tools").select("project_id, tool_type, data")
-    setToolData(tools ?? [])
 
-    // Générer les alertes
     if (tools && projs) {
-      const newAlerts: typeof alerts = []
+      const newAlerts: Alert[] = []
       tools.forEach(t => {
-        const proj = projs.find((p: any) => p.id === t.project_id)
+        const proj = (projs as Project[]).find(p => p.id === t.project_id)
         if (!proj) return
-        // RAID critique
+
         if (t.tool_type === "raid" && t.data?.items) {
           const critiques = t.data.items.filter((i: any) => i.priority === "Critique" && i.status === "Ouvert")
           if (critiques.length > 0) {
-            newAlerts.push({ type: "raid", message: `${critiques.length} risque(s) critique(s) ouvert(s)`, project: proj.name, projectId: proj.id, href: `/projects/${proj.id}/raid`, severity: "danger" })
+            newAlerts.push({
+              type: "raid",
+              message: `${critiques.length} risque(s) critique(s) ouvert(s)`,
+              project: proj.name,
+              projectId: proj.id,
+              href: `/projects/${proj.id}/raid`,
+              severity: "danger"
+            })
           }
         }
-        // EVM CPI < 1
+
         if (t.tool_type === "budget" && t.data?.tasks) {
           const cp = new Date().getMonth()
           const totalEV = t.data.tasks.reduce((s: number, task: any) => s + (task.ev?.[cp] ?? 0), 0)
           const totalAC = t.data.tasks.reduce((s: number, task: any) => s + (task.ac?.[cp] ?? 0), 0)
           const cpi = totalAC > 0 ? totalEV / totalAC : 1
           if (cpi < 0.9) {
-            newAlerts.push({ type: "budget", message: `CPI = ${cpi.toFixed(2)} — dépassement budgétaire`, project: proj.name, projectId: proj.id, href: `/projects/${proj.id}/budget`, severity: "warning" })
+            newAlerts.push({
+              type: "budget",
+              message: `CPI = ${cpi.toFixed(2)} — dépassement budgétaire`,
+              project: proj.name,
+              projectId: proj.id,
+              href: `/projects/${proj.id}/budget`,
+              severity: "warning"
+            })
           }
         }
-        // Jalons en retard
+
         if (t.tool_type === "jalons" && t.data?.jalons) {
           const today = new Date().toISOString().split("T")[0]
           const retard = t.data.jalons.filter((j: any) => j.date < today && j.status !== "Atteint")
           if (retard.length > 0) {
-            newAlerts.push({ type: "jalon", message: `${retard.length} jalon(s) en retard`, project: proj.name, projectId: proj.id, href: `/projects/${proj.id}/jalons`, severity: "warning" })
+            newAlerts.push({
+              type: "jalon",
+              message: `${retard.length} jalon(s) en retard`,
+              project: proj.name,
+              projectId: proj.id,
+              href: `/projects/${proj.id}/jalons`,
+              severity: "warning"
+            })
           }
         }
       })
@@ -79,24 +106,15 @@ export default function DashboardPage() {
     }
   }
 
-  // KPIs globaux
   const activeProjects = projects.filter(p => p.status === "active")
   const avgCompletion = projects.length > 0
     ? Math.round(projects.reduce((s, p) => s + (p.completion ?? 0), 0) / projects.length) : 0
   const totalBudget = projects.reduce((s, p) => s + (p.budget ?? 0), 0)
 
-  // Données graphique
   const chartData = projects.slice(0, 8).map(p => ({
     name: p.name.length > 12 ? p.name.slice(0, 11) + "…" : p.name,
     Avancement: p.completion ?? 0,
-    fill: p.color ?? "#2563eb"
   }))
-
-  const SEVERITY_CFG = {
-    danger: { bg: "rgba(239,68,68,0.1)", border: "#ef4444", icon: AlertTriangle, color: "#ef4444" },
-    warning: { bg: "rgba(245,158,11,0.1)", border: "#f59e0b", icon: Clock, color: "#f59e0b" },
-    info: { bg: "rgba(59,130,246,0.1)", border: "#3b82f6", icon: CheckCircle2, color: "#3b82f6" },
-  }
 
   return (
     <AppLayout>
@@ -107,13 +125,15 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-bold text-foreground">
               Bonjour{user?.user_metadata?.full_name ? `, ${user.user_metadata.full_name.split(" ")[0]}` : ""} 👋
             </h1>
-            <p className="text-muted-foreground text-sm mt-0.5">Vue d'ensemble — {new Date().toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long" })}</p>
+            <p className="text-muted-foreground text-sm mt-0.5">
+              Vue d'ensemble — {new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
+            </p>
           </div>
           <div className="flex gap-2">
             <Link href="/guide" className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-lg text-sm font-medium hover:bg-amber-500/20 transition-colors">
               <Wand2 size={15}/> Guide CP
             </Link>
-            <Link href="/projects/new" className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+            <Link href="/guide" className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
               <Plus size={15}/> Nouveau projet
             </Link>
           </div>
@@ -121,24 +141,42 @@ export default function DashboardPage() {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-4 gap-4">
-          {[
-            { label: "Projets actifs", value: activeProjects.length, icon: FolderKanban, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
-            { label: "Avancement moyen", value: `${avgCompletion}%`, icon: Target, color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/20" },
-            { label: "Budget total", value: totalBudget > 0 ? `${(totalBudget/1000).toFixed(0)}k€` : "—", icon: DollarSign, color: "text-green-400", bg: "bg-green-500/10 border-green-500/20" },
-            { label: "Alertes actives", value: alerts.length, icon: Bell, color: alerts.length > 0 ? "text-red-400" : "text-muted-foreground", bg: alerts.length > 0 ? "bg-red-500/10 border-red-500/20" : "bg-card border-border" },
-          ].map(kpi => (
-            <div key={kpi.label} className={`border rounded-xl p-4 ${kpi.bg}`}>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{kpi.label}</p>
-                <kpi.icon size={16} className={kpi.color}/>
-              </div>
-              <p className={`text-2xl font-bold ${kpi.color}`}>{kpi.value}</p>
+          <div className="border rounded-xl p-4 bg-blue-500/10 border-blue-500/20">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Projets actifs</p>
+              <FolderKanban size={16} className="text-blue-400"/>
             </div>
-          ))}
+            <p className="text-2xl font-bold text-blue-400">{activeProjects.length}</p>
+          </div>
+          <div className="border rounded-xl p-4 bg-purple-500/10 border-purple-500/20">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Avancement moyen</p>
+              <Target size={16} className="text-purple-400"/>
+            </div>
+            <p className="text-2xl font-bold text-purple-400">{avgCompletion}%</p>
+          </div>
+          <div className="border rounded-xl p-4 bg-green-500/10 border-green-500/20">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Budget total</p>
+              <DollarSign size={16} className="text-green-400"/>
+            </div>
+            <p className="text-2xl font-bold text-green-400">
+              {totalBudget > 0 ? `${(totalBudget / 1000).toFixed(0)}k€` : "—"}
+            </p>
+          </div>
+          <div className={`border rounded-xl p-4 ${alerts.length > 0 ? "bg-red-500/10 border-red-500/20" : "bg-card border-border"}`}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Alertes actives</p>
+              <Bell size={16} className={alerts.length > 0 ? "text-red-400" : "text-muted-foreground"}/>
+            </div>
+            <p className={`text-2xl font-bold ${alerts.length > 0 ? "text-red-400" : "text-muted-foreground"}`}>
+              {alerts.length}
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-3 gap-6">
-          {/* Alertes */}
+          {/* Alertes cliquables */}
           <div className="col-span-1 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">🔔 Alertes</h2>
@@ -151,21 +189,30 @@ export default function DashboardPage() {
                 <p className="text-xs text-muted-foreground mt-1">Tous les projets sont en bonne santé</p>
               </div>
             ) : (
-              alerts.slice(0, 5).map((alert, i) => {
-                const cfg = SEVERITY_CFG[alert.severity as keyof typeof SEVERITY_CFG] ?? SEVERITY_CFG.info
-                const Icon = cfg.icon
-                return (
-                  <div key={i} className="rounded-xl p-3 border" style={{ background: cfg.bg, borderColor: cfg.border + "44" }}>
-                    <div className="flex items-start gap-2">
-                      <Icon size={14} style={{ color: cfg.color, flexShrink: 0, marginTop: 1 }}/>
-                      <div>
-                        <p className="text-xs font-semibold text-foreground">{alert.project}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{alert.message}</p>
+              <div className="space-y-2">
+                {alerts.slice(0, 5).map((alert, i) => {
+                  const cfg = SEVERITY_CFG[alert.severity as keyof typeof SEVERITY_CFG] ?? SEVERITY_CFG.info
+                  const Icon = cfg.icon
+                  return (
+                    <Link key={i} href={alert.href}
+                      className="block rounded-xl p-3 border hover:opacity-80 transition-all cursor-pointer"
+                      style={{ background: cfg.bg, borderColor: cfg.border + "44" }}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2">
+                          <Icon size={14} style={{ color: cfg.color, flexShrink: 0, marginTop: 1 }}/>
+                          <div>
+                            <p className="text-xs font-semibold text-foreground">{alert.project}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{alert.message}</p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-semibold flex-shrink-0" style={{ color: cfg.color }}>
+                          Voir →
+                        </span>
                       </div>
-                    </div>
-                  </div>
-                )
-              })
+                    </Link>
+                  )
+                })}
+              </div>
             )}
           </div>
 
@@ -215,7 +262,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-3 gap-4">
               {projects.slice(0, 6).map(p => (
                 <Link key={p.id} href={`/projects/${p.id}`}
-                  className="bg-card border border-border rounded-xl p-4 hover:border-primary/40 transition-all hover:shadow-lg hover:shadow-primary/5 group">
+                  className="bg-card border border-border rounded-xl p-4 hover:border-primary/40 transition-all hover:shadow-lg group">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">{p.icon}</span>
@@ -237,12 +284,13 @@ export default function DashboardPage() {
                   </div>
                   {p.budget > 0 && (
                     <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
-                      <DollarSign size={10}/> {(p.budget/1000).toFixed(0)}k€
+                      <DollarSign size={10}/> {(p.budget / 1000).toFixed(0)}k€
                     </p>
                   )}
                 </Link>
               ))}
-              <Link href="/guide" className="bg-card border border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center hover:border-primary/40 hover:bg-accent/30 transition-all text-muted-foreground hover:text-primary group">
+              <Link href="/guide"
+                className="bg-card border border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center hover:border-primary/40 hover:bg-accent/30 transition-all text-muted-foreground hover:text-primary group">
                 <Plus size={24} className="mb-2 group-hover:scale-110 transition-transform"/>
                 <span className="text-sm font-medium">Nouveau projet</span>
               </Link>
