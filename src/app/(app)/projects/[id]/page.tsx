@@ -14,6 +14,7 @@ const TOOLS = [
   { key:"budget",       label:"Budget EVM",     icon:"💰",  desc:"Earned Value" },
   { key:"mindmap",      label:"Mind Map",       icon:"🧠",  desc:"Carte mentale" },
   { key:"documents",    label:"Documents",      icon:"📄",  desc:"Bibliothèque" },
+  { key:"pert",          label:"PERT",           icon:"🔀",  desc:"Chemin critique" },
 ]
 
 const GRADIENT_COLORS: Record<string, string> = {
