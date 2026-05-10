@@ -2,10 +2,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import {
-  LayoutDashboard, Wand2, FolderKanban, LogOut,
-  Settings, Bell, ChevronLeft, ChevronRight
-} from "lucide-react"
+import { LayoutDashboard, Wand2, FolderKanban, LogOut, Settings, Bell, ChevronLeft, ChevronRight, CreditCard, HelpCircle, BarChart3 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -14,6 +11,7 @@ const NAV = [
   { href: "/dashboard",  icon: LayoutDashboard, label: "Dashboard" },
   { href: "/projects",   icon: FolderKanban,    label: "Mes projets" },
   { href: "/guide",      icon: Wand2,            label: "Guide CP ✨", highlight: true },
+  { href: "/portfolio",  icon: BarChart3,        label: "Portfolio" },
 ]
 
 export default function Sidebar() {
