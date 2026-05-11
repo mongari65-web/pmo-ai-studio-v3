@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect, useMemo } from "react"
+import { usePMPQuestions, seedIfNeeded, type PMPQuestion } from "@/hooks/usePMPQuestions"
 import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
 import { Clock, RotateCcw, ChevronRight, ChevronLeft } from "lucide-react"
@@ -987,11 +988,18 @@ export default function PMPSimulatorPage() {
   const [timeLeft, setTimeLeft] = useState(0)
   const [started, setStarted] = useState(false)
 
-  const questions = useMemo(() =>
-    selectedLot ? ALL_QUESTIONS.filter((q: any) => q.lot === selectedLot) : [],
-    [selectedLot]
-  )
+  const { questions: dbQuestions, loading: dbLoading } = usePMPQuestions(selectedLot)
+
+  // Fallback : si Supabase vide, utiliser les questions statiques
+  const questions = useMemo(() => {
+    if (dbQuestions.length > 0) return dbQuestions as any[]
+    return selectedLot ? ALL_QUESTIONS.filter((q: any) => q.lot === selectedLot) : []
+  }, [dbQuestions, selectedLot])
+
   const current = questions[currentIdx] as any
+
+  // Seed au premier chargement
+  useEffect(() => { seedIfNeeded() }, [])
   const levelCfg = LEVELS.find(l => l.key === selectedLevel)
 
   useEffect(() => {
@@ -1110,7 +1118,7 @@ export default function PMPSimulatorPage() {
                 <span style={{ padding:"3px 10px", background:"#EEEDFE", color:"#3C3489", borderRadius:20, fontSize:11, fontWeight:600 }}>{current.pmbok}</span>
                 <span style={{ fontSize:11, color:"var(--text-3)", marginLeft:"auto" }}>Q{current.id}</span>
               </div>
-              <p style={{ fontSize:15, fontWeight:500, color:"var(--text-1)", lineHeight:1.7, margin:"0 0 20px" }}>{current.q}</p>
+              <p style={{ fontSize:15, fontWeight:500, color:"var(--text-1)", lineHeight:1.7, margin:"0 0 20px" }}>{current.q ?? current.question}</p>
               <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
                 {current.opts.map((opt: string, i: number) => {
                   const done = answers[current.id] !== undefined
@@ -1135,7 +1143,7 @@ export default function PMPSimulatorPage() {
               {showExpl && (
                 <div style={{ marginTop:16, background:"#E6F1FB", border:"1px solid #B5D4F4", borderLeft:"4px solid #185FA5", borderRadius:"var(--r8)", padding:"12px 14px" }}>
                   <p style={{ fontSize:12, fontWeight:600, color:"#0C447C", margin:"0 0 4px" }}>💡 Explication</p>
-                  <p style={{ fontSize:12, color:"#185FA5", margin:0, lineHeight:1.6 }}>{current.expl}</p>
+                  <p style={{ fontSize:12, color:"#185FA5", margin:0, lineHeight:1.6 }}>{current.expl ?? current.explanation}</p>
                 </div>
               )}
             </div>
