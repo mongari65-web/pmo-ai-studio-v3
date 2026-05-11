@@ -13,6 +13,7 @@ const TOP = [
   { href:"/portfolio", icon:BarChart3,        label:"Portfolio" },
   { href:"/pmp-simulator",  icon:GraduationCap,  label:"Simulateur PMP", hl:true },
   { href:"/pmp-conseils",   icon:GraduationCap,  label:"Conseils PMP" },
+  { href:"/nouveau-pm",      icon:GraduationCap,  label:"Guide Nouveau PM" },
 ]
 const BOT = [
   { href:"/notifications", icon:Bell,       label:"Notifications", badge:true },
