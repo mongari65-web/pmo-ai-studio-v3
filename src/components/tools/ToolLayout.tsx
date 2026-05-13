@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { History, ChevronDown } from "lucide-react"
 import ExportMenu from "./ExportMenu"
+import QuotaBadge from "./QuotaBadge"
 import CollabBar from "@/components/collaboration/CollabBar"
 
 interface ToolLayoutProps {
@@ -97,6 +98,9 @@ export default function ToolLayout({
           {projectId && (
             <CollabBar projectId={projectId} toolType={exportFilename?.split("_")[0]?.toLowerCase() ?? "tool"} projectName={projectName}/>
           )}
+
+          {/* Quota badge */}
+          <QuotaBadge/>
 
           {/* Generate */}
           {onGenerate && (
