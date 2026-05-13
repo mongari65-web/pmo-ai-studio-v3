@@ -33,7 +33,7 @@ export async function checkQuota(userId: string): Promise<{
     const { data: profile } = await supabase
       .from("profiles")
       .select("plan, ai_calls_count, ai_calls_reset_at, is_banned")
-      .eq("user_id", userId)
+      .eq("id", userId)
       .single()
 
     if (!profile) return { allowed: false, current: 0, limit: 0, plan: "free", message: "Profil introuvable" }
@@ -45,7 +45,7 @@ export async function checkQuota(userId: string): Promise<{
     if (resetAt < monthAgo) {
       await supabase.from("profiles")
         .update({ ai_calls_count: 0, ai_calls_reset_at: new Date().toISOString() })
-        .eq("user_id", userId)
+        .eq("id", userId)
       callsCount = 0
     }
 
@@ -72,10 +72,10 @@ export async function incrementQuota(userId: string): Promise<void> {
     const { error } = await supabase.rpc("increment_ai_calls", { user_id_param: userId })
     if (error) {
       const { data } = await supabase.from("profiles")
-        .select("ai_calls_count").eq("user_id", userId).single()
+        .select("ai_calls_count").eq("id", userId).single()
       await supabase.from("profiles")
         .update({ ai_calls_count: (data?.ai_calls_count ?? 0) + 1 })
-        .eq("user_id", userId)
+        .eq("id", userId)
     }
   } catch { /* silently fail */ }
 }

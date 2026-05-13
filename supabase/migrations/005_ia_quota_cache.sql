@@ -47,6 +47,6 @@ RETURNS void AS $$
 BEGIN
   UPDATE profiles
   SET ai_calls_count = COALESCE(ai_calls_count, 0) + 1
-  WHERE user_id = user_id_param;
+  WHERE id = user_id_param;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
