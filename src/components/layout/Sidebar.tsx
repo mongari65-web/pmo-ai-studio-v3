@@ -7,13 +7,14 @@ import { useState, useEffect } from "react"
 import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap , Package } from "lucide-react"
 
 const TOP = [
-  { href:"/dashboard", icon:LayoutDashboard, label:"Dashboard" },
-  { href:"/projects",  icon:FolderKanban,    label:"Mes projets" },
-  { href:"/guide",     icon:Wand2,            label:"Guide CP", hl:true },
-  { href:"/portfolio", icon:BarChart3,        label:"Portfolio" },
-  { href:"/pmp-simulator",  icon:GraduationCap,  label:"Simulateur PMP", hl:true },
-  { href:"/pmp-conseils",   icon:GraduationCap,  label:"Conseils PMP" },
-  { href:"/nouveau-pm",      icon:GraduationCap,  label:"Guide Nouveau PM" },
+  { href:"/dashboard",     icon:LayoutDashboard, label:"Dashboard" },
+  { href:"/projects",      icon:FolderKanban,    label:"Mes projets" },
+  { href:"/guide",         icon:Wand2,            label:"Guide CP", hl:true },
+  { href:"/portfolio",     icon:BarChart3,        label:"Portfolio" },
+  { href:"/templates",     icon:Package,          label:"Templates Pro" },
+  { href:"/pmp-simulator", icon:GraduationCap,    label:"Simulateur PMP", hl:true },
+  { href:"/pmp-conseils",  icon:GraduationCap,    label:"Conseils PMP" },
+  { href:"/nouveau-pm",    icon:GraduationCap,    label:"Guide Nouveau PM" },
 ]
 const BOT = [
   { href:"/notifications", icon:Bell,       label:"Notifications", badge:true },
