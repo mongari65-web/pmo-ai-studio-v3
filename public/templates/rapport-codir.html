@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Rapport CODIR — PMO AI Studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#F4F5F7;color:#172B4D;font-size:13px}
+.page{max-width:900px;margin:0 auto;padding:24px}
+.cover{background:linear-gradient(135deg,#0052CC 0%,#253858 100%);border-radius:12px;padding:40px;margin-bottom:24px;color:#fff}
+.cover h1{font-size:28px;font-weight:700;margin-bottom:8px}
+.cover .subtitle{font-size:14px;color:rgba(255,255,255,0.8);margin-bottom:24px}
+.cover-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.2)}
+.cover-meta-item label{font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px}
+.cover-meta-item value{font-size:15px;font-weight:600;color:#fff;display:block}
+.status-bar{display:flex;gap:12px;margin-bottom:24px}
+.status-item{flex:1;background:#fff;border-radius:8px;padding:16px;border:1px solid #DFE1E6;text-align:center;border-top:4px solid}
+.status-label{font-size:11px;font-weight:600;color:#6B778C;text-transform:uppercase;margin-bottom:8px}
+.status-value{font-size:22px;font-weight:700}
+.section{background:#fff;border-radius:8px;border:1px solid #DFE1E6;margin-bottom:16px;overflow:hidden}
+.section-title{padding:14px 18px;background:#FAFBFC;border-bottom:1px solid #DFE1E6;font-size:14px;font-weight:600;color:#172B4D;display:flex;align-items:center;gap:8px}
+.section-body{padding:18px}
+.highlight-box{background:#DEEBFF;border:1px solid #B3D4FF;border-left:4px solid #0052CC;border-radius:6px;padding:12px 16px;margin-bottom:12px}
+.warning-box{background:#FFF7D6;border:1px solid #FFD700;border-left:4px solid #FF991F;border-radius:6px;padding:12px 16px;margin-bottom:12px}
+.danger-box{background:#FFEBE6;border:1px solid #FFBDAD;border-left:4px solid #DE350B;border-radius:6px;padding:12px 16px;margin-bottom:12px}
+.success-box{background:#E3FCEF;border:1px solid #ABF5D1;border-left:4px solid #36B37E;border-radius:6px;padding:12px 16px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 10px;text-align:left;font-size:11px;font-weight:600;color:#6B778C;text-transform:uppercase;border-bottom:2px solid #DFE1E6;background:#FAFBFC}
+td{padding:8px 10px;border-bottom:1px solid #F4F5F7}
+.badge{display:inline-flex;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600}
+.badge-red{background:#FFEBE6;color:#BF2600}
+.badge-green{background:#E3FCEF;color:#006644}
+.badge-amber{background:#FFF7D6;color:#974F0C}
+.badge-blue{background:#DEEBFF;color:#0747A6}
+.print-btn{position:fixed;bottom:20px;right:20px;background:#0052CC;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer}
+@media print{.print-btn{display:none}}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
+<div class="page">
+
+<!-- Cover -->
+<div class="cover">
+  <div style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">RAPPORT DE PROJET · COMITÉ DE DIRECTION</div>
+  <h1>[NOM DU PROJET]</h1>
+  <div class="subtitle">[Description courte du projet — 1 ligne]</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <span style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600">📋 [MÉTHODOLOGIE]</span>
+    <span style="background:rgba(54,179,126,0.3);border:1px solid rgba(54,179,126,0.5);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600">● En ligne</span>
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><label>Chef de Projet</label><value>[NOM CP]</value></div>
+    <div class="cover-meta-item"><label>Sponsor</label><value>[NOM SPONSOR]</value></div>
+    <div class="cover-meta-item"><label>Date rapport</label><value>[DATE]</value></div>
+    <div class="cover-meta-item"><label>Période couverte</label><value>[DATE] → [DATE]</value></div>
+    <div class="cover-meta-item"><label>Budget total</label><value>[BUDGET] €</value></div>
+    <div class="cover-meta-item"><label>Équipe</label><value>[N] membres</value></div>
+  </div>
+</div>
+
+<!-- Statuts -->
+<div class="status-bar">
+  <div class="status-item" style="border-top-color:#0052CC"><div class="status-label">Avancement</div><div class="status-value" style="color:#0052CC">[XX]%</div></div>
+  <div class="status-item" style="border-top-color:#36B37E"><div class="status-label">CPI</div><div class="status-value" style="color:#36B37E">[X.XX]</div></div>
+  <div class="status-item" style="border-top-color:#FF991F"><div class="status-label">SPI</div><div class="status-value" style="color:#FF991F">[X.XX]</div></div>
+  <div class="status-item" style="border-top-color:#DE350B"><div class="status-label">Risques critiques</div><div class="status-value" style="color:#DE350B">[N]</div></div>
+  <div class="status-item" style="border-top-color:#8777D9"><div class="status-label">Jalons atteints</div><div class="status-value" style="color:#8777D9">[N]/[N]</div></div>
+</div>
+
+<!-- Synthèse -->
+<div class="section">
+  <div class="section-title">📊 Synthèse exécutive</div>
+  <div class="section-body">
+    <div class="highlight-box"><strong>✅ Points positifs :</strong> [Décrivez les avancées positives de la période]</div>
+    <div class="warning-box"><strong>⚠️ Points d'attention :</strong> [Décrivez les points nécessitant une surveillance accrue]</div>
+    <div class="danger-box"><strong>🚨 Points critiques :</strong> [Décrivez les problèmes urgents nécessitant une décision du CODIR]</div>
+  </div>
+</div>
+
+<!-- Budget -->
+<div class="section">
+  <div class="section-title">💰 Situation budgétaire</div>
+  <div class="section-body">
+    <table>
+      <thead><tr><th>Indicateur</th><th>Valeur</th><th>Interprétation</th><th>Tendance</th></tr></thead>
+      <tbody>
+        <tr><td>BAC (Budget at Completion)</td><td style="font-weight:700">[XXX] k€</td><td>Budget total approuvé</td><td>—</td></tr>
+        <tr><td>EV (Valeur Acquise)</td><td style="font-weight:700">[XXX] k€</td><td>Travail réalisé valorisé</td><td>📈</td></tr>
+        <tr><td>AC (Coût Réel)</td><td style="font-weight:700">[XXX] k€</td><td>Dépenses engagées</td><td>[📈/📉]</td></tr>
+        <tr><td>EAC (Estimation finale)</td><td style="font-weight:700;color:[red/green]">[XXX] k€</td><td>[Dépassement / Économie prévue]</td><td>[📈/📉]</td></tr>
+        <tr><td>VAC (Variance finale)</td><td style="font-weight:700;color:#DE350B">[±XXX] k€</td><td>[Dépassement de XX%]</td><td>⚠️</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Jalons & Décisions -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+  <div class="section">
+    <div class="section-title">🏁 Jalons</div>
+    <div class="card-body" style="padding:16px">
+      <table>
+        <thead><tr><th>Jalon</th><th>Prévu</th><th>Statut</th></tr></thead>
+        <tbody>
+          <tr><td>[Jalon 1]</td><td>[DATE]</td><td><span class="badge badge-green">Atteint</span></td></tr>
+          <tr><td>[Jalon 2]</td><td>[DATE]</td><td><span class="badge badge-blue">En cours</span></td></tr>
+          <tr><td>[Jalon 3]</td><td>[DATE]</td><td><span class="badge badge-red">Retard</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">🔔 Décisions requises du CODIR</div>
+    <div class="card-body" style="padding:16px">
+      <table>
+        <thead><tr><th>Décision</th><th>Impact</th><th>Délai</th></tr></thead>
+        <tbody>
+          <tr><td>[Décision 1]</td><td><span class="badge badge-red">Critique</span></td><td>[DATE]</td></tr>
+          <tr><td>[Décision 2]</td><td><span class="badge badge-amber">Élevé</span></td><td>[DATE]</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center;padding:16px;color:#6B778C;font-size:11px;border-top:1px solid #DFE1E6">
+  PMO AI Studio · Rapport CODIR · [DATE] · Conforme PMBOK 7
+</div>
+</div>
+</body>
+</html>

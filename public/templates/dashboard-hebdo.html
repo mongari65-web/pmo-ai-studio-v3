@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Dashboard Hebdomadaire — PMO AI Studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#F4F5F7;color:#172B4D;font-size:13px}
+.page{max-width:1100px;margin:0 auto;padding:24px}
+/* Header */
+.header{background:#0052CC;border-radius:8px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:20px;font-weight:700;color:#fff}
+.header .meta{font-size:12px;color:rgba(255,255,255,0.75);margin-top:4px}
+.header .badge{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:#fff}
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:#fff;border-radius:8px;padding:16px;border:1px solid #DFE1E6;border-top:3px solid}
+.kpi-label{font-size:11px;font-weight:600;color:#6B778C;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:700}
+.kpi-sub{font-size:11px;color:#6B778C;margin-top:4px}
+/* Sections */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:#fff;border-radius:8px;border:1px solid #DFE1E6;overflow:hidden}
+.card-header{padding:12px 16px;border-bottom:1px solid #DFE1E6;display:flex;align-items:center;gap:8px;background:#FAFBFC}
+.card-header h3{font-size:13px;font-weight:600;color:#172B4D}
+.card-body{padding:16px}
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 10px;text-align:left;font-size:11px;font-weight:600;color:#6B778C;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #DFE1E6;background:#FAFBFC}
+td{padding:8px 10px;border-bottom:1px solid #F4F5F7}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F4F5F7}
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600}
+.badge-red{background:#FFEBE6;color:#BF2600}
+.badge-amber{background:#FFF7D6;color:#974F0C}
+.badge-green{background:#E3FCEF;color:#006644}
+.badge-blue{background:#DEEBFF;color:#0747A6}
+.badge-gray{background:#F4F5F7;color:#5E6C84}
+/* Progress */
+.progress{height:8px;background:#DFE1E6;border-radius:4px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;border-radius:4px;transition:width 0.3s}
+/* Status dot */
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+/* Actions table */
+.priority-high{border-left:3px solid #DE350B}
+.priority-med{border-left:3px solid #FF991F}
+.priority-low{border-left:3px solid #36B37E}
+/* Print */
+.print-btn{position:fixed;bottom:20px;right:20px;background:#0052CC;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,82,204,0.4)}
+@media print{.print-btn{display:none}body{background:#fff}.page{padding:12px}}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
+<div class="page">
+
+<!-- Header -->
+<div class="header">
+  <div>
+    <h1>📊 Dashboard Hebdomadaire — Projet [NOM DU PROJET]</h1>
+    <div class="meta">Semaine [N] · Du [DATE DÉBUT] au [DATE FIN] · Chef de Projet : [NOM CP]</div>
+  </div>
+  <div>
+    <div class="badge">Statut : 🟡 En cours</div>
+    <div style="color:rgba(255,255,255,0.7);font-size:11px;margin-top:6px;text-align:right">Généré par PMO AI Studio</div>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi" style="border-top-color:#0052CC">
+    <div class="kpi-label">Avancement global</div>
+    <div class="kpi-value" style="color:#0052CC">[XX]%</div>
+    <div class="progress"><div class="progress-fill" style="width:[XX]%;background:#0052CC"></div></div>
+    <div class="kpi-sub">Objectif semaine : [XX]%</div>
+  </div>
+  <div class="kpi" style="border-top-color:#36B37E">
+    <div class="kpi-label">CPI (Coût)</div>
+    <div class="kpi-value" style="color:#36B37E">[X.XX]</div>
+    <div class="kpi-sub">[Sous budget / Dépassement]</div>
+  </div>
+  <div class="kpi" style="border-top-color:#FF991F">
+    <div class="kpi-label">SPI (Délai)</div>
+    <div class="kpi-value" style="color:#FF991F">[X.XX]</div>
+    <div class="kpi-sub">[En avance / En retard]</div>
+  </div>
+  <div class="kpi" style="border-top-color:#DE350B">
+    <div class="kpi-label">Risques ouverts</div>
+    <div class="kpi-value" style="color:#DE350B">[N]</div>
+    <div class="kpi-sub">[N] critiques · [N] élevés</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Avancement par phase -->
+  <div class="card">
+    <div class="card-header"><span>📁</span><h3>Avancement par Phase</h3></div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Phase</th><th>Responsable</th><th>Avancement</th><th>Statut</th></tr></thead>
+        <tbody>
+          <tr><td>Phase 1 — Initialisation</td><td>[NOM]</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:100%;background:#36B37E"></div></div><span>100%</span></div></td><td><span class="badge badge-green">Terminé</span></td></tr>
+          <tr><td>Phase 2 — Analyse</td><td>[NOM]</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:75%;background:#0052CC"></div></div><span>75%</span></div></td><td><span class="badge badge-blue">En cours</span></td></tr>
+          <tr><td>Phase 3 — Conception</td><td>[NOM]</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:20%;background:#FF991F"></div></div><span>20%</span></div></td><td><span class="badge badge-amber">En retard</span></td></tr>
+          <tr><td>Phase 4 — Déploiement</td><td>[NOM]</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:0%;background:#DFE1E6"></div></div><span>0%</span></div></td><td><span class="badge badge-gray">À venir</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Jalons de la semaine -->
+  <div class="card">
+    <div class="card-header"><span>🏁</span><h3>Jalons — Semaine en cours</h3></div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Jalon</th><th>Date prévue</th><th>Statut</th></tr></thead>
+        <tbody>
+          <tr><td>[Nom jalon 1]</td><td>[DATE]</td><td><span class="badge badge-green">✓ Atteint</span></td></tr>
+          <tr><td>[Nom jalon 2]</td><td>[DATE]</td><td><span class="badge badge-blue">En cours</span></td></tr>
+          <tr><td>[Nom jalon 3]</td><td>[DATE]</td><td><span class="badge badge-red">⚠ Retard</span></td></tr>
+          <tr><td>[Nom jalon 4]</td><td>[DATE]</td><td><span class="badge badge-gray">À venir</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Actions & Risques -->
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span>✅</span><h3>Actions prioritaires</h3></div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Action</th><th>Responsable</th><th>Échéance</th><th>Priorité</th></tr></thead>
+        <tbody>
+          <tr class="priority-high"><td>[Action 1]</td><td>[NOM]</td><td>[DATE]</td><td><span class="badge badge-red">Haute</span></td></tr>
+          <tr class="priority-high"><td>[Action 2]</td><td>[NOM]</td><td>[DATE]</td><td><span class="badge badge-red">Haute</span></td></tr>
+          <tr class="priority-med"><td>[Action 3]</td><td>[NOM]</td><td>[DATE]</td><td><span class="badge badge-amber">Moyenne</span></td></tr>
+          <tr class="priority-med"><td>[Action 4]</td><td>[NOM]</td><td>[DATE]</td><td><span class="badge badge-amber">Moyenne</span></td></tr>
+          <tr class="priority-low"><td>[Action 5]</td><td>[NOM]</td><td>[DATE]</td><td><span class="badge badge-green">Basse</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span>⚠️</span><h3>Risques actifs</h3></div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Risque</th><th>Impact</th><th>Prob.</th><th>Statut</span></th></tr></thead>
+        <tbody>
+          <tr><td>[Risque 1]</td><td><span class="badge badge-red">Critique</span></td><td>Élevé</td><td><span class="badge badge-red">Ouvert</span></td></tr>
+          <tr><td>[Risque 2]</td><td><span class="badge badge-amber">Élevé</span></td><td>Moyen</td><td><span class="badge badge-blue">En cours</span></td></tr>
+          <tr><td>[Risque 3]</td><td><span class="badge badge-amber">Moyen</span></td><td>Faible</td><td><span class="badge badge-green">Mitigé</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Décisions & Points d'attention -->
+<div class="card" style="margin-bottom:16px">
+  <div class="card-header"><span>💬</span><h3>Points d'attention & Décisions requises</h3></div>
+  <div class="card-body">
+    <table>
+      <thead><tr><th>#</th><th>Sujet</th><th>Description</th><th>Décideur</th><th>Échéance</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>[Sujet 1]</td><td>[Description détaillée du point à traiter]</td><td>[NOM]</td><td>[DATE]</td></tr>
+        <tr><td>2</td><td>[Sujet 2]</td><td>[Description détaillée du point à traiter]</td><td>[NOM]</td><td>[DATE]</td></tr>
+        <tr><td>3</td><td>[Sujet 3]</td><td>[Description détaillée du point à traiter]</td><td>[NOM]</td><td>[DATE]</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center;padding:16px;color:#6B778C;font-size:11px;border-top:1px solid #DFE1E6;margin-top:8px">
+  PMO AI Studio · Dashboard généré le [DATE] · Conforme PMBOK 7
+</div>
+
+</div>
+</body>
+</html>

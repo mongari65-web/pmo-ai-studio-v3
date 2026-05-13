@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Registre RAID — PMO AI Studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#F4F5F7;color:#172B4D;font-size:13px}
+.page{max-width:1200px;margin:0 auto;padding:24px}
+.header{background:linear-gradient(135deg,#403294,#8777D9);border-radius:8px;padding:18px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:18px;font-weight:700;color:#fff}
+.tabs{display:flex;gap:0;margin-bottom:0;border-bottom:2px solid #DFE1E6;background:#fff;border-radius:8px 8px 0 0;overflow:hidden}
+.tab{padding:12px 20px;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;display:flex;align-items:center;gap:6px}
+.tab.active{border-bottom-color:#0052CC;color:#0052CC;font-weight:600;background:#F4F5F7}
+.tab:hover:not(.active){background:#F4F5F7}
+.tab-content{background:#fff;border:1px solid #DFE1E6;border-top:none;border-radius:0 0 8px 8px;overflow:hidden;margin-bottom:16px}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.kpi{background:#fff;border-radius:8px;padding:14px;border:1px solid #DFE1E6;border-top:3px solid}
+.kpi-label{font-size:10px;font-weight:600;color:#6B778C;text-transform:uppercase;margin-bottom:6px}
+.kpi-value{font-size:22px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:9px 12px;text-align:left;font-size:10px;font-weight:600;color:#6B778C;text-transform:uppercase;border-bottom:2px solid #DFE1E6;background:#FAFBFC;letter-spacing:0.5px}
+td{padding:9px 12px;border-bottom:1px solid #F4F5F7;vertical-align:top}
+tr:hover td{background:#F8F9FA}
+.badge{display:inline-flex;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600}
+.badge-red{background:#FFEBE6;color:#BF2600}
+.badge-amber{background:#FFF7D6;color:#974F0C}
+.badge-green{background:#E3FCEF;color:#006644}
+.badge-blue{background:#DEEBFF;color:#0747A6}
+.badge-purple{background:#EAE6FF;color:#403294}
+.badge-gray{background:#F4F5F7;color:#5E6C84}
+.risk-critical td:first-child{border-left:4px solid #DE350B}
+.risk-high td:first-child{border-left:4px solid #FF991F}
+.risk-medium td:first-child{border-left:4px solid #FFAB00}
+.risk-low td:first-child{border-left:4px solid #36B37E}
+.print-btn{position:fixed;bottom:20px;right:20px;background:#403294;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer}
+@media print{.print-btn{display:none}}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
+<div class="page">
+
+<div class="header">
+  <div>
+    <h1>⚠️ Registre RAID — [NOM DU PROJET]</h1>
+    <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:3px">Risques · Actions · Issues · Décisions · Mis à jour le [DATE]</div>
+  </div>
+  <div style="color:rgba(255,255,255,0.8);font-size:11px;text-align:right">Version [X.X] · CP : [NOM]</div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi" style="border-top-color:#DE350B"><div class="kpi-label">Risques ouverts</div><div class="kpi-value" style="color:#DE350B">[N]</div></div>
+  <div class="kpi" style="border-top-color:#0052CC"><div class="kpi-label">Actions en cours</div><div class="kpi-value" style="color:#0052CC">[N]</div></div>
+  <div class="kpi" style="border-top-color:#FF991F"><div class="kpi-label">Issues actives</div><div class="kpi-value" style="color:#FF991F">[N]</div></div>
+  <div class="kpi" style="border-top-color:#36B37E"><div class="kpi-label">Décisions en attente</div><div class="kpi-value" style="color:#36B37E">[N]</div></div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active">🔴 Risques</div>
+  <div class="tab">🔵 Actions</div>
+  <div class="tab">🟠 Issues</div>
+  <div class="tab">🟢 Décisions</div>
+</div>
+<div class="tab-content">
+  <table>
+    <thead><tr><th>ID</th><th>Titre</th><th>Description</th><th>Probabilité</th><th>Impact</th><th>Priorité</th><th>Propriétaire</th><th>Plan de réponse</th><th>Échéance</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr class="risk-critical"><td><strong>R001</strong></td><td>[Titre risque critique]</td><td>[Description détaillée du risque et de son contexte]</td><td><span class="badge badge-red">Élevée</span></td><td><span class="badge badge-red">Critique</span></td><td><span class="badge badge-red">🔴 Critique</span></td><td>[NOM]</td><td>[Plan de mitigation détaillé]</td><td>[DATE]</td><td><span class="badge badge-red">Ouvert</span></td></tr>
+      <tr class="risk-high"><td><strong>R002</strong></td><td>[Titre risque élevé]</td><td>[Description]</td><td><span class="badge badge-amber">Moyenne</span></td><td><span class="badge badge-red">Élevé</span></td><td><span class="badge badge-amber">🟠 Élevé</span></td><td>[NOM]</td><td>[Plan de réponse]</td><td>[DATE]</td><td><span class="badge badge-blue">En cours</span></td></tr>
+      <tr class="risk-medium"><td><strong>R003</strong></td><td>[Titre risque moyen]</td><td>[Description]</td><td><span class="badge badge-amber">Faible</span></td><td><span class="badge badge-amber">Moyen</span></td><td><span class="badge" style="background:#FFF7D6;color:#974F0C">🟡 Moyen</span></td><td>[NOM]</td><td>[Plan]</td><td>[DATE]</td><td><span class="badge badge-gray">Surveillé</span></td></tr>
+      <tr class="risk-low"><td><strong>R004</strong></td><td>[Titre risque faible]</td><td>[Description]</td><td><span class="badge badge-green">Faible</span></td><td><span class="badge badge-green">Faible</span></td><td><span class="badge badge-green">🟢 Faible</span></td><td>[NOM]</td><td>Accepté</td><td>[DATE]</td><td><span class="badge badge-green">Accepté</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div style="text-align:center;padding:14px;color:#6B778C;font-size:11px;border-top:1px solid #DFE1E6">
+  PMO AI Studio · Registre RAID · [DATE] · Conforme PMBOK 7
+</div>
+</div>
+</body>
+</html>

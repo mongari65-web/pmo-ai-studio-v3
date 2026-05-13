@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Budget EVM — PMO AI Studio</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#F4F5F7;color:#172B4D;font-size:13px}
+.page{max-width:1100px;margin:0 auto;padding:24px}
+.header{background:linear-gradient(135deg,#006644,#36B37E);border-radius:8px;padding:18px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:18px;font-weight:700;color:#fff}
+.header .meta{font-size:11px;color:rgba(255,255,255,0.75);margin-top:3px}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:#fff;border-radius:8px;padding:14px;border:1px solid #DFE1E6;border-top:3px solid;text-align:center}
+.kpi-label{font-size:10px;font-weight:600;color:#6B778C;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.kpi-value{font-size:22px;font-weight:700}
+.kpi-sub{font-size:10px;color:#6B778C;margin-top:3px}
+.grid-2{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:#fff;border-radius:8px;border:1px solid #DFE1E6;overflow:hidden}
+.card-header{padding:12px 16px;border-bottom:1px solid #DFE1E6;background:#FAFBFC;font-size:13px;font-weight:600}
+.card-body{padding:16px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{padding:7px 10px;text-align:left;font-size:10px;font-weight:600;color:#6B778C;text-transform:uppercase;border-bottom:2px solid #DFE1E6;background:#FAFBFC}
+td{padding:7px 10px;border-bottom:1px solid #F4F5F7}
+.badge{display:inline-flex;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:600}
+.badge-red{background:#FFEBE6;color:#BF2600}
+.badge-green{background:#E3FCEF;color:#006644}
+.badge-amber{background:#FFF7D6;color:#974F0C}
+.badge-blue{background:#DEEBFF;color:#0747A6}
+.print-btn{position:fixed;bottom:20px;right:20px;background:#006644;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer}
+@media print{.print-btn{display:none}}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
+<div class="page">
+
+<div class="header">
+  <div>
+    <h1>💰 Budget EVM — [NOM DU PROJET]</h1>
+    <div class="meta">Période de référence : [MOIS] [ANNÉE] · Chef de Projet : [NOM]</div>
+  </div>
+  <div style="text-align:right;color:rgba(255,255,255,0.8);font-size:11px">BAC Total : <strong style="font-size:18px;color:#fff">[XXX] k€</strong></div>
+</div>
+
+<!-- KPIs EVM -->
+<div class="kpi-row">
+  <div class="kpi" style="border-top-color:#0052CC"><div class="kpi-label">PV — Valeur Planifiée</div><div class="kpi-value" style="color:#0052CC">[XXX]k€</div><div class="kpi-sub">Ce qui devrait être fait</div></div>
+  <div class="kpi" style="border-top-color:#8777D9"><div class="kpi-label">EV — Valeur Acquise</div><div class="kpi-value" style="color:#8777D9">[XXX]k€</div><div class="kpi-sub">Ce qui a été fait</div></div>
+  <div class="kpi" style="border-top-color:#FF991F"><div class="kpi-label">AC — Coût Réel</div><div class="kpi-value" style="color:#FF991F">[XXX]k€</div><div class="kpi-sub">Ce qui a été dépensé</div></div>
+  <div class="kpi" style="border-top-color:#36B37E"><div class="kpi-label">CPI</div><div class="kpi-value" style="color:#36B37E">[X.XX]</div><div class="kpi-sub">[Sous/Sur budget]</div></div>
+  <div class="kpi" style="border-top-color:#DE350B"><div class="kpi-label">EAC — Prévision finale</div><div class="kpi-value" style="color:#DE350B">[XXX]k€</div><div class="kpi-sub">VAC : [±XX]k€</div></div>
+</div>
+
+<!-- Courbe S + Tableau -->
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header">📈 Courbes S — PV / EV / AC</div>
+    <div class="card-body">
+      <canvas id="evmChart" height="220"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">📊 Interprétation EVM</div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Indicateur</th><th>Valeur</th><th>Statut</th></tr></thead>
+        <tbody>
+          <tr><td>CV (Variance coût)</td><td>[±XX]k€</td><td><span class="badge badge-red">Dépassement</span></td></tr>
+          <tr><td>SV (Variance délai)</td><td>[±XX]k€</td><td><span class="badge badge-amber">Retard</span></td></tr>
+          <tr><td>CPI</td><td>[X.XX]</td><td><span class="badge badge-green">OK</span></td></tr>
+          <tr><td>SPI</td><td>[X.XX]</td><td><span class="badge badge-amber">Attention</span></td></tr>
+          <tr><td>TCPI</td><td>[X.XX]</td><td><span class="badge badge-blue">Requis</span></td></tr>
+          <tr><td>ETC (Reste à dépenser)</td><td>[XXX]k€</td><td>—</td></tr>
+          <tr><td>EAC (Prévision finale)</td><td>[XXX]k€</td><td><span class="badge badge-red">+[XX]%</span></td></tr>
+          <tr><td>VAC (Écart final)</td><td>[±XX]k€</td><td><span class="badge badge-red">⚠️</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Tableau détail par WP -->
+<div class="card" style="margin-bottom:16px">
+  <div class="card-header">📋 Détail par Work Package</div>
+  <div class="card-body">
+    <table>
+      <thead><tr><th>Phase</th><th>Work Package</th><th>BAC</th><th>PV</th><th>EV</th><th>AC</th><th>CV</th><th>CPI</th><th>SPI</th><th>Statut</th></tr></thead>
+      <tbody>
+        <tr><td>Phase 1</td><td>[WP 1.1]</td><td>[XX]k€</td><td>[XX]k€</td><td>[XX]k€</td><td>[XX]k€</td><td style="color:#36B37E">[+XX]k€</td><td style="color:#36B37E">[X.XX]</td><td style="color:#36B37E">[X.XX]</td><td><span class="badge badge-green">✓ Terminé</span></td></tr>
+        <tr><td>Phase 2</td><td>[WP 2.1]</td><td>[XX]k€</td><td>[XX]k€</td><td>[XX]k€</td><td>[XX]k€</td><td style="color:#DE350B">[-XX]k€</td><td style="color:#DE350B">[X.XX]</td><td style="color:#FF991F">[X.XX]</td><td><span class="badge badge-blue">En cours</span></td></tr>
+        <tr><td>Phase 3</td><td>[WP 3.1]</td><td>[XX]k€</td><td>[XX]k€</td><td>0</td><td>0</td><td>—</td><td>—</td><td>—</td><td><span class="badge" style="background:#F4F5F7;color:#5E6C84">À venir</span></td></tr>
+        <tr style="font-weight:700;background:#FAFBFC"><td colspan="2">TOTAL</td><td>[XXX]k€</td><td>[XXX]k€</td><td>[XXX]k€</td><td>[XXX]k€</td><td>[±XX]k€</td><td>[X.XX]</td><td>[X.XX]</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="text-align:center;padding:14px;color:#6B778C;font-size:11px;border-top:1px solid #DFE1E6">
+  PMO AI Studio · Budget EVM · [DATE] · Conforme PMBOK 7
+</div>
+</div>
+
+<script>
+const ctx = document.getElementById('evmChart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'],
+    datasets: [
+      { label:'PV (Planifié)', data:[50,100,160,230,310,390,460,520,570,610,640,660], borderColor:'#0052CC', backgroundColor:'rgba(0,82,204,0.05)', tension:0.4, borderWidth:2 },
+      { label:'EV (Acquis)',   data:[40,85,140,200,270,340,400,null,null,null,null,null], borderColor:'#8777D9', backgroundColor:'rgba(135,119,217,0.05)', tension:0.4, borderWidth:2 },
+      { label:'AC (Réel)',    data:[55,115,180,265,355,445,525,null,null,null,null,null], borderColor:'#FF991F', backgroundColor:'rgba(255,153,31,0.05)', tension:0.4, borderWidth:2, borderDash:[5,3] },
+    ]
+  },
+  options: {
+    responsive:true, plugins:{ legend:{ position:'bottom', labels:{ font:{ size:11 } } } },
+    scales:{ y:{ ticks:{ callback: v => v+'k€' } } }
+  }
+});
+</script>
+</body>
+</html>
