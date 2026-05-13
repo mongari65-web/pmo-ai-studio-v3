@@ -1,5 +1,6 @@
 "use client"
 import AppLayout from "@/components/layout/AppLayout"
+import ProGate from "@/components/ProGate"
 import { useState } from "react"
 import { Download, Eye, Star, FileText, BarChart3, AlertTriangle, Users, Calendar, DollarSign, CheckCircle2, BookOpen, Search } from "lucide-react"
 
@@ -90,6 +91,7 @@ export default function TemplatesPage() {
   }
 
   return (
+    <ProGate feature="templates" featureLabel="Pack Templates Pro">
     <AppLayout>
       <div style={{ padding:"24px 28px", background:"var(--bg)", minHeight:"100%" }}>
 
@@ -222,5 +224,6 @@ export default function TemplatesPage() {
 
       </div>
     </AppLayout>
+    </ProGate>
   )
 }

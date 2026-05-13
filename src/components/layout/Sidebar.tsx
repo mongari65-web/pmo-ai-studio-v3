@@ -4,15 +4,15 @@ import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap , Package } from "lucide-react"
+import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap , Package , Lock } from "lucide-react"
 
 const TOP = [
   { href:"/dashboard",     icon:LayoutDashboard, label:"Dashboard" },
   { href:"/projects",      icon:FolderKanban,    label:"Mes projets" },
   { href:"/guide",         icon:Wand2,            label:"Guide CP", hl:true },
   { href:"/portfolio",     icon:BarChart3,        label:"Portfolio" },
-  { href:"/templates",     icon:Package,          label:"Templates Pro" },
-  { href:"/pmp-simulator", icon:GraduationCap,    label:"Simulateur PMP", hl:true },
+  { href:"/templates",     icon:Package,          label:"Templates Pro",  pro:true },
+  { href:"/pmp-simulator", icon:GraduationCap,    label:"Simulateur PMP", hl:true, pro:true },
   { href:"/pmp-conseils",  icon:GraduationCap,    label:"Conseils PMP" },
   { href:"/nouveau-pm",    icon:GraduationCap,    label:"Guide Nouveau PM" },
 ]
@@ -22,7 +22,7 @@ const BOT = [
   { href:"/settings",      icon:Settings,   label:"Paramètres" },
 ]
 
-const LI = ({ href, icon:Icon, label, active, collapsed, extra }: any) => (
+const LI = ({ href, icon:Icon, label, active, collapsed, extra, pro }: any) => (
   <Link href={href} title={collapsed?label:""} style={{
     display:"flex", alignItems:"center", gap:10,
     padding: collapsed ? "9px 0" : "8px 10px",
@@ -68,9 +68,9 @@ export default function Sidebar() {
       </div>
 
       <nav style={{ flex:1, padding:"10px 8px", display:"flex", flexDirection:"column", gap:1 }}>
-        {TOP.map(({href,icon,label,hl})=>(
+        {TOP.map(({href,icon,label,hl,pro})=>(
           <LI key={href} href={href} icon={icon} label={label} active={isActive(href)} collapsed={col}
-            extra={!col && hl ? <span style={{ marginLeft:"auto", fontSize:9, padding:"1px 6px", background:"var(--warning-bg)", color:"var(--warning)", borderRadius:10, fontWeight:700 }}>IA</span> : null}/>
+            extra={!col ? (hl ? <span style={{ marginLeft:"auto", fontSize:9, padding:"1px 6px", background:"var(--warning-bg)", color:"var(--warning)", borderRadius:10, fontWeight:700 }}>IA</span> : pro ? <Lock size={11} style={{ marginLeft:"auto", color:"var(--text-3)", flexShrink:0 }}/> : null) : null}/>
         ))}
       </nav>
 

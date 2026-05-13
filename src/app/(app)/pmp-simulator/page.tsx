@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect, useCallback } from "react"
+import ProGate from "@/components/ProGate"
 import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
@@ -141,6 +142,7 @@ export default function PMPSimulatorPage() {
   const ss = timeLeft % 60
 
   return (
+    <ProGate feature="pmp-simulator" featureLabel="Simulateur PMP 225 questions">
     <AppLayout>
       <div style={{ padding:"24px 28px", background:"var(--bg)", minHeight:"100%" }}>
 
@@ -343,5 +345,6 @@ export default function PMPSimulatorPage() {
 
       </div>
     </AppLayout>
+    </ProGate>
   )
 }
