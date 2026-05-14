@@ -1,4 +1,5 @@
 "use client"
+import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import AppLayout from "@/components/layout/AppLayout"
@@ -79,6 +80,17 @@ export default function DashboardPage() {
 
   return (
     <AppLayout>
+
+      {/* Banner upgrade success */}
+      {typeof window !== "undefined" && new URLSearchParams(window.location.search).get("upgrade") === "success" && (
+        <div style={{ background:"#E3FCEF", border:"1px solid #ABF5D1", borderLeft:"4px solid #36B37E", borderRadius:"var(--r8)", padding:"12px 16px", marginBottom:16, display:"flex", alignItems:"center", gap:10 }}>
+          <span style={{ fontSize:20 }}>🎉</span>
+          <div>
+            <p style={{ fontSize:13, fontWeight:600, color:"#006644", margin:0 }}>Bienvenue dans le plan Pro !</p>
+            <p style={{ fontSize:12, color:"#006644", opacity:0.8, margin:0 }}>Votre abonnement est actif. Profitez de tous vos avantages.</p>
+          </div>
+        </div>
+      )}
       <div style={{ padding:"24px 28px", background:"var(--bg)", minHeight:"100%" }}>
         {/* Header */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24 }}>
