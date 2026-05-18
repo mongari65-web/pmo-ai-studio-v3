@@ -597,10 +597,10 @@ footer{
     <a href="#features">Fonctionnalités</a>
     <a href="#outils">Outils</a>
     <a href="#pricing">Tarifs</a>
-    <a href="#connexion">Connexion</a>
+    <a href="#connexion" href="/auth/login">Connexion</a>
   </div>
   <div class="nav-ctas">
-    <a href="#connexion" class="btn-ghost">Connexion</a>
+    <a href="#connexion" class="btn-ghost" onclick="window.location.href='/auth/login'" href="/auth/login">Connexion</a>
     <a href="#pricing" class="btn-primary">
       Commencer gratuitement
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -850,7 +850,7 @@ footer{
         <li><span class="feat-cross"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Templates sectoriels</li>
         <li><span class="feat-cross"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Simulateur PMP®</li>
       </ul>
-      <button class="plan-cta cta-trial">Essai gratuit 14 jours →</button>
+      <button class="plan-cta cta-trial" onclick="window.location.href='/auth/register'">Essai gratuit 14 jours →</button>
     </div>
 
     <!-- STARTER -->
@@ -875,7 +875,7 @@ footer{
         <li><span class="feat-cross"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Simulateur PMP®</li>
         <li><span class="feat-cross"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Archive projets</li>
       </ul>
-      <button class="plan-cta">Choisir Starter →</button>
+      <button class="plan-cta" onclick="window.location.href='/auth/register?plan=starter'">Choisir Starter →</button>
     </div>
 
     <!-- PRO -->
@@ -901,7 +901,7 @@ footer{
         <li><span class="feat-cross"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Simulateur PMP®</li>
         <li><span class="feat-cross"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Archive projets</li>
       </ul>
-      <button class="plan-cta cta-popular">Choisir Pro →</button>
+      <button class="plan-cta cta-popular" onclick="window.location.href='/auth/register?plan=pro'">Choisir Pro →</button>
     </div>
 
     <!-- PREMIUM -->
@@ -955,7 +955,7 @@ footer{
         <li class="feat-on"><span class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg></span>Historique & archive projets</li>
         <li class="feat-on"><span class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg></span>Support prioritaire</li>
       </ul>
-      <button class="plan-cta" id="premium-cta">Choisir Premium →</button>
+      <button class="plan-cta" id="premium-cta" onclick="window.location.href='/auth/register?plan=premium'">Choisir Premium →</button>
     </div>
 
   </div>
