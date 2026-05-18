@@ -212,11 +212,10 @@ export default function MindMapPage() {
         )}
 
         {mmData && !loading && (
-          <div className="space-y-3">
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
             <div style={{display:"flex"}}>
               {mmData.branches?.map(b => (
-                <div key={b.id} style={{display:"flex"}}
-                  style={{ borderColor: b.color + "44", background: b.color + "11", color: b.color }}>
+                <div key={b.id} style={{display:"inline-flex", padding:"4px 12px", borderRadius:20, margin:4, border:`1px solid ${b.color}44`, background:b.color+"11", color:b.color, fontSize:12, fontWeight:500}}>
                   {b.label}
                 </div>
               ))}
