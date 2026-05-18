@@ -3,14 +3,15 @@ import { createClient } from "@/lib/supabase/server"
 import stripe from "@/lib/stripe-server"
 import type Stripe from "stripe"
 
-// Important : désactiver le body parsing Next.js pour Stripe
 export const runtime = "nodejs"
 
 const PLAN_FROM_PRICE: Record<string, string> = {
-  [process.env.STRIPE_PRICE_PRO_MONTHLY  ?? ""]: "pro",
-  [process.env.STRIPE_PRICE_PRO_YEARLY   ?? ""]: "pro",
-  [process.env.STRIPE_PRICE_TEAM_MONTHLY ?? ""]: "team",
-  [process.env.STRIPE_PRICE_TEAM_YEARLY  ?? ""]: "team",
+  [process.env.STRIPE_PRICE_STARTER_MONTHLY ?? ""]: "starter",
+  [process.env.STRIPE_PRICE_STARTER_YEARLY  ?? ""]: "starter",
+  [process.env.STRIPE_PRICE_PRO_MONTHLY     ?? ""]: "pro",
+  [process.env.STRIPE_PRICE_PRO_YEARLY      ?? ""]: "pro",
+  [process.env.STRIPE_PRICE_PREMIUM_MONTHLY ?? ""]: "premium",
+  [process.env.STRIPE_PRICE_PREMIUM_YEARLY  ?? ""]: "premium",
 }
 
 export async function POST(req: NextRequest) {
@@ -28,18 +29,14 @@ export async function POST(req: NextRequest) {
 
   const supabase = await createClient()
 
-  // Idempotence : vérifier si l'événement a déjà été traité
   const { data: existing } = await supabase
     .from("stripe_webhook_events")
     .select("id")
     .eq("event_id", event.id)
     .single()
 
-  if (existing) {
-    return NextResponse.json({ received: true, duplicate: true })
-  }
+  if (existing) return NextResponse.json({ received: true, duplicate: true })
 
-  // Enregistrer l'événement
   await supabase.from("stripe_webhook_events").insert({
     event_id: event.id,
     event_type: event.type,
@@ -49,11 +46,10 @@ export async function POST(req: NextRequest) {
   try {
     switch (event.type) {
 
-      // ── Checkout terminé ─────────────────────────────────
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session
         const userId  = session.metadata?.supabase_user_id
-        const plan    = session.metadata?.plan ?? "pro"
+        const plan    = session.metadata?.plan ?? "starter"
         if (!userId || !session.subscription) break
 
         const sub = await stripe.subscriptions.retrieve(session.subscription as string)
@@ -75,13 +71,11 @@ export async function POST(req: NextRequest) {
         break
       }
 
-      // ── Abonnement mis à jour ─────────────────────────────
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const sub    = event.data.object as Stripe.Subscription
+        const sub     = event.data.object as Stripe.Subscription
         const priceId = sub.items.data[0]?.price.id ?? ""
 
-        // Retrouver l'user depuis le customer
         const { data: profile } = await supabase
           .from("profiles")
           .select("id")
@@ -107,32 +101,26 @@ export async function POST(req: NextRequest) {
         break
       }
 
-      // ── Paiement réussi ──────────────────────────────────
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice
         if ((invoice as any).subscription) {
           const sub = await stripe.subscriptions.retrieve((invoice as any).subscription as string)
           const priceId = sub.items.data[0]?.price.id ?? ""
           const { data: profile } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("stripe_customer_id", sub.customer as string)
-            .single()
+            .from("profiles").select("id")
+            .eq("stripe_customer_id", sub.customer as string).single()
           if (profile) {
-            await supabase.from("subscriptions")
-              .update({
-                status: "active",
-                plan: PLAN_FROM_PRICE[priceId] ?? "pro",
-                current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
-                updated_at: new Date().toISOString(),
-              })
-              .eq("stripe_subscription_id", sub.id)
+            await supabase.from("subscriptions").update({
+              status: "active",
+              plan: PLAN_FROM_PRICE[priceId] ?? "starter",
+              current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
+              updated_at: new Date().toISOString(),
+            }).eq("stripe_subscription_id", sub.id)
           }
         }
         break
       }
 
-      // ── Paiement échoué ──────────────────────────────────
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice
         if ((invoice as any).subscription) {
@@ -144,7 +132,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Marquer comme traité
     await supabase.from("stripe_webhook_events")
       .update({ processed: true })
       .eq("event_id", event.id)

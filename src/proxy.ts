@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
+// Routes réservées aux plans payants (starter / pro / premium)
+const PRO_ROUTES = ["/portfolio", "/ressources", "/templates", "/propale"]
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -27,7 +30,6 @@ export async function proxy(request: NextRequest) {
   // ── Redirect unauthenticated users ──────────────────────────
   const publicPaths = ["/", "/auth/login", "/auth/register", "/auth/callback"]
   const isPublic = publicPaths.some(p => path === p) || path.startsWith("/api/")
-
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"
@@ -41,19 +43,37 @@ export async function proxy(request: NextRequest) {
       url.pathname = "/auth/login"
       return NextResponse.redirect(url)
     }
-
-    // Vérifier si l'utilisateur est admin
     const { data: adminUser } = await supabase
       .from("admin_users")
       .select("role")
       .eq("user_id", user.id)
       .single()
-
     if (!adminUser) {
-      // Pas admin → rediriger vers dashboard avec message
       const url = request.nextUrl.clone()
       url.pathname = "/dashboard"
       url.searchParams.set("error", "unauthorized")
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // ── ProGate : routes réservées aux plans payants ─────────────
+  if (user && PRO_ROUTES.some(r => path.startsWith(r))) {
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("plan, status")
+      .eq("user_id", user.id)
+      .in("status", ["active", "trialing"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single()
+
+    const plan = sub?.plan ?? "free"
+    const hasPaidPlan = ["starter", "pro", "premium"].includes(plan)
+
+    if (!hasPaidPlan) {
+      const url = request.nextUrl.clone()
+      url.pathname = "/pricing"
+      url.searchParams.set("locked", "true")
       return NextResponse.redirect(url)
     }
   }
