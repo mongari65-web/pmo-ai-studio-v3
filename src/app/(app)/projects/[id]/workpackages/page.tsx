@@ -80,38 +80,38 @@ export default function WorkPackagesPage() {
         projectName={project?.name}>
 
         {wps.length === 0 && !loading && (
-          <div className="bg-card border border-dashed border-border rounded-xl p-16 text-center">
-            <div className="text-5xl mb-3">📦</div>
-            <p className="font-semibold text-foreground mb-1">Aucun Work Package</p>
-            <p className="text-sm text-muted-foreground">Cliquez sur "Générer Work Packages"</p>
+          <div>
+            <div>📦</div>
+            <p>Aucun Work Package</p>
+            <p>Cliquez sur "Générer Work Packages"</p>
           </div>
         )}
 
         {wps.length > 0 && (
-          <div className="space-y-4">
+          <div>
             {/* KPIs */}
-            <div className="grid grid-cols-4 gap-3">
-              <div className="bg-card border border-border rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Work Packages</p>
-                <p className="text-xl font-bold text-foreground">{wps.length}</p>
+            <div>
+              <div>
+                <p>Work Packages</p>
+                <p>{wps.length}</p>
               </div>
-              <div className="bg-card border border-border rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Budget total</p>
-                <p className="text-xl font-bold text-blue-400">{(totalBudget/1000).toFixed(0)}k€</p>
+              <div>
+                <p>Budget total</p>
+                <p>{(totalBudget/1000).toFixed(0)}k€</p>
               </div>
-              <div className="bg-card border border-border rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Avancement moy.</p>
-                <p className="text-xl font-bold text-purple-400">{avgCompletion}%</p>
+              <div>
+                <p>Avancement moy.</p>
+                <p>{avgCompletion}%</p>
               </div>
-              <div className="bg-card border border-border rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Terminés</p>
-                <p className="text-xl font-bold text-green-400">{wps.filter(w=>w.status==="Terminé").length}</p>
+              <div>
+                <p>Terminés</p>
+                <p>{wps.filter(w=>w.status==="Terminé").length}</p>
               </div>
             </div>
 
             {/* Tabs + filtre phase */}
-            <div className="flex items-center justify-between">
-              <div className="flex gap-1 bg-muted rounded-lg p-1 w-fit">
+            <div>
+              <div>
                 {(["cards","table"] as const).map(tab => (
                   <button key={tab} onClick={() => setActiveTab(tab)}
                     className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab===tab ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
@@ -119,7 +119,7 @@ export default function WorkPackagesPage() {
                   </button>
                 ))}
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div>
                 {phases.map(p => (
                   <button key={p} onClick={() => setFilterPhase(p)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${filterPhase===p ? "border-primary bg-primary/20 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>
@@ -131,43 +131,43 @@ export default function WorkPackagesPage() {
 
             {/* Cards view */}
             {activeTab === "cards" && (
-              <div className="grid grid-cols-2 gap-4">
+              <div>
                 {filtered.map(wp => {
                   const cfg = STATUS_CFG[wp.status] ?? { color:"var(--text-3)", bg:"transparent" }
                   const pc = phaseColor(wp.phase)
                   return (
-                    <div key={wp.id} className="bg-card border border-border rounded-xl p-4 hover:border-primary/40 transition-all group" style={{ borderLeft: `3px solid ${pc}` }}>
-                      <div className="flex items-start justify-between mb-3">
+                    <div key={wp.id} style={{ borderLeft: `3px solid ${pc}` }}>
+                      <div>
                         <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[10px] font-mono font-bold text-muted-foreground">{wp.code}</span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: pc+"22", color: pc }}>{wp.phase}</span>
+                          <div>
+                            <span>{wp.code}</span>
+                            <span style={{ background: pc+"22", color: pc }}>{wp.phase}</span>
                           </div>
-                          <h3 className="font-semibold text-sm text-foreground">{wp.name}</h3>
+                          <h3>{wp.name}</h3>
                         </div>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold flex-shrink-0" style={{ background: cfg.bg, color: cfg.color }}>{wp.status}</span>
+                        <span style={{ background: cfg.bg, color: cfg.color }}>{wp.status}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{wp.description}</p>
+                      <p>{wp.description}</p>
                       {/* Progress */}
-                      <div className="mb-3">
-                        <div className="flex justify-between text-xs mb-1">
+                      <div>
+                        <div>
                           <span style={{color:"var(--text-2)"}}>Avancement</span>
-                          <span className="font-medium text-foreground">{wp.completion}%</span>
+                          <span>{wp.completion}%</span>
                         </div>
-                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full rounded-full transition-all" style={{ width:`${wp.completion}%`, background: wp.completion===100?"#22c55e":pc }}/>
+                        <div>
+                          <div style={{ width:`${wp.completion}%`, background: wp.completion===100?"#22c55e":pc }}/>
                         </div>
                       </div>
                       {/* Meta */}
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                        <div className="flex items-center gap-1.5 text-muted-foreground"><span>👤</span>{wp.responsible}</div>
-                        <div className="flex items-center gap-1.5 text-amber-400"><span>💰</span>{wp.budget.toLocaleString()} €</div>
-                        <div className="flex items-center gap-1.5 text-muted-foreground"><span>📅</span>{wp.start} → {wp.end}</div>
-                        <div className="flex items-center gap-1.5 text-muted-foreground"><span>⏱️</span>{wp.duration} jours</div>
+                      <div>
+                        <div><span>👤</span>{wp.responsible}</div>
+                        <div><span>💰</span>{wp.budget.toLocaleString()} €</div>
+                        <div><span>📅</span>{wp.start} → {wp.end}</div>
+                        <div><span>⏱️</span>{wp.duration} jours</div>
                       </div>
                       {wp.deliverables && (
-                        <div className="mt-3 pt-3 border-t border-border">
-                          <p className="text-[10px] text-muted-foreground"><span style={{fontWeight:500}}>Livrable :</span> {wp.deliverables}</p>
+                        <div>
+                          <p><span style={{fontWeight:500}}>Livrable :</span> {wp.deliverables}</p>
                         </div>
                       )}
                     </div>
@@ -178,12 +178,12 @@ export default function WorkPackagesPage() {
 
             {/* Table view */}
             {activeTab === "table" && (
-              <div className="bg-card border border-border rounded-xl overflow-hidden">
-                <table className="w-full border-collapse text-sm">
+              <div>
+                <table>
                   <thead>
-                    <tr className="bg-primary/20 border-b border-border">
+                    <tr>
                       {["Code","Nom","Phase","Responsable","Début","Fin","Budget","Statut","Avancement",""].map(h => (
-                        <th key={h} className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide whitespace-nowrap">{h}</th>
+                        <th key={h}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -192,48 +192,48 @@ export default function WorkPackagesPage() {
                       const cfg = STATUS_CFG[wp.status] ?? { color:"var(--text-3)", bg:"transparent" }
                       const pc = phaseColor(wp.phase)
                       return (
-                        <tr key={wp.id} className="border-b border-border hover:bg-accent/20 group" style={{ borderLeft: `3px solid ${pc}` }}>
+                        <tr key={wp.id} style={{ borderLeft: `3px solid ${pc}` }}>
                           {editId===wp.id && editRow ? (
                             <>
-                              <td className="px-2 py-1"><input value={editRow.code} onChange={e=>setEditRow({...editRow,code:e.target.value})} className="w-20 bg-background border border-primary/40 rounded px-1 py-0.5 text-xs"/></td>
-                              <td className="px-2 py-1"><input value={editRow.name} onChange={e=>setEditRow({...editRow,name:e.target.value})} className="w-full bg-background border border-primary/40 rounded px-1 py-0.5 text-xs"/></td>
-                              <td className="px-2 py-1"><input value={editRow.phase} onChange={e=>setEditRow({...editRow,phase:e.target.value})} className="w-24 bg-background border border-primary/40 rounded px-1 py-0.5 text-xs"/></td>
-                              <td className="px-2 py-1"><input value={editRow.responsible} onChange={e=>setEditRow({...editRow,responsible:e.target.value})} className="w-24 bg-background border border-primary/40 rounded px-1 py-0.5 text-xs"/></td>
-                              <td className="px-2 py-1"><input type="date" value={editRow.start} onChange={e=>setEditRow({...editRow,start:e.target.value})} className="bg-background border border-primary/40 rounded px-1 py-0.5 text-xs"/></td>
-                              <td className="px-2 py-1"><input type="date" value={editRow.end} onChange={e=>setEditRow({...editRow,end:e.target.value})} className="bg-background border border-primary/40 rounded px-1 py-0.5 text-xs"/></td>
-                              <td className="px-2 py-1"><input type="number" value={editRow.budget} onChange={e=>setEditRow({...editRow,budget:+e.target.value})} className="w-20 bg-background border border-primary/40 rounded px-1 py-0.5 text-xs"/></td>
-                              <td className="px-2 py-1">
-                                <select value={editRow.status} onChange={e=>setEditRow({...editRow,status:e.target.value})} className="bg-background border border-primary/40 rounded px-1 py-0.5 text-xs">
+                              <td><input value={editRow.code} onChange={e=>setEditRow({...editRow,code:e.target.value})}/></td>
+                              <td><input value={editRow.name} onChange={e=>setEditRow({...editRow,name:e.target.value})}/></td>
+                              <td><input value={editRow.phase} onChange={e=>setEditRow({...editRow,phase:e.target.value})}/></td>
+                              <td><input value={editRow.responsible} onChange={e=>setEditRow({...editRow,responsible:e.target.value})}/></td>
+                              <td><input type="date" value={editRow.start} onChange={e=>setEditRow({...editRow,start:e.target.value})}/></td>
+                              <td><input type="date" value={editRow.end} onChange={e=>setEditRow({...editRow,end:e.target.value})}/></td>
+                              <td><input type="number" value={editRow.budget} onChange={e=>setEditRow({...editRow,budget:+e.target.value})}/></td>
+                              <td>
+                                <select value={editRow.status} onChange={e=>setEditRow({...editRow,status:e.target.value})}>
                                   {["Planifié","En cours","Terminé","En retard"].map(s=><option key={s}>{s}</option>)}
                                 </select>
                               </td>
-                              <td className="px-2 py-1"><input type="number" min="0" max="100" value={editRow.completion} onChange={e=>setEditRow({...editRow,completion:+e.target.value})} className="w-14 bg-background border border-primary/40 rounded px-1 py-0.5 text-xs"/></td>
-                              <td className="px-2 py-1">
-                                <div className="flex gap-1">
-                                  <button onClick={confirmEdit} className="p-1 text-green-400 hover:bg-green-500/10 rounded"><Check size={12}/></button>
-                                  <button onClick={cancelEdit} className="p-1 text-red-400 hover:bg-red-500/10 rounded"><X size={12}/></button>
+                              <td><input type="number" min="0" max="100" value={editRow.completion} onChange={e=>setEditRow({...editRow,completion:+e.target.value})}/></td>
+                              <td>
+                                <div>
+                                  <button onClick={confirmEdit}><Check size={12}/></button>
+                                  <button onClick={cancelEdit}><X size={12}/></button>
                                 </div>
                               </td>
                             </>
                           ) : (
                             <>
-                              <td className="px-3 py-2 text-xs font-mono text-muted-foreground">{wp.code}</td>
-                              <td className="px-3 py-2 text-xs font-medium text-foreground">{wp.name}</td>
-                              <td className="px-3 py-2 text-xs" style={{color:pc}}>{wp.phase}</td>
-                              <td className="px-3 py-2 text-xs text-blue-400">{wp.responsible}</td>
-                              <td className="px-3 py-2 text-xs text-muted-foreground">{wp.start}</td>
-                              <td className="px-3 py-2 text-xs text-muted-foreground">{wp.end}</td>
-                              <td className="px-3 py-2 text-xs text-amber-400">{wp.budget.toLocaleString()} €</td>
-                              <td className="px-3 py-2"><span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{background:cfg.bg,color:cfg.color}}>{wp.status}</span></td>
-                              <td className="px-3 py-2">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                                    <div className="h-full rounded-full" style={{width:`${wp.completion}%`,background:wp.completion===100?"#22c55e":pc}}/>
+                              <td>{wp.code}</td>
+                              <td>{wp.name}</td>
+                              <td style={{color:pc}}>{wp.phase}</td>
+                              <td>{wp.responsible}</td>
+                              <td>{wp.start}</td>
+                              <td>{wp.end}</td>
+                              <td>{wp.budget.toLocaleString()} €</td>
+                              <td><span style={{background:cfg.bg,color:cfg.color}}>{wp.status}</span></td>
+                              <td>
+                                <div>
+                                  <div>
+                                    <div style={{width:`${wp.completion}%`,background:wp.completion===100?"#22c55e":pc}}/>
                                   </div>
-                                  <span className="text-[10px] text-muted-foreground">{wp.completion}%</span>
+                                  <span>{wp.completion}%</span>
                                 </div>
                               </td>
-                              <td className="px-3 py-2"><button onClick={()=>startEdit(wp)} className="text-xs text-primary hover:underline opacity-0 group-hover:opacity-100"><Pencil size={11}/></button></td>
+                              <td><button onClick={()=>startEdit(wp)}><Pencil size={11}/></button></td>
                             </>
                           )}
                         </tr>

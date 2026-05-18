@@ -80,7 +80,7 @@ export default function RAIDPage() {
         exportFilename={`RAID_${project?.name ?? ""}`} projectName={project?.name}>
 
         {/* Category filters */}
-        <div className="flex gap-2 mb-4 flex-wrap">
+        <div>
           {["All","Risk","Action","Issue","Decision"].map(cat => (
             <button key={cat} onClick={() => setFilter(cat)}
               className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
@@ -96,98 +96,88 @@ export default function RAIDPage() {
 
         {/* Add/Edit form */}
         {showForm && (
-          <div className="bg-card border border-primary/40 rounded-xl p-4 mb-4 space-y-3">
-            <p className="text-sm font-semibold text-foreground">{editItem ? "Modifier" : "Nouvel élément"} RAID</p>
-            <div className="grid grid-cols-3 gap-3">
+          <div>
+            <p>{editItem ? "Modifier" : "Nouvel élément"} RAID</p>
+            <div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Catégorie</label>
-                <select value={formItem.category} onChange={e => setFormItem({...formItem, category: e.target.value as any})}
-                  className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground">
+                <label>Catégorie</label>
+                <select value={formItem.category} onChange={e => setFormItem({...formItem, category: e.target.value as any})}>
                   {["Risk","Action","Issue","Decision"].map(c => <option key={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Priorité</label>
-                <select value={formItem.priority} onChange={e => setFormItem({...formItem, priority: e.target.value})}
-                  className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground">
+                <label>Priorité</label>
+                <select value={formItem.priority} onChange={e => setFormItem({...formItem, priority: e.target.value})}>
                   {["Critique","Élevé","Moyen","Faible"].map(p => <option key={p}>{p}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Statut</label>
-                <select value={formItem.status} onChange={e => setFormItem({...formItem, status: e.target.value})}
-                  className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground">
+                <label>Statut</label>
+                <select value={formItem.status} onChange={e => setFormItem({...formItem, status: e.target.value})}>
                   {["Ouvert","En cours","Fermé","Accepté"].map(s => <option key={s}>{s}</option>)}
                 </select>
               </div>
-              <div className="col-span-3">
-                <label className="text-xs text-muted-foreground mb-1 block">Titre</label>
-                <input value={formItem.title} onChange={e => setFormItem({...formItem, title: e.target.value})}
-                  className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground"/>
+              <div>
+                <label>Titre</label>
+                <input value={formItem.title} onChange={e => setFormItem({...formItem, title: e.target.value})}/>
               </div>
-              <div className="col-span-3">
-                <label className="text-xs text-muted-foreground mb-1 block">Description</label>
+              <div>
+                <label>Description</label>
                 <textarea value={formItem.description} onChange={e => setFormItem({...formItem, description: e.target.value})}
-                  rows={2} className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground resize-none"/>
+                  rows={2}/>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Responsable</label>
-                <input value={formItem.owner} onChange={e => setFormItem({...formItem, owner: e.target.value})}
-                  className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground"/>
+                <label>Responsable</label>
+                <input value={formItem.owner} onChange={e => setFormItem({...formItem, owner: e.target.value})}/>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Échéance</label>
-                <input type="date" value={formItem.due_date} onChange={e => setFormItem({...formItem, due_date: e.target.value})}
-                  className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground"/>
+                <label>Échéance</label>
+                <input type="date" value={formItem.due_date} onChange={e => setFormItem({...formItem, due_date: e.target.value})}/>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Mitigation</label>
-                <input value={formItem.mitigation} onChange={e => setFormItem({...formItem, mitigation: e.target.value})}
-                  className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground"/>
+                <label>Mitigation</label>
+                <input value={formItem.mitigation} onChange={e => setFormItem({...formItem, mitigation: e.target.value})}/>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button onClick={saveItem} className="px-4 py-1.5 bg-primary text-white rounded text-sm font-medium">Enregistrer</button>
-              <button onClick={() => setShowForm(false)} className="px-4 py-1.5 bg-muted text-foreground rounded text-sm">Annuler</button>
+            <div>
+              <button onClick={saveItem}>Enregistrer</button>
+              <button onClick={() => setShowForm(false)}>Annuler</button>
             </div>
           </div>
         )}
 
         {filtered.length === 0 && !loading && (
-          <div className="bg-card border border-dashed border-border rounded-xl p-16 text-center">
-            <div className="text-5xl mb-3">⚠️</div>
-            <p className="font-semibold text-foreground mb-1">Aucun élément RAID</p>
-            <p className="text-sm text-muted-foreground">Générez automatiquement ou ajoutez manuellement</p>
+          <div>
+            <div>⚠️</div>
+            <p>Aucun élément RAID</p>
+            <p>Générez automatiquement ou ajoutez manuellement</p>
           </div>
         )}
 
-        <div className="space-y-3">
+        <div>
           {filtered.map(item => {
             const cfg = CAT[item.category]
             const priColor = PRI[item.priority as keyof typeof PRI] ?? "#64748b"
             return (
-              <div key={item.id} className="bg-card border border-border rounded-xl p-4 group"
-                style={{ borderLeft: `4px solid ${cfg.color}` }}>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ background: cfg.color+"22", color: cfg.color }}>{cfg.icon} {item.category}</span>
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ background: priColor+"22", color: priColor }}>{item.priority}</span>
-                      <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">{item.status}</span>
+              <div key={item.id} style={{ borderLeft: `4px solid ${cfg.color}` }}>
+                <div>
+                  <div>
+                    <div>
+                      <span style={{ background: cfg.color+"22", color: cfg.color }}>{cfg.icon} {item.category}</span>
+                      <span style={{ background: priColor+"22", color: priColor }}>{item.priority}</span>
+                      <span>{item.status}</span>
                     </div>
-                    <p className="font-semibold text-foreground text-sm mb-1">{item.title}</p>
-                    <p className="text-xs text-muted-foreground mb-2">{item.description}</p>
-                    <div className="flex gap-4 text-xs text-muted-foreground">
+                    <p>{item.title}</p>
+                    <p>{item.description}</p>
+                    <div>
                       <span>👤 {item.owner}</span>
                       {item.due_date && <span>📅 {item.due_date}</span>}
                       {item.mitigation && <span>🛡️ {item.mitigation}</span>}
                     </div>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => { setEditItem(item); setFormItem({...item}); setShowForm(true) }}
-                      className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-colors"><Pencil size={13}/></button>
-                    <button onClick={() => deleteItem(item.id)}
-                      className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"><Trash2 size={13}/></button>
+                  <div>
+                    <button onClick={() => { setEditItem(item); setFormItem({...item}); setShowForm(true) }}><Pencil size={13}/></button>
+                    <button onClick={() => deleteItem(item.id)}><Trash2 size={13}/></button>
                   </div>
                 </div>
               </div>

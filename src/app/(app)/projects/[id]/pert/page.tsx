@@ -582,7 +582,7 @@ export default function PERTPage() {
                           {task.critical ? <span style={{ fontSize:10, background:"#FCEBEB", color:"#A32D2D", borderRadius:10, padding:"2px 6px" }}>Critique</span> : task.slack+"j"}
                         </td>
                         <td style={{ padding:"7px 10px" }}>
-                          <div style={{ display:"flex", gap:4, opacity:0 }} className="row-actions"
+                          <div style={{ display:"flex", gap:4, opacity:0 }}
                             onMouseEnter={e=>(e.currentTarget as any).style.opacity=1}
                             onMouseLeave={e=>(e.currentTarget as any).style.opacity=0}>
                             <button onClick={e=>{e.stopPropagation();startEdit(task)}}
