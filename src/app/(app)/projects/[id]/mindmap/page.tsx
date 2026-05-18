@@ -55,7 +55,7 @@ function MindMapSVG({ data, svgRef }: { data: MindMapData; svgRef: React.RefObje
   return (
     <div style={{border:"1px solid var(--border)"}} style={{ height: 620 }}>
       {/* Controls */}
-      <div className="absolute top-3 right-3 z-10 flex gap-1.5">
+      <div style={{position:"absolute",top:12,right:12,zIndex:10,display:"flex",gap:6}}>
         <button onClick={() => zoom(1.2)} style={{border:"1px solid var(--border)"}} title="Zoom +">
           <ZoomIn size={14}/>
         </button>
@@ -71,7 +71,7 @@ function MindMapSVG({ data, svgRef }: { data: MindMapData; svgRef: React.RefObje
       </div>
 
       {/* Zoom level */}
-      <div className="absolute bottom-3 left-3 z-10">
+      <div style={{position:"absolute"}}>
         <span style={{border:"1px solid var(--border)"}}>
           {Math.round(transform.scale * 100)}% · Molette pour zoomer · Clic+glisser pour déplacer
         </span>
@@ -213,15 +213,15 @@ export default function MindMapPage() {
 
         {mmData && !loading && (
           <div className="space-y-3">
-            <div className="flex flex-wrap gap-2">
+            <div style={{display:"flex"}}>
               {mmData.branches?.map(b => (
-                <div key={b.id} className="flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-medium"
+                <div key={b.id} style={{display:"flex"}}
                   style={{ borderColor: b.color + "44", background: b.color + "11", color: b.color }}>
                   {b.label}
                 </div>
               ))}
               <button onClick={() => { if (svgRef.current) exportSVGasPNG(svgRef.current as any, `MindMap_${project?.name ?? "projet"}`) }}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors ml-auto">
+                style={{display:"flex"}}>
                 📸 Export PNG
               </button>
             </div>
