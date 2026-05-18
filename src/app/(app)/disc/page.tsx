@@ -1,4 +1,5 @@
 "use client"
+import BackButton from "@/components/ui/BackButton"
 import { useState } from "react"
 import AppLayout from "@/components/layout/AppLayout"
 import { Brain, ChevronRight, RotateCcw, Loader2, Download } from "lucide-react"
