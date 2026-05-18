@@ -159,8 +159,8 @@ export default function RAIDPage() {
             const cfg = CAT[item.category]
             const priColor = PRI[item.priority as keyof typeof PRI] ?? "#64748b"
             return (
-              <div key={item.id} style={{ borderLeft: `4px solid ${cfg.color}` }}>
-                <div>
+              <div key={item.id}style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:"var(--r12)",padding:16,marginBottom:10}}  style={{ borderLeft: `4px solid ${cfg.color}` }}>
+              <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8}}>
                   <div>
                     <div>
                       <span style={{ background: cfg.color+"22", color: cfg.color }}>{cfg.icon} {item.category}</span>
@@ -168,7 +168,7 @@ export default function RAIDPage() {
                       <span>{item.status}</span>
                     </div>
                     <p>{item.title}</p>
-                    <p>{item.description}</p>
+                    <p style={{fontSize:12,color:"var(--text-2)",margin:"0 0 8px",lineHeight:1.5}}>{item.description}</p>
                     <div>
                       <span>👤 {item.owner}</span>
                       {item.due_date && <span>📅 {item.due_date}</span>}

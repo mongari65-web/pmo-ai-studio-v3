@@ -91,27 +91,27 @@ export default function WorkPackagesPage() {
           <div>
             {/* KPIs */}
             <div>
-              <div>
-                <p>Work Packages</p>
+              <div style={{background:"var(--bg-card2)",border:"1px solid var(--border)",borderRadius:"var(--r8)",padding:"12px 16px"}}>
+                <p style={{fontSize:11,color:"var(--text-3)",margin:"0 0 4px",textTransform:"uppercase",letterSpacing:"0.5px"}}>Work Packages</p>
                 <p>{wps.length}</p>
               </div>
-              <div>
-                <p>Budget total</p>
+              <div style={{background:"var(--bg-card2)",border:"1px solid var(--border)",borderRadius:"var(--r8)",padding:"12px 16px"}}>
+                <p style={{fontSize:11,color:"var(--text-3)",margin:"0 0 4px",textTransform:"uppercase",letterSpacing:"0.5px"}}>Budget total</p>
                 <p>{(totalBudget/1000).toFixed(0)}k€</p>
               </div>
-              <div>
-                <p>Avancement moy.</p>
+              <div style={{background:"var(--bg-card2)",border:"1px solid var(--border)",borderRadius:"var(--r8)",padding:"12px 16px"}}>
+                <p style={{fontSize:11,color:"var(--text-3)",margin:"0 0 4px",textTransform:"uppercase",letterSpacing:"0.5px"}}>Avancement moy.</p>
                 <p>{avgCompletion}%</p>
               </div>
-              <div>
-                <p>Terminés</p>
+              <div style={{background:"var(--bg-card2)",border:"1px solid var(--border)",borderRadius:"var(--r8)",padding:"12px 16px"}}>
+                <p style={{fontSize:11,color:"var(--text-3)",margin:"0 0 4px",textTransform:"uppercase",letterSpacing:"0.5px"}}>Terminés</p>
                 <p>{wps.filter(w=>w.status==="Terminé").length}</p>
               </div>
             </div>
 
             {/* Tabs + filtre phase */}
-            <div>
-              <div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
+              <div style={{display:"flex",gap:4,background:"var(--bg-card2)",border:"1px solid var(--border)",borderRadius:"var(--r8)",padding:4}}>
                 {(["cards","table"] as const).map(tab => (
                   <button key={tab} onClick={() => setActiveTab(tab)}
                     style={{padding:"6px 14px",borderRadius:"var(--r8)",fontSize:12,fontWeight:500,cursor:"pointer",border:"none",background:activeTab===tab?"var(--primary-bg)":"transparent",color:activeTab===tab?"var(--primary-light)":"var(--text-2)"}}>
@@ -119,7 +119,7 @@ export default function WorkPackagesPage() {
                   </button>
                 ))}
               </div>
-              <div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                 {phases.map(p => (
                   <button key={p} onClick={() => setFilterPhase(p)}
                     style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:500,cursor:"pointer",border:`1px solid ${filterPhase===p?"var(--primary)":"var(--border)"}`,background:filterPhase===p?"var(--primary-bg)":"transparent",color:filterPhase===p?"var(--primary-light)":"var(--text-3)"}}>
@@ -131,26 +131,26 @@ export default function WorkPackagesPage() {
 
             {/* Cards view */}
             {activeTab === "cards" && (
-              <div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:14}}>
                 {filtered.map(wp => {
                   const cfg = STATUS_CFG[wp.status] ?? { color:"var(--text-3)", bg:"transparent" }
                   const pc = phaseColor(wp.phase)
                   return (
-                    <div key={wp.id} style={{ borderLeft: `3px solid ${pc}` }}>
-                      <div>
-                        <div>
-                          <div>
-                            <span>{wp.code}</span>
+                    <div key={wp.id} style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderLeft:`3px solid ${pc}`,borderRadius:"var(--r12)",padding:18,transition:"border-color 0.15s"}}>
+                      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:10}}>
+                        <div style={{flex:1}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                            <span style={{fontSize:11,fontWeight:700,color:"var(--text-3)"}}>{wp.code}</span>
                             <span style={{ background: pc+"22", color: pc }}>{wp.phase}</span>
                           </div>
-                          <h3>{wp.name}</h3>
+                          <h3 style={{fontSize:14,fontWeight:700,color:"var(--text-1)",margin:0}}>{wp.name}</h3>
                         </div>
                         <span style={{ background: cfg.bg, color: cfg.color }}>{wp.status}</span>
                       </div>
-                      <p>{wp.description}</p>
+                      <p style={{fontSize:12,color:"var(--text-2)",margin:"0 0 12px",lineHeight:1.5}}>{wp.description}</p>
                       {/* Progress */}
                       <div>
-                        <div>
+                        <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
                           <span style={{color:"var(--text-2)"}}>Avancement</span>
                           <span>{wp.completion}%</span>
                         </div>
