@@ -1,211 +1,243 @@
 "use client"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import AppLayout from "@/components/layout/AppLayout"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Plus, Search, Filter, Archive, CheckCircle2, Clock } from "lucide-react"
+import { Plus, Search, FolderKanban, Clock, CheckCircle2, Archive, ArrowRight, Settings } from "lucide-react"
 
-interface Project {
-  id: string; name: string; description: string; client: string
-  status: string; completion: number; color: string; icon: string
-  methodology: string; budget: number; start_date: string; end_date: string
-  created_at: string; team: string[]
-}
-
-const STATUS_CFG = {
-  active:    { label: "Actif",    color: "#22c55e", bg: "rgba(34,197,94,0.1)" },
-  archived:  { label: "Archivé", color: "#64748b", bg: "rgba(100,116,139,0.1)" },
-  completed: { label: "Terminé", color: "#3b82f6", bg: "rgba(59,130,246,0.1)" },
+const STATUS_CFG: Record<string, { label: string; color: string; bg: string }> = {
+  active:    { label: "Actif",    color: "#36B37E", bg: "rgba(54,179,126,0.12)" },
+  completed: { label: "Terminé", color: "#7B5EFF", bg: "rgba(123,94,255,0.12)" },
+  archived:  { label: "Archivé", color: "#5A5F80", bg: "rgba(90,95,128,0.12)" },
+  on_hold:   { label: "En pause",color: "#FF991F", bg: "rgba(255,153,31,0.12)" },
 }
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [search, setSearch] = useState("")
-  const [filterStatus, setFilterStatus] = useState("all")
-  const [loading, setLoading] = useState(true)
+  const [projects, setProjects] = useState<any[]>([])
+  const [loading, setLoading]   = useState(true)
+  const [search, setSearch]     = useState("")
+  const [filter, setFilter]     = useState("all")
   const supabase = createClient()
+  const router   = useRouter()
 
   useEffect(() => {
-    supabase.from("projects").select("*").order("created_at", { ascending: false })
-      .then(({ data }) => { setProjects(data ?? []); setLoading(false) })
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data } = await supabase
+        .from("projects").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
+      setProjects(data ?? [])
+      setLoading(false)
+    }
+    load()
   }, [])
 
   const filtered = projects.filter(p => {
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
-      (p.client ?? "").toLowerCase().includes(search.toLowerCase())
-    const matchStatus = filterStatus === "all" || p.status === filterStatus
-    return matchSearch && matchStatus
+    const matchSearch = search === "" ||
+      p.name?.toLowerCase().includes(search.toLowerCase()) ||
+      p.description?.toLowerCase().includes(search.toLowerCase())
+    const matchFilter = filter === "all" || p.status === filter
+    return matchSearch && matchFilter
   })
 
-  const stats = {
-    total: projects.length,
-    active: projects.filter(p => p.status === "active").length,
+  const counts = {
+    total:     projects.length,
+    active:    projects.filter(p => p.status === "active").length,
     completed: projects.filter(p => p.status === "completed").length,
-    archived: projects.filter(p => p.status === "archived").length,
-  }
-
-  const archiveProject = async (id: string) => {
-    await supabase.from("projects").update({ status: "archived" }).eq("id", id)
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: "archived" } : p))
-  }
-
-  const completeProject = async (id: string) => {
-    await supabase.from("projects").update({ status: "completed", completion: 100 }).eq("id", id)
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: "completed", completion: 100 } : p))
+    archived:  projects.filter(p => p.status === "archived").length,
   }
 
   return (
-    <AppLayout>
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Mes projets</h1>
-            <p className="text-muted-foreground text-sm mt-0.5">{stats.total} projet{stats.total > 1 ? "s" : ""} au total</p>
-          </div>
-          <Link href="/guide" className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-            <Plus size={15}/> Nouveau projet
+    <div style={{ padding: "24px 28px", background: "var(--bg)", minHeight: "100%" }}>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
+        <div>
+          <p style={{ fontSize: 10, color: "var(--text-3)", textTransform: "uppercase",
+            letterSpacing: "1.5px", margin: "0 0 6px", display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 16, height: 1, background: "var(--primary)", display: "inline-block" }}/>
+            // MES PROJETS
+          </p>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-1)", margin: "0 0 4px",
+            display: "flex", alignItems: "center", gap: 10 }}>
+            <FolderKanban size={22} style={{ color: "var(--primary)" }}/>
+            Mes projets
+          </h1>
+          <p style={{ fontSize: 13, color: "var(--text-3)", margin: 0 }}>
+            {projects.length} projet{projects.length > 1 ? "s" : ""} au total
+          </p>
+        </div>
+        <Link href="/guide"
+          style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 18px",
+            background: "linear-gradient(135deg,var(--primary),var(--primary-dark))",
+            borderRadius: "var(--r8)", fontSize: 13, fontWeight: 600, color: "#fff",
+            textDecoration: "none", boxShadow: "0 0 20px var(--primary-glow)" }}>
+          <Plus size={14}/> Nouveau projet
+        </Link>
+      </div>
+
+      {/* KPIs */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
+        {[
+          { label: "Total",    value: counts.total,     icon: FolderKanban, color: "var(--primary)" },
+          { label: "Actifs",   value: counts.active,    icon: Clock,        color: "#36B37E" },
+          { label: "Terminés", value: counts.completed, icon: CheckCircle2, color: "#7B5EFF" },
+          { label: "Archivés", value: counts.archived,  icon: Archive,      color: "var(--text-3)" },
+        ].map(k => {
+          const Icon = k.icon
+          return (
+            <div key={k.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)",
+              borderRadius: "var(--r12)", padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 40, height: 40, borderRadius: "var(--r8)", flexShrink: 0,
+                background: `${k.color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Icon size={18} style={{ color: k.color }}/>
+              </div>
+              <div>
+                <p style={{ fontSize: 24, fontWeight: 800, color: k.color, margin: 0, lineHeight: 1 }}>{k.value}</p>
+                <p style={{ fontSize: 12, color: "var(--text-3)", margin: "3px 0 0" }}>{k.label}</p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Filtres */}
+      <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+        <div style={{ position: "relative", flex: 1, maxWidth: 340 }}>
+          <Search size={13} style={{ position: "absolute", left: 10, top: "50%",
+            transform: "translateY(-50%)", color: "var(--text-3)" }}/>
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Rechercher par nom ou description..."
+            style={{ width: "100%", paddingLeft: 32, height: 36, background: "var(--bg-card)",
+              border: "1px solid var(--border)", borderRadius: "var(--r8)",
+              fontSize: 13, color: "var(--text-1)", outline: "none" }}/>
+        </div>
+        {[
+          { v: "all",       l: "Tous" },
+          { v: "active",    l: "Actifs" },
+          { v: "completed", l: "Terminés" },
+          { v: "archived",  l: "Archivés" },
+        ].map(({ v, l }) => (
+          <button key={v} onClick={() => setFilter(v)}
+            style={{ padding: "0 14px", height: 36, borderRadius: "var(--r8)", fontSize: 12,
+              fontWeight: filter === v ? 600 : 400, cursor: "pointer",
+              background: filter === v ? "var(--primary-bg)" : "var(--bg-card)",
+              border: `1px solid ${filter === v ? "var(--primary)" : "var(--border)"}`,
+              color: filter === v ? "var(--primary-light)" : "var(--text-2)" }}>
+            {l}
+          </button>
+        ))}
+      </div>
+
+      {/* Liste projets */}
+      {loading ? (
+        <div style={{ textAlign: "center", padding: "60px 0", color: "var(--text-3)" }}>
+          Chargement...
+        </div>
+      ) : filtered.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "60px 0" }}>
+          <FolderKanban size={48} style={{ color: "var(--text-3)", margin: "0 auto 16px", display: "block", opacity: 0.3 }}/>
+          <p style={{ fontSize: 16, fontWeight: 600, color: "var(--text-2)", margin: "0 0 8px" }}>
+            {search ? "Aucun projet trouvé" : "Aucun projet"}
+          </p>
+          <p style={{ fontSize: 13, color: "var(--text-3)", margin: "0 0 20px" }}>
+            {search ? "Essayez un autre terme" : "Créez votre premier projet pour commencer"}
+          </p>
+          <Link href="/guide"
+            style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 20px",
+              background: "var(--primary)", borderRadius: "var(--r8)", fontSize: 13,
+              fontWeight: 600, color: "#fff", textDecoration: "none" }}>
+            <Plus size={14}/> Nouveau projet
           </Link>
         </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 14 }}>
+          {filtered.map(p => {
+            const s = STATUS_CFG[p.status] ?? STATUS_CFG.active
+            const progress = p.progress ?? 0
+            return (
+              <div key={p.id}
+                style={{ background: "var(--bg-card)", border: "1px solid var(--border)",
+                  borderRadius: "var(--r12)", padding: "18px 20px", transition: "border-color 0.15s",
+                  cursor: "pointer" }}
+                onMouseEnter={e => (e.currentTarget as any).style.borderColor = "var(--border-hover)"}
+                onMouseLeave={e => (e.currentTarget as any).style.borderColor = "var(--border)"}
+                onClick={() => router.push(`/projects/${p.id}`)}>
 
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-3">
-          {[
-            { label: "Total", value: stats.total, color: "text-foreground" },
-            { label: "Actifs", value: stats.active, color: "text-green-400" },
-            { label: "Terminés", value: stats.completed, color: "text-blue-400" },
-            { label: "Archivés", value: stats.archived, color: "text-muted-foreground" },
-          ].map(s => (
-            <div key={s.label} className="bg-card border border-border rounded-xl p-3 text-center">
-              <p className="text-xs text-muted-foreground mb-1">{s.label}</p>
-              <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Search + Filter */}
-        <div className="flex gap-3">
-          <div className="relative flex-1">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"/>
-            <input value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Rechercher par nom ou client..."
-              className="w-full pl-9 pr-4 py-2.5 bg-card border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"/>
-          </div>
-          <div className="flex gap-2">
-            {[
-              { key: "all", label: "Tous" },
-              { key: "active", label: "Actifs" },
-              { key: "completed", label: "Terminés" },
-              { key: "archived", label: "Archivés" },
-            ].map(f => (
-              <button key={f.key} onClick={() => setFilterStatus(f.key)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
-                  filterStatus === f.key
-                    ? "bg-primary border-primary text-white"
-                    : "bg-card border-border text-muted-foreground hover:text-foreground"
-                }`}>
-                {f.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Projects grid */}
-        {loading ? (
-          <div className="text-center py-12 text-muted-foreground">Chargement...</div>
-        ) : filtered.length === 0 ? (
-          <div className="bg-card border border-dashed border-border rounded-xl p-16 text-center">
-            <div className="text-5xl mb-3">📂</div>
-            <p className="font-medium text-foreground mb-1">Aucun projet trouvé</p>
-            <p className="text-sm text-muted-foreground mb-4">
-              {search ? "Modifiez votre recherche" : "Créez votre premier projet"}
-            </p>
-            <Link href="/guide" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium">
-              <Plus size={14}/> Nouveau projet
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-4">
-            {filtered.map(p => {
-              const cfg = STATUS_CFG[p.status as keyof typeof STATUS_CFG] ?? STATUS_CFG.active
-              return (
-                <div key={p.id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all group">
-                  {/* Color bar */}
-                  <div className="h-1" style={{ background: p.color ?? "var(--primary)" }}/>
-                  <div style={{padding:16}}>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <span className="text-xl flex-shrink-0">{p.icon ?? "📋"}</span>
-                        <div className="min-w-0">
-                          <Link href={`/projects/${p.id}`}
-                            className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors block truncate">
-                            {p.name}
-                          </Link>
-                          {p.client && <p className="text-xs text-muted-foreground truncate">{p.client}</p>}
-                        </div>
-                      </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ml-2"
-                        style={{ background: cfg.bg, color: cfg.color }}>
-                        {cfg.label}
-                      </span>
+                {/* Top */}
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontSize: 18 }}>{p.icon ?? "🔧"}</span>
+                      <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-1)", margin: 0,
+                        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {p.name}
+                      </h3>
                     </div>
-
-                    {p.description && (
-                      <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{p.description}</p>
+                    {p.client && (
+                      <p style={{ fontSize: 11, color: "var(--text-3)", margin: "0 0 6px" }}>{p.client}</p>
                     )}
-
-                    {/* Progress */}
-                    <div className="mb-3">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span style={{color:"var(--text-2)"}}>Avancement</span>
-                        <span className="font-medium text-foreground">{p.completion ?? 0}%</span>
-                      </div>
-                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${p.completion ?? 0}%`, background: p.color ?? "var(--primary)" }}/>
-                      </div>
-                    </div>
-
-                    {/* Meta */}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-                      <span className="px-1.5 py-0.5 bg-muted rounded text-[10px]">{p.methodology ?? "PMI"}</span>
-                      {p.budget > 0 && <span className="text-green-400 font-medium">{(p.budget/1000).toFixed(0)}k€</span>}
-                      {p.team?.length > 0 && <span>👥 {p.team.length}</span>}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex gap-2 pt-3 border-t border-border">
-                      <Link href={`/projects/${p.id}`}
-                        className="flex-1 text-center py-1.5 bg-primary/10 border border-primary/30 text-primary rounded-lg text-xs font-medium hover:bg-primary/20 transition-colors">
-                        Ouvrir →
-                      </Link>
-                      {p.status === "active" && (
-                        <>
-                          <button onClick={() => completeProject(p.id)}
-                            className="p-1.5 bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors"
-                            title="Marquer terminé">
-                            <CheckCircle2 size={13}/>
-                          </button>
-                          <button onClick={() => archiveProject(p.id)}
-                            className="p-1.5 bg-muted border border-border text-muted-foreground rounded-lg hover:bg-accent transition-colors"
-                            title="Archiver">
-                            <Archive size={13}/>
-                          </button>
-                        </>
-                      )}
-                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20,
+                      background: s.bg, color: s.color }}>● {s.label}</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                    <button onClick={e => { e.stopPropagation(); router.push(`/projects/${p.id}/members`) }}
+                      style={{ padding: "5px 7px", background: "var(--bg)", border: "1px solid var(--border)",
+                        borderRadius: 6, cursor: "pointer", color: "var(--text-3)" }}>
+                      <Settings size={12}/>
+                    </button>
+                    <button onClick={e => { e.stopPropagation(); router.push(`/projects/${p.id}`) }}
+                      style={{ padding: "5px 10px", background: "var(--primary-bg)", border: "1px solid rgba(123,94,255,0.3)",
+                        borderRadius: 6, cursor: "pointer", color: "var(--primary-light)", fontSize: 11, fontWeight: 600 }}>
+                      Ouvrir →
+                    </button>
                   </div>
                 </div>
-              )
-            })}
-            {/* New project card */}
-            <Link href="/guide"
-              className="bg-card border border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center hover:border-primary/40 hover:bg-accent/20 transition-all text-muted-foreground hover:text-primary group min-h-48">
-              <Plus size={28} className="mb-2 group-hover:scale-110 transition-transform"/>
-              <span className="text-sm font-medium">Nouveau projet</span>
-            </Link>
-          </div>
-        )}
+
+                {/* Description */}
+                {p.description && (
+                  <p style={{ fontSize: 12, color: "var(--text-2)", margin: "0 0 12px",
+                    lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {p.description}
+                  </p>
+                )}
+
+                {/* Barre progression */}
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                    <span style={{ fontSize: 11, color: "var(--text-3)" }}>Avancement</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-2)" }}>{progress}%</span>
+                  </div>
+                  <div style={{ height: 5, background: "var(--border)", borderRadius: 3, overflow: "hidden" }}>
+                    <div style={{ height: "100%", borderRadius: 3,
+                      background: progress >= 80 ? "#36B37E" : "var(--primary)",
+                      width: `${progress}%`, transition: "width 0.4s" }}/>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--text-3)" }}>
+                  {p.budget && <span>💰 {(p.budget/1000).toFixed(0)}k€</span>}
+                  {p.methodology && <span>📋 {p.methodology}</span>}
+                  {p.team_size && <span>👥 {p.team_size}</span>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Bouton flottant */}
+      <div style={{ marginTop: 20, textAlign: "center" }}>
+        <Link href="/guide"
+          style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 20px",
+            background: "var(--bg-card)", border: "1px solid var(--border)",
+            borderRadius: "var(--r8)", fontSize: 13, color: "var(--text-2)",
+            textDecoration: "none", transition: "all 0.15s" }}>
+          <Plus size={14}/> Nouveau projet
+        </Link>
       </div>
-    </AppLayout>
+    </div>
   )
 }

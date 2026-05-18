@@ -1,521 +1,238 @@
 "use client"
 import { useEffect, useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
-import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
-import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
-} from "recharts"
-import {
-  FolderKanban, TrendingUp, TrendingDown, AlertTriangle,
-  CheckCircle2, Clock, DollarSign, Users, Target,
-  ArrowUpRight, Filter, LayoutGrid, List
-} from "lucide-react"
+import { BarChart3, FolderKanban, TrendingUp, AlertTriangle, Plus, ArrowRight, Target } from "lucide-react"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 
-interface Project {
-  id: string; name: string; description: string; client: string
-  status: string; completion: number; color: string; icon: string
-  methodology: string; budget: number; start_date: string
-  end_date: string; created_at: string; team: string[]
+const STATUS_COLORS: Record<string,string> = {
+  active: "#36B37E", completed: "#7B5EFF", archived: "#5A5F80", on_hold: "#FF991F"
 }
-
-interface ToolData {
-  project_id: string; tool_type: string; data: any
-}
-
-const STATUS_COLORS = {
-  active: "#22c55e", completed: "#3b82f6", archived: "#64748b"
-}
-
-const CHART_COLORS = ["var(--primary)","#7c3aed","#059669","#d97706","#dc2626","#0891b2","#be185d","#7c3aed"]
 
 export default function PortfolioPage() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [toolData, setToolData] = useState<ToolData[]>([])
-  const [loading, setLoading] = useState(true)
-  const [view, setView] = useState<"grid"|"list">("grid")
-  const [filterStatus, setFilterStatus] = useState("all")
-  const [filterMethod, setFilterMethod] = useState("all")
-  const [sortBy, setSortBy] = useState<"name"|"completion"|"budget"|"date">("date")
+  const [projects, setProjects] = useState<any[]>([])
+  const [raids,    setRaids]    = useState<any[]>([])
+  const [loading,  setLoading]  = useState(true)
   const supabase = createClient()
 
   useEffect(() => {
-    Promise.all([
-      supabase.from("projects").select("*").order("created_at", { ascending: false }),
-      supabase.from("project_tools").select("project_id, tool_type, data")
-    ]).then(([{ data: projs }, { data: tools }]) => {
-      setProjects(projs ?? [])
-      setToolData(tools ?? [])
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const [{ data: ps }, { data: rs }] = await Promise.all([
+        supabase.from("projects").select("*").eq("user_id", user.id),
+        supabase.from("raid_items").select("*").eq("user_id", user.id),
+      ])
+      setProjects(ps ?? [])
+      setRaids(rs ?? [])
       setLoading(false)
-    })
+    }
+    load()
   }, [])
 
-  // ── KPIs agrégés ──────────────────────────────────────────
-  const kpis = useMemo(() => {
-    const active = projects.filter(p => p.status === "active")
-    const completed = projects.filter(p => p.status === "completed")
-    const totalBudget = projects.reduce((s, p) => s + (p.budget ?? 0), 0)
-    const avgCompletion = projects.length > 0
-      ? Math.round(projects.reduce((s, p) => s + (p.completion ?? 0), 0) / projects.length) : 0
+  const stats = useMemo(() => ({
+    total:       projects.length,
+    active:      projects.filter(p=>p.status==="active").length,
+    completed:   projects.filter(p=>p.status==="completed").length,
+    totalBudget: projects.reduce((a,p)=>a+(p.budget??0),0),
+    avgProgress: projects.length ? Math.round(projects.reduce((a,p)=>a+(p.progress??0),0)/projects.length) : 0,
+    criticalRisks: raids.filter(r=>r.category==="Risk"&&r.priority==="Critique"&&r.status==="Ouvert").length,
+    cpi: projects.length ? (projects.reduce((a,p)=>a+(p.cpi??1),0)/projects.length).toFixed(2) : "—",
+  }), [projects, raids])
 
-    // CPI global depuis tous les budgets
-    let totalEV = 0, totalAC = 0, totalBAC = 0
-    const cp = new Date().getMonth()
-    toolData.filter(t => t.tool_type === "budget").forEach(t => {
-      if (t.data?.tasks) {
-        totalEV  += t.data.tasks.reduce((s: number, task: any) => s + (task.ev?.[cp] ?? 0), 0)
-        totalAC  += t.data.tasks.reduce((s: number, task: any) => s + (task.ac?.[cp] ?? 0), 0)
-        totalBAC += t.data.tasks.reduce((s: number, task: any) => s + (task.bac ?? 0), 0)
-      }
-    })
-    const globalCPI = totalAC > 0 ? totalEV / totalAC : null
+  const chartData = projects.map(p=>({
+    name: p.name?.substring(0,12)+"..." || "Projet",
+    avancement: p.progress ?? 0,
+  }))
 
-    // Risques critiques par projet
-    let criticalRisks = 0
-    const raidAlerts: { projectId: string; projectName: string; count: number }[] = []
-    toolData.filter(t => t.tool_type === "raid").forEach(t => {
-      const count = (t.data?.items ?? []).filter((i: any) => i.priority === "Critique" && i.status === "Ouvert").length
-      criticalRisks += count
-      if (count > 0) {
-        const proj = projects.find(p => p.id === t.project_id)
-        if (proj) raidAlerts.push({ projectId: proj.id, projectName: proj.name, count })
-      }
-    })
-
-    // Jalons en retard par projet
-    const today = new Date().toISOString().split("T")[0]
-    let lateJalons = 0
-    const jalonAlerts: { projectId: string; projectName: string; count: number }[] = []
-    toolData.filter(t => t.tool_type === "jalons").forEach(t => {
-      const count = (t.data?.jalons ?? []).filter((j: any) => j.date < today && j.status !== "Atteint").length
-      lateJalons += count
-      if (count > 0) {
-        const proj = projects.find(p => p.id === t.project_id)
-        if (proj) jalonAlerts.push({ projectId: proj.id, projectName: proj.name, count })
-      }
-    })
-
-    return { active: active.length, completed: completed.length, totalBudget, avgCompletion, globalCPI, criticalRisks, lateJalons, totalBAC, raidAlerts, jalonAlerts }
-  }, [projects, toolData])
-
-  // ── Charts data ────────────────────────────────────────────
-  const completionData = useMemo(() =>
-    projects.slice(0, 8).map(p => ({
-      name: p.name.length > 12 ? p.name.slice(0,11)+"…" : p.name,
-      Avancement: p.completion ?? 0,
-      color: p.color ?? "var(--primary)"
-    })), [projects])
-
-  const statusData = useMemo(() => [
-    { name: "Actifs", value: projects.filter(p=>p.status==="active").length, color: "#22c55e" },
-    { name: "Terminés", value: projects.filter(p=>p.status==="completed").length, color: "#3b82f6" },
-    { name: "Archivés", value: projects.filter(p=>p.status==="archived").length, color: "#64748b" },
-  ].filter(d => d.value > 0), [projects])
-
-  const budgetData = useMemo(() =>
-    projects.filter(p => p.budget > 0).slice(0, 6).map(p => ({
-      name: p.name.length > 12 ? p.name.slice(0,11)+"…" : p.name,
-      Budget: Math.round(p.budget / 1000),
-    })), [projects])
-
-  const methodData = useMemo(() => {
-    const counts: Record<string, number> = {}
-    projects.forEach(p => {
-      const m = p.methodology ?? "PMI"
-      counts[m] = (counts[m] ?? 0) + 1
-    })
-    return Object.entries(counts).map(([name, value], i) => ({ name, value, color: CHART_COLORS[i] }))
-  }, [projects])
-
-  // ── Filtered + sorted projects ─────────────────────────────
-  const filtered = useMemo(() => {
-    let list = [...projects]
-    if (filterStatus !== "all") list = list.filter(p => p.status === filterStatus)
-    if (filterMethod !== "all") list = list.filter(p => p.methodology === filterMethod)
-    list.sort((a, b) => {
-      if (sortBy === "completion") return (b.completion ?? 0) - (a.completion ?? 0)
-      if (sortBy === "budget") return (b.budget ?? 0) - (a.budget ?? 0)
-      if (sortBy === "name") return a.name.localeCompare(b.name)
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    })
-    return list
-  }, [projects, filterStatus, filterMethod, sortBy])
-
-  const methodologies = useMemo(() => Array.from(new Set(projects.map(p => p.methodology ?? "PMI"))), [projects])
-
-  // ── Timeline globale ───────────────────────────────────────
-  const timelineProjects = useMemo(() =>
-    projects.filter(p => p.start_date && p.end_date)
-      .sort((a,b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
-  , [projects])
-
-  const timelineMin = timelineProjects[0]?.start_date ?? new Date().toISOString().split("T")[0]
-  const timelineMax = timelineProjects.reduce((m,p) => p.end_date > m ? p.end_date : m, timelineMin)
-  const totalDays = Math.max(1, Math.ceil((new Date(timelineMax).getTime() - new Date(timelineMin).getTime()) / 86400000))
-  const pct = (date: string) => Math.max(0, Math.min(100, (new Date(date).getTime() - new Date(timelineMin).getTime()) / 86400000 / totalDays * 100))
-  const widthPct = (s: string, e: string) => Math.max(1, (new Date(e).getTime() - new Date(s).getTime()) / 86400000 / totalDays * 100)
-  const todayPct = pct(new Date().toISOString().split("T")[0])
+  const pieData = [
+    { name:"Actifs",    value:stats.active,    color:"#36B37E" },
+    { name:"Terminés",  value:stats.completed,  color:"#7B5EFF" },
+    { name:"Archivés",  value:projects.filter(p=>p.status==="archived").length, color:"#5A5F80" },
+  ].filter(d=>d.value>0)
 
   if (loading) return (
-    <AppLayout><div className="dark-flex items-center justify-center h-64 text-muted-foreground">Chargement du portfolio...</div></AppLayout>
+    <div style={{padding:28,background:"var(--bg)",minHeight:"100%",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <p style={{color:"var(--text-3)"}}>Chargement du portfolio...</p>
+    </div>
   )
 
   return (
-    <AppLayout>
-      <div className="dark-p-6 space-y-6">
+    <div style={{padding:"24px 28px",background:"var(--bg)",minHeight:"100%"}}>
 
-        {/* Header */}
-        <div className="dark-flex items-center justify-between">
-          <div>
-            <h1 className="dark-text-2xl font-bold text-foreground">Portfolio Projets</h1>
-            <p className="dark-text-muted-foreground text-sm mt-0.5">{projects.length} projet{projects.length>1?"s":""} · Vue globale</p>
-          </div>
-          <Link href="/guide" className="dark-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-            + Nouveau projet
-          </Link>
+      {/* Header */}
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:20}}>
+        <div>
+          <p style={{fontSize:10,color:"var(--text-3)",textTransform:"uppercase",letterSpacing:"1.5px",margin:"0 0 6px",display:"flex",alignItems:"center",gap:6}}>
+            <span style={{width:16,height:1,background:"var(--primary)",display:"inline-block"}}/>
+            // PORTFOLIO
+          </p>
+          <h1 style={{fontSize:22,fontWeight:800,color:"var(--text-1)",margin:"0 0 4px",display:"flex",alignItems:"center",gap:10}}>
+            <BarChart3 size={22} style={{color:"var(--primary)"}}/>
+            Portfolio Projets
+          </h1>
+          <p style={{fontSize:13,color:"var(--text-3)",margin:0}}>
+            {stats.total} projet{stats.total>1?"s":""} · Vue globale
+          </p>
         </div>
+        <Link href="/guide"
+          style={{display:"flex",alignItems:"center",gap:7,padding:"9px 18px",
+            background:"linear-gradient(135deg,var(--primary),var(--primary-dark))",
+            borderRadius:"var(--r8)",fontSize:13,fontWeight:600,color:"#fff",
+            textDecoration:"none",boxShadow:"0 0 20px var(--primary-glow)"}}>
+          <Plus size={14}/> Nouveau projet
+        </Link>
+      </div>
 
-        {/* KPI Cards */}
-        <div className="dark-grid grid-cols-4 gap-4">
-          {[
-            { label:"Projets actifs", value:kpis.active, icon:FolderKanban, color:"text-blue-400", bg:"bg-blue-500/10 border-blue-500/20" },
-            { label:"Avancement moyen", value:`${kpis.avgCompletion}%`, icon:Target, color:"text-purple-400", bg:"bg-purple-500/10 border-purple-500/20" },
-            { label:"Budget portfolio", value:kpis.totalBudget>0?`${(kpis.totalBudget/1000).toFixed(0)}k€`:"—", icon:DollarSign, color:"text-green-400", bg:"bg-green-500/10 border-green-500/20" },
-            {
-              label:"CPI global",
-              value: kpis.globalCPI !== null ? kpis.globalCPI.toFixed(2) : "—",
-              icon: kpis.globalCPI !== null && kpis.globalCPI >= 1 ? TrendingUp : TrendingDown,
-              color: kpis.globalCPI !== null ? (kpis.globalCPI >= 1 ? "text-green-400" : "text-red-400") : "text-muted-foreground",
-              bg: kpis.globalCPI !== null ? (kpis.globalCPI >= 1 ? "bg-green-500/10 border-green-500/20" : "bg-red-500/10 border-red-500/20") : "bg-card border-border"
-            },
-          ].map(k => (
-            <div key={k.label} className={`border rounded-xl p-4 ${k.bg}`}>
-              <div className="dark-flex items-center justify-between mb-2">
-                <p className="dark-text-xs text-muted-foreground font-medium uppercase tracking-wide">{k.label}</p>
-                <k.icon size={16} className={k.color}/>
+      {/* KPIs */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
+        {[
+          {label:"Projets actifs",  value:stats.active,    icon:FolderKanban, color:"var(--primary)", note:`sur ${stats.total}`},
+          {label:"Avancement moyen",value:`${stats.avgProgress}%`, icon:Target, color:"#36B37E", note:"tous projets"},
+          {label:"Budget portfolio",value:`${(stats.totalBudget/1000).toFixed(0)}k€`, icon:TrendingUp, color:"#FF991F", note:"engagé"},
+          {label:"Alertes actives", value:stats.criticalRisks, icon:AlertTriangle, color:"#E24B4A", note:"risques critiques"},
+        ].map(k=>{
+          const Icon = k.icon
+          return (
+            <div key={k.label} style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:"var(--r12)",padding:"16px 18px"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+                <span style={{fontSize:12,color:"var(--text-2)"}}>{k.label.toUpperCase()}</span>
+                <div style={{width:32,height:32,borderRadius:"var(--r8)",background:`${k.color}18`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  <Icon size={16} style={{color:k.color}}/>
+                </div>
               </div>
-              <p className={`text-2xl font-bold ${k.color}`}>{k.value}</p>
+              <p style={{fontSize:28,fontWeight:800,color:k.color,margin:"0 0 4px",lineHeight:1}}>{k.value}</p>
+              <p style={{fontSize:11,color:"var(--text-3)",margin:0}}>{k.note}</p>
             </div>
-          ))}
+          )
+        })}
+      </div>
+
+      {/* Charts */}
+      <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:14,marginBottom:20}}>
+
+        {/* Bar chart avancement */}
+        <div style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:"var(--r12)",padding:20}}>
+          <h3 style={{fontSize:13,fontWeight:700,color:"var(--text-1)",margin:"0 0 16px",display:"flex",alignItems:"center",gap:8}}>
+            📊 Avancement par projet
+          </h3>
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)"/>
+                <XAxis dataKey="name" tick={{fontSize:11,fill:"#5A5F80"}} axisLine={false} tickLine={false}/>
+                <YAxis domain={[0,100]} tick={{fontSize:11,fill:"#5A5F80"}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"#111320",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,color:"#F0F2FF"}}/>
+                <Bar dataKey="avancement" fill="#7B5EFF" radius={[4,4,0,0]}/>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{height:200,display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-3)",fontSize:13}}>
+              Aucun projet à afficher
+            </div>
+          )}
         </div>
 
-        {/* Alertes portfolio cliquables */}
-        {(kpis.criticalRisks > 0 || kpis.lateJalons > 0) && (
-          <div className="dark-space-y-2">
-            {/* RAID critiques — 1 ligne par projet */}
-            {kpis.raidAlerts?.map(alert => (
-              <Link key={alert.projectId} href={`/projects/${alert.projectId}/raid`}
-                className="dark-flex items-center justify-between gap-3 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 hover:bg-red-500/15 hover:border-red-500/40 transition-all group">
-                <div className="dark-flex items-center gap-3">
-                  <AlertTriangle size={16} className="dark-text-red-400 flex-shrink-0"/>
-                  <div>
-                    <p className="dark-text-sm text-red-400 font-medium">
-                      {alert.count} risque{alert.count>1?"s":""} critique{alert.count>1?"s":""} ouvert{alert.count>1?"s":""}
-                    </p>
-                    <p className="dark-text-xs text-red-400/70">{alert.projectName}</p>
-                  </div>
-                </div>
-                <span className="dark-text-xs text-red-400 group-hover:text-red-300 flex items-center gap-1">
-                  Voir le RAID <ArrowUpRight size={12}/>
-                </span>
-              </Link>
-            ))}
-            {/* Jalons en retard — 1 ligne par projet */}
-            {kpis.jalonAlerts?.map(alert => (
-              <Link key={alert.projectId} href={`/projects/${alert.projectId}/jalons`}
-                className="dark-flex items-center justify-between gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 hover:bg-amber-500/15 hover:border-amber-500/40 transition-all group">
-                <div className="dark-flex items-center gap-3">
-                  <Clock size={16} className="dark-text-amber-400 flex-shrink-0"/>
-                  <div>
-                    <p className="dark-text-sm text-amber-400 font-medium">
-                      {alert.count} jalon{alert.count>1?"s":""} en retard
-                    </p>
-                    <p className="dark-text-xs text-amber-400/70">{alert.projectName}</p>
-                  </div>
-                </div>
-                <span className="dark-text-xs text-amber-400 group-hover:text-amber-300 flex items-center gap-1">
-                  Voir les jalons <ArrowUpRight size={12}/>
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {/* Charts row */}
-        <div className="dark-grid grid-cols-3 gap-4">
-          {/* Avancement par projet */}
-          <div className="dark-col-span-2 bg-card border border-border rounded-xl p-4">
-            <p className="dark-text-sm font-semibold text-foreground mb-4">📊 Avancement par projet</p>
-            {completionData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={completionData} barSize={20}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b"/>
-                  <XAxis dataKey="name" tick={{ fill:"#64748b", fontSize:10 }}/>
-                  <YAxis domain={[0,100]} tick={{ fill:"#64748b", fontSize:10 }} tickFormatter={v=>`${v}%`}/>
-                  <Tooltip contentStyle={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:8 }} formatter={(v:any)=>[`${v}%`,"Avancement"]}/>
-                  <Bar dataKey="Avancement" radius={[4,4,0,0]}>
-                    {completionData.map((d,i) => (
-                      <Cell key={i} fill={d.color ?? "var(--primary)"}/>
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="dark-h-44 flex items-center justify-center text-muted-foreground text-sm">Aucun projet</div>
-            )}
-          </div>
-
-          {/* Répartition statuts */}
-          <div className="dark-bg-card border border-border rounded-xl p-4">
-            <p className="dark-text-sm font-semibold text-foreground mb-4">🍩 Statuts</p>
-            {statusData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={180}>
+        {/* Pie statuts */}
+        <div style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:"var(--r12)",padding:20}}>
+          <h3 style={{fontSize:13,fontWeight:700,color:"var(--text-1)",margin:"0 0 16px",display:"flex",alignItems:"center",gap:8}}>
+            🥧 Statuts
+          </h3>
+          {pieData.length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={140}>
                 <PieChart>
-                  <Pie data={statusData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} dataKey="value">
-                    {statusData.map((d,i) => <Cell key={i} fill={d.color}/>)}
+                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={65} dataKey="value">
+                    {pieData.map((entry,i)=><Cell key={i} fill={entry.color}/>)}
                   </Pie>
-                  <Tooltip contentStyle={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:8 }}/>
-                  <Legend wrapperStyle={{ fontSize:11 }}/>
+                  <Tooltip contentStyle={{background:"#111320",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,color:"#F0F2FF"}}/>
                 </PieChart>
               </ResponsiveContainer>
-            ) : (
-              <div className="dark-h-44 flex items-center justify-center text-muted-foreground text-sm">Aucun projet</div>
-            )}
-          </div>
-        </div>
-
-        {/* Budget + Méthodo charts */}
-        {(budgetData.length > 0 || methodData.length > 1) && (
-          <div className="dark-grid grid-cols-2 gap-4">
-            {budgetData.length > 0 && (
-              <div className="dark-bg-card border border-border rounded-xl p-4">
-                <p className="dark-text-sm font-semibold text-foreground mb-4">💰 Budget par projet (k€)</p>
-                <ResponsiveContainer width="100%" height={160}>
-                  <BarChart data={budgetData} layout="vertical" barSize={14}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b"/>
-                    <XAxis type="number" tick={{ fill:"#64748b", fontSize:10 }} tickFormatter={v=>`${v}k`}/>
-                    <YAxis type="category" dataKey="name" tick={{ fill:"#64748b", fontSize:10 }} width={80}/>
-                    <Tooltip contentStyle={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:8 }} formatter={(v:any)=>[`${v}k€`,"Budget"]}/>
-                    <Bar dataKey="Budget" fill="#059669" radius={[0,4,4,0]}/>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-            {methodData.length > 1 && (
-              <div className="dark-bg-card border border-border rounded-xl p-4">
-                <p className="dark-text-sm font-semibold text-foreground mb-4">🏷️ Méthodologies</p>
-                <ResponsiveContainer width="100%" height={160}>
-                  <PieChart>
-                    <Pie data={methodData} cx="50%" cy="50%" outerRadius={65} dataKey="value" label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
-                      {methodData.map((d,i) => <Cell key={i} fill={d.color}/>)}
-                    </Pie>
-                    <Tooltip contentStyle={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:8 }}/>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Timeline globale */}
-        {timelineProjects.length > 0 && (
-          <div className="dark-bg-card border border-border rounded-xl p-4">
-            <p className="dark-text-sm font-semibold text-foreground mb-4">📅 Timeline portfolio</p>
-            <div className="dark-space-y-2.5">
-              {/* Header mois */}
-              <div className="dark-relative h-6 ml-32">
-                {Array.from({ length: 12 }, (_, i) => {
-                  const d = new Date(new Date(timelineMin).getFullYear(), new Date(timelineMin).getMonth() + i, 1)
-                  const l = pct(d.toISOString().split("T")[0])
-                  if (l > 100) return null
-                  return (
-                    <div key={i} style={{ position:"absolute", left:`${l}%`, transform:"translateX(-50%)" }}
-                      className="dark-text-[9px] text-muted-foreground whitespace-nowrap">
-                      {d.toLocaleDateString("fr-FR",{month:"short",year:"2-digit"})}
-                    </div>
-                  )
-                })}
-                {/* Today line */}
-                <div style={{ position:"absolute", left:`${todayPct}%`, top:0, width:1, height:"100%", background:"#ef4444" }}/>
-              </div>
-              {/* Barres projets */}
-              {timelineProjects.map(p => (
-                <div key={p.id} className="dark-flex items-center gap-3">
-                  <Link href={`/projects/${p.id}`}
-                    className="dark-text-xs text-muted-foreground hover:text-foreground transition-colors text-right flex-shrink-0 truncate"
-                    style={{ width:120 }}>
-                    {p.name.length > 16 ? p.name.slice(0,15)+"…" : p.name}
-                  </Link>
-                  <div className="dark-flex-1 relative h-6">
-                    {/* Today line */}
-                    <div style={{ position:"absolute", left:`${todayPct}%`, top:0, width:1, height:"100%", background:"rgba(239,68,68,0.4)", zIndex:10 }}/>
-                    {/* Bar */}
-                    <div style={{
-                      position:"absolute",
-                      left:`${pct(p.start_date)}%`,
-                      width:`${widthPct(p.start_date, p.end_date)}%`,
-                      top:"50%", transform:"translateY(-50%)",
-                      height:20, borderRadius:4, minWidth:4,
-                      background: p.color ?? "var(--primary)",
-                    }}>
-                      {/* Progress */}
-                      {(p.completion ?? 0) > 0 && (
-                        <div style={{ width:`${p.completion}%`, height:"100%", background:"rgba(0,0,0,0.3)", borderRadius:4 }}/>
-                      )}
-                    </div>
-                    {/* % label */}
-                    <div style={{
-                      position:"absolute",
-                      left:`calc(${pct(p.start_date)}% + ${widthPct(p.start_date,p.end_date)}% + 4px)`,
-                      top:"50%", transform:"translateY(-50%)"
-                    }} className="dark-text-[9px] text-muted-foreground whitespace-nowrap">
-                      {p.completion ?? 0}%
-                    </div>
+              <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:10}}>
+                {pieData.map(d=>(
+                  <div key={d.name} style={{display:"flex",alignItems:"center",gap:8}}>
+                    <div style={{width:10,height:10,borderRadius:"50%",background:d.color,flexShrink:0}}/>
+                    <span style={{fontSize:11,color:"var(--text-2)"}}>{d.name}</span>
+                    <span style={{fontSize:11,fontWeight:600,color:"var(--text-1)",marginLeft:"auto"}}>{d.value}</span>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </>
+          ) : (
+            <div style={{height:160,display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-3)",fontSize:13}}>
+              Aucun projet
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Alertes risques */}
+      {stats.criticalRisks > 0 && (
+        <div style={{background:"rgba(226,75,74,0.08)",border:"1px solid rgba(226,75,74,0.25)",borderRadius:"var(--r12)",padding:"14px 18px",marginBottom:20}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <AlertTriangle size={18} style={{color:"#E24B4A"}}/>
+              <div>
+                <p style={{fontSize:13,fontWeight:700,color:"#E24B4A",margin:0}}>
+                  {stats.criticalRisks} risque{stats.criticalRisks>1?"s":""} critique{stats.criticalRisks>1?"s":""} ouvert{stats.criticalRisks>1?"s":""}
+                </p>
+                <p style={{fontSize:11,color:"#E24B4A",opacity:0.7,margin:0}}>Nécessite une action immédiate</p>
+              </div>
             </div>
           </div>
-        )}
-
-        {/* Filters + Sort */}
-        <div className="dark-flex items-center gap-3 flex-wrap">
-          <div className="dark-flex items-center gap-1.5">
-            <Filter size={13} className="dark-text-muted-foreground"/>
-            <span className="dark-text-xs text-muted-foreground">Filtrer :</span>
-          </div>
-          {["all","active","completed","archived"].map(s => (
-            <button key={s} onClick={() => setFilterStatus(s)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${filterStatus===s?"bg-primary border-primary text-white":"bg-card border-border text-muted-foreground hover:text-foreground"}`}>
-              {s==="all"?"Tous":s==="active"?"Actifs":s==="completed"?"Terminés":"Archivés"}
-            </button>
-          ))}
-          <div className="dark-h-4 w-px bg-border"/>
-          <select value={sortBy} onChange={e => setSortBy(e.target.value as any)}
-            className="dark-px-3 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40">
-            <option value="date">Tri : Date</option>
-            <option value="completion">Tri : Avancement</option>
-            <option value="budget">Tri : Budget</option>
-            <option value="name">Tri : Nom</option>
-          </select>
-          <div className="dark-ml-auto flex gap-1 bg-card border border-border rounded-lg p-0.5">
-            <button onClick={() => setView("grid")} className={`p-1.5 rounded ${view==="grid"?"bg-accent text-foreground":"text-muted-foreground"}`}><LayoutGrid size={14}/></button>
-            <button onClick={() => setView("list")} className={`p-1.5 rounded ${view==="list"?"bg-accent text-foreground":"text-muted-foreground"}`}><List size={14}/></button>
-          </div>
         </div>
+      )}
 
-        {/* Projects grid/list */}
-        {filtered.length === 0 ? (
-          <div className="dark-bg-card border border-dashed border-border rounded-xl p-12 text-center">
-            <FolderKanban size={40} className="dark-text-muted-foreground mx-auto mb-3"/>
-            <p className="dark-text-sm text-muted-foreground">Aucun projet trouvé</p>
+      {/* Liste projets récents */}
+      <div style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:"var(--r12)",overflow:"hidden"}}>
+        <div style={{padding:"14px 18px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <h3 style={{fontSize:13,fontWeight:700,color:"var(--text-1)",margin:0}}>📁 Projets récents</h3>
+          <Link href="/projects" style={{fontSize:12,color:"var(--primary-light)",textDecoration:"none",fontWeight:500}}>
+            Voir tous →
+          </Link>
+        </div>
+        {projects.length === 0 ? (
+          <div style={{padding:"32px 18px",textAlign:"center"}}>
+            <p style={{fontSize:13,color:"var(--text-3)",margin:"0 0 12px"}}>Aucun projet pour l'instant</p>
+            <Link href="/guide" style={{fontSize:13,color:"var(--primary-light)",textDecoration:"none",fontWeight:500}}>
+              + Créer votre premier projet
+            </Link>
           </div>
-        ) : view === "grid" ? (
-          <div className="dark-grid grid-cols-3 gap-4">
-            {filtered.map(p => {
-              const projTools = toolData.filter(t => t.project_id === p.id)
-              const raidCrit = projTools.find(t=>t.tool_type==="raid")?.data?.items?.filter((i:any)=>i.priority==="Critique"&&i.status==="Ouvert")?.length ?? 0
-              const cp = new Date().getMonth()
-              const budgetTool = projTools.find(t=>t.tool_type==="budget")?.data?.tasks
-              const cpi = budgetTool ? (() => {
-                const ev = budgetTool.reduce((s:number,t:any)=>s+(t.ev?.[cp]??0),0)
-                const ac = budgetTool.reduce((s:number,t:any)=>s+(t.ac?.[cp]??0),0)
-                return ac > 0 ? (ev/ac).toFixed(2) : null
-              })() : null
-
-              return (
-                <Link key={p.id} href={`/projects/${p.id}`}
-                  className="dark-bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all group">
-                  <div className="dark-h-1.5" style={{ background: p.color ?? "var(--primary)" }}/>
-                  <div className="dark-p-4">
-                    <div className="dark-flex items-start justify-between mb-3">
-                      <div className="dark-flex items-center gap-2 flex-1 min-w-0">
-                        <span className="dark-text-xl flex-shrink-0">{p.icon ?? "📋"}</span>
-                        <div className="dark-min-w-0">
-                          <p className="dark-font-semibold text-sm text-foreground group-hover:text-primary transition-colors truncate">{p.name}</p>
-                          <p className="dark-text-xs text-muted-foreground truncate">{p.client}</p>
-                        </div>
-                      </div>
-                      <ArrowUpRight size={14} className="dark-text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 mt-0.5"/>
-                    </div>
-                    {/* Progress */}
-                    <div className="dark-mb-3">
-                      <div className="dark-flex justify-between text-xs mb-1">
-                        <span className="dark-text-muted-foreground">Avancement</span>
-                        <span className="dark-font-medium text-foreground">{p.completion ?? 0}%</span>
-                      </div>
-                      <div className="dark-h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div className="dark-h-full rounded-full" style={{ width:`${p.completion??0}%`, background:p.color??"var(--primary)" }}/>
-                      </div>
-                    </div>
-                    {/* KPIs mini */}
-                    <div className="dark-flex items-center gap-3 text-xs">
-                      {p.budget > 0 && <span className="dark-text-green-400">{(p.budget/1000).toFixed(0)}k€</span>}
-                      {cpi && <span className={parseFloat(cpi)>=1?"text-green-400":"text-red-400"}>CPI:{cpi}</span>}
-                      {raidCrit > 0 && <span className="dark-text-red-400 flex items-center gap-0.5"><AlertTriangle size={10}/>{raidCrit}</span>}
-                      <span className="dark-ml-auto text-muted-foreground">{p.methodology}</span>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        ) : (
-          /* List view */
-          <div className="dark-bg-card border border-border rounded-xl overflow-hidden">
-            <table className="dark-w-full border-collapse text-sm">
-              <thead>
-                <tr className="dark-bg-primary/10 border-b border-border">
-                  {["Projet","Client","Méthodo","Avancement","Budget","CPI","Statut",""].map(h => (
-                    <th key={h} className="dark-px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((p, i) => {
-                  const cp = new Date().getMonth()
-                  const budgetTool = toolData.find(t=>t.project_id===p.id&&t.tool_type==="budget")?.data?.tasks
-                  const cpi = budgetTool ? (() => {
-                    const ev = budgetTool.reduce((s:number,t:any)=>s+(t.ev?.[cp]??0),0)
-                    const ac = budgetTool.reduce((s:number,t:any)=>s+(t.ac?.[cp]??0),0)
-                    return ac > 0 ? (ev/ac).toFixed(2) : null
-                  })() : null
-                  const statusCfg = { active:{c:"#22c55e",l:"Actif"}, completed:{c:"#3b82f6",l:"Terminé"}, archived:{c:"#64748b",l:"Archivé"} }
-                  const cfg = statusCfg[p.status as keyof typeof statusCfg] ?? statusCfg.active
-
-                  return (
-                    <tr key={p.id} className="dark-border-b border-border hover:bg-accent/20 group">
-                      <td className="dark-px-3 py-2.5">
-                        <div className="dark-flex items-center gap-2">
-                          <span>{p.icon ?? "📋"}</span>
-                          <Link href={`/projects/${p.id}`} className="dark-font-medium text-foreground group-hover:text-primary transition-colors text-xs">{p.name}</Link>
-                        </div>
-                      </td>
-                      <td className="dark-px-3 py-2.5 text-xs text-muted-foreground">{p.client}</td>
-                      <td className="dark-px-3 py-2.5"><span className="dark-text-[10px] px-2 py-0.5 bg-muted rounded">{p.methodology}</span></td>
-                      <td className="dark-px-3 py-2.5">
-                        <div className="dark-flex items-center gap-2">
-                          <div className="dark-w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div className="dark-h-full rounded-full" style={{ width:`${p.completion??0}%`, background:p.color??"var(--primary)" }}/>
-                          </div>
-                          <span className="dark-text-xs text-muted-foreground">{p.completion??0}%</span>
-                        </div>
-                      </td>
-                      <td className="dark-px-3 py-2.5 text-xs text-green-400">{p.budget>0?`${(p.budget/1000).toFixed(0)}k€`:"—"}</td>
-                      <td className="dark-px-3 py-2.5 text-xs font-bold" style={{ color:cpi?(parseFloat(cpi)>=1?"#22c55e":"#ef4444"):"#64748b" }}>{cpi??"-"}</td>
-                      <td className="dark-px-3 py-2.5"><span className="dark-text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background:cfg.c+"22",color:cfg.c }}>{cfg.l}</span></td>
-                      <td className="dark-px-3 py-2.5">
-                        <Link href={`/projects/${p.id}`} className="dark-text-xs text-primary hover:underline">Ouvrir →</Link>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+        ) : projects.slice(0,5).map((p,i)=>{
+          const s = STATUS_COLORS[p.status] ?? "#5A5F80"
+          return (
+            <div key={p.id} style={{padding:"12px 18px",
+              borderBottom:i<projects.length-1?"1px solid rgba(255,255,255,0.04)":"none",
+              display:"flex",alignItems:"center",gap:14,
+              background:i%2===0?"transparent":"rgba(255,255,255,0.01)"}}>
+              <span style={{fontSize:20,flexShrink:0}}>{p.icon??"🔧"}</span>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <p style={{fontSize:13,fontWeight:600,color:"var(--text-1)",margin:0,
+                    whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.name}</p>
+                  <span style={{fontSize:10,padding:"1px 7px",borderRadius:20,flexShrink:0,
+                    background:`${s}18`,color:s,fontWeight:600}}>
+                    {p.status==="active"?"Actif":p.status==="completed"?"Terminé":"Archivé"}
+                  </span>
+                </div>
+                <div style={{height:4,background:"var(--border)",borderRadius:2,overflow:"hidden"}}>
+                  <div style={{height:"100%",borderRadius:2,background:s,width:`${p.progress??0}%`}}/>
+                </div>
+              </div>
+              <div style={{textAlign:"right",flexShrink:0}}>
+                <p style={{fontSize:13,fontWeight:700,color:"var(--text-2)",margin:0}}>{p.progress??0}%</p>
+                {p.budget && <p style={{fontSize:11,color:"var(--text-3)",margin:0}}>{(p.budget/1000).toFixed(0)}k€</p>}
+              </div>
+              <Link href={`/projects/${p.id}`}
+                style={{padding:"6px 12px",background:"var(--primary-bg)",
+                  border:"1px solid rgba(123,94,255,0.3)",borderRadius:"var(--r6)",
+                  fontSize:11,fontWeight:600,color:"var(--primary-light)",textDecoration:"none"}}>
+                Ouvrir
+              </Link>
+            </div>
+          )
+        })}
       </div>
-    </AppLayout>
+    </div>
   )
 }
