@@ -72,10 +72,10 @@ export default function GuidePage() {
 
       // Générer l'outil
       const route = {
-        wbs: "wbs", gantt: "gantt", raid: "raid", budget: "budget", wp: "workpackages"
+        wbs: "wbs", gantt: "gantt", raid: "raid", budget: "budget", wp: "workpackages", dashboard: ""
       }[toolType] ?? toolType
 
-      router.push(`/projects/${project.id}/${route}?generate=true`)
+      router.push(route ? `/projects/${project.id}/${route}?generate=true` : `/projects/${project.id}`)
       toast.success(`Projet créé ! Génération ${toolType} en cours...`)
     } catch(e: any) {
       toast.error("Erreur : " + e.message)
