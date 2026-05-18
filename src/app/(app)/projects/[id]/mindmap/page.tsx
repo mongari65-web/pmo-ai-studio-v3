@@ -53,7 +53,7 @@ function MindMapSVG({ data, svgRef }: { data: MindMapData; svgRef: React.RefObje
   const fit = () => { reset() }
 
   return (
-    <div style={{border:"1px solid var(--border)"}} style={{ height: 620 }}>
+    <div style={{border:"1px solid var(--border)", height:620, position:"relative"}}>
       {/* Controls */}
       <div style={{position:"absolute",top:12,right:12,zIndex:10,display:"flex",gap:6}}>
         <button onClick={() => zoom(1.2)} style={{border:"1px solid var(--border)"}} title="Zoom +">
