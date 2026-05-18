@@ -4,13 +4,14 @@ import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap , Package , Lock , Brain } from "lucide-react"
+import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap , Package , Lock , Brain , Users} from "lucide-react"
 
 const TOP = [
   { href:"/dashboard",     icon:LayoutDashboard, label:"Dashboard" },
   { href:"/projects",      icon:FolderKanban,    label:"Mes projets" },
   { href:"/guide",         icon:Wand2,            label:"Guide CP",         hl:true },
   { href:"/portfolio",     icon:BarChart3,        label:"Portfolio" },
+  { href:"/ressources",    icon:Users,            label:"Ressources" },
   { href:"/templates",     icon:Package,          label:"Templates Pro",    pro:true },
   { href:"/pmp-simulator", icon:GraduationCap,    label:"Simulateur PMP",   hl:true, pro:true },
   { href:"/pmp-conseils",  icon:GraduationCap,    label:"Conseils PMP" },

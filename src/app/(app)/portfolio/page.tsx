@@ -158,26 +158,26 @@ export default function PortfolioPage() {
   const todayPct = pct(new Date().toISOString().split("T")[0])
 
   if (loading) return (
-    <AppLayout><div className="flex items-center justify-center h-64 text-muted-foreground">Chargement du portfolio...</div></AppLayout>
+    <AppLayout><div className="dark-flex items-center justify-center h-64 text-muted-foreground">Chargement du portfolio...</div></AppLayout>
   )
 
   return (
     <AppLayout>
-      <div className="p-6 space-y-6">
+      <div className="dark-p-6 space-y-6">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="dark-flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Portfolio Projets</h1>
-            <p className="text-muted-foreground text-sm mt-0.5">{projects.length} projet{projects.length>1?"s":""} · Vue globale</p>
+            <h1 className="dark-text-2xl font-bold text-foreground">Portfolio Projets</h1>
+            <p className="dark-text-muted-foreground text-sm mt-0.5">{projects.length} projet{projects.length>1?"s":""} · Vue globale</p>
           </div>
-          <Link href="/guide" className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+          <Link href="/guide" className="dark-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
             + Nouveau projet
           </Link>
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="dark-grid grid-cols-4 gap-4">
           {[
             { label:"Projets actifs", value:kpis.active, icon:FolderKanban, color:"text-blue-400", bg:"bg-blue-500/10 border-blue-500/20" },
             { label:"Avancement moyen", value:`${kpis.avgCompletion}%`, icon:Target, color:"text-purple-400", bg:"bg-purple-500/10 border-purple-500/20" },
@@ -191,8 +191,8 @@ export default function PortfolioPage() {
             },
           ].map(k => (
             <div key={k.label} className={`border rounded-xl p-4 ${k.bg}`}>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{k.label}</p>
+              <div className="dark-flex items-center justify-between mb-2">
+                <p className="dark-text-xs text-muted-foreground font-medium uppercase tracking-wide">{k.label}</p>
                 <k.icon size={16} className={k.color}/>
               </div>
               <p className={`text-2xl font-bold ${k.color}`}>{k.value}</p>
@@ -202,21 +202,21 @@ export default function PortfolioPage() {
 
         {/* Alertes portfolio cliquables */}
         {(kpis.criticalRisks > 0 || kpis.lateJalons > 0) && (
-          <div className="space-y-2">
+          <div className="dark-space-y-2">
             {/* RAID critiques — 1 ligne par projet */}
             {kpis.raidAlerts?.map(alert => (
               <Link key={alert.projectId} href={`/projects/${alert.projectId}/raid`}
-                className="flex items-center justify-between gap-3 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 hover:bg-red-500/15 hover:border-red-500/40 transition-all group">
-                <div className="flex items-center gap-3">
-                  <AlertTriangle size={16} className="text-red-400 flex-shrink-0"/>
+                className="dark-flex items-center justify-between gap-3 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 hover:bg-red-500/15 hover:border-red-500/40 transition-all group">
+                <div className="dark-flex items-center gap-3">
+                  <AlertTriangle size={16} className="dark-text-red-400 flex-shrink-0"/>
                   <div>
-                    <p className="text-sm text-red-400 font-medium">
+                    <p className="dark-text-sm text-red-400 font-medium">
                       {alert.count} risque{alert.count>1?"s":""} critique{alert.count>1?"s":""} ouvert{alert.count>1?"s":""}
                     </p>
-                    <p className="text-xs text-red-400/70">{alert.projectName}</p>
+                    <p className="dark-text-xs text-red-400/70">{alert.projectName}</p>
                   </div>
                 </div>
-                <span className="text-xs text-red-400 group-hover:text-red-300 flex items-center gap-1">
+                <span className="dark-text-xs text-red-400 group-hover:text-red-300 flex items-center gap-1">
                   Voir le RAID <ArrowUpRight size={12}/>
                 </span>
               </Link>
@@ -224,17 +224,17 @@ export default function PortfolioPage() {
             {/* Jalons en retard — 1 ligne par projet */}
             {kpis.jalonAlerts?.map(alert => (
               <Link key={alert.projectId} href={`/projects/${alert.projectId}/jalons`}
-                className="flex items-center justify-between gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 hover:bg-amber-500/15 hover:border-amber-500/40 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Clock size={16} className="text-amber-400 flex-shrink-0"/>
+                className="dark-flex items-center justify-between gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 hover:bg-amber-500/15 hover:border-amber-500/40 transition-all group">
+                <div className="dark-flex items-center gap-3">
+                  <Clock size={16} className="dark-text-amber-400 flex-shrink-0"/>
                   <div>
-                    <p className="text-sm text-amber-400 font-medium">
+                    <p className="dark-text-sm text-amber-400 font-medium">
                       {alert.count} jalon{alert.count>1?"s":""} en retard
                     </p>
-                    <p className="text-xs text-amber-400/70">{alert.projectName}</p>
+                    <p className="dark-text-xs text-amber-400/70">{alert.projectName}</p>
                   </div>
                 </div>
-                <span className="text-xs text-amber-400 group-hover:text-amber-300 flex items-center gap-1">
+                <span className="dark-text-xs text-amber-400 group-hover:text-amber-300 flex items-center gap-1">
                   Voir les jalons <ArrowUpRight size={12}/>
                 </span>
               </Link>
@@ -243,10 +243,10 @@ export default function PortfolioPage() {
         )}
 
         {/* Charts row */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="dark-grid grid-cols-3 gap-4">
           {/* Avancement par projet */}
-          <div className="col-span-2 bg-card border border-border rounded-xl p-4">
-            <p className="text-sm font-semibold text-foreground mb-4">📊 Avancement par projet</p>
+          <div className="dark-col-span-2 bg-card border border-border rounded-xl p-4">
+            <p className="dark-text-sm font-semibold text-foreground mb-4">📊 Avancement par projet</p>
             {completionData.length > 0 ? (
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={completionData} barSize={20}>
@@ -262,13 +262,13 @@ export default function PortfolioPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-44 flex items-center justify-center text-muted-foreground text-sm">Aucun projet</div>
+              <div className="dark-h-44 flex items-center justify-center text-muted-foreground text-sm">Aucun projet</div>
             )}
           </div>
 
           {/* Répartition statuts */}
-          <div className="bg-card border border-border rounded-xl p-4">
-            <p className="text-sm font-semibold text-foreground mb-4">🍩 Statuts</p>
+          <div className="dark-bg-card border border-border rounded-xl p-4">
+            <p className="dark-text-sm font-semibold text-foreground mb-4">🍩 Statuts</p>
             {statusData.length > 0 ? (
               <ResponsiveContainer width="100%" height={180}>
                 <PieChart>
@@ -280,17 +280,17 @@ export default function PortfolioPage() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-44 flex items-center justify-center text-muted-foreground text-sm">Aucun projet</div>
+              <div className="dark-h-44 flex items-center justify-center text-muted-foreground text-sm">Aucun projet</div>
             )}
           </div>
         </div>
 
         {/* Budget + Méthodo charts */}
         {(budgetData.length > 0 || methodData.length > 1) && (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="dark-grid grid-cols-2 gap-4">
             {budgetData.length > 0 && (
-              <div className="bg-card border border-border rounded-xl p-4">
-                <p className="text-sm font-semibold text-foreground mb-4">💰 Budget par projet (k€)</p>
+              <div className="dark-bg-card border border-border rounded-xl p-4">
+                <p className="dark-text-sm font-semibold text-foreground mb-4">💰 Budget par projet (k€)</p>
                 <ResponsiveContainer width="100%" height={160}>
                   <BarChart data={budgetData} layout="vertical" barSize={14}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1e293b"/>
@@ -303,8 +303,8 @@ export default function PortfolioPage() {
               </div>
             )}
             {methodData.length > 1 && (
-              <div className="bg-card border border-border rounded-xl p-4">
-                <p className="text-sm font-semibold text-foreground mb-4">🏷️ Méthodologies</p>
+              <div className="dark-bg-card border border-border rounded-xl p-4">
+                <p className="dark-text-sm font-semibold text-foreground mb-4">🏷️ Méthodologies</p>
                 <ResponsiveContainer width="100%" height={160}>
                   <PieChart>
                     <Pie data={methodData} cx="50%" cy="50%" outerRadius={65} dataKey="value" label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
@@ -320,18 +320,18 @@ export default function PortfolioPage() {
 
         {/* Timeline globale */}
         {timelineProjects.length > 0 && (
-          <div className="bg-card border border-border rounded-xl p-4">
-            <p className="text-sm font-semibold text-foreground mb-4">📅 Timeline portfolio</p>
-            <div className="space-y-2.5">
+          <div className="dark-bg-card border border-border rounded-xl p-4">
+            <p className="dark-text-sm font-semibold text-foreground mb-4">📅 Timeline portfolio</p>
+            <div className="dark-space-y-2.5">
               {/* Header mois */}
-              <div className="relative h-6 ml-32">
+              <div className="dark-relative h-6 ml-32">
                 {Array.from({ length: 12 }, (_, i) => {
                   const d = new Date(new Date(timelineMin).getFullYear(), new Date(timelineMin).getMonth() + i, 1)
                   const l = pct(d.toISOString().split("T")[0])
                   if (l > 100) return null
                   return (
                     <div key={i} style={{ position:"absolute", left:`${l}%`, transform:"translateX(-50%)" }}
-                      className="text-[9px] text-muted-foreground whitespace-nowrap">
+                      className="dark-text-[9px] text-muted-foreground whitespace-nowrap">
                       {d.toLocaleDateString("fr-FR",{month:"short",year:"2-digit"})}
                     </div>
                   )
@@ -341,13 +341,13 @@ export default function PortfolioPage() {
               </div>
               {/* Barres projets */}
               {timelineProjects.map(p => (
-                <div key={p.id} className="flex items-center gap-3">
+                <div key={p.id} className="dark-flex items-center gap-3">
                   <Link href={`/projects/${p.id}`}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors text-right flex-shrink-0 truncate"
+                    className="dark-text-xs text-muted-foreground hover:text-foreground transition-colors text-right flex-shrink-0 truncate"
                     style={{ width:120 }}>
                     {p.name.length > 16 ? p.name.slice(0,15)+"…" : p.name}
                   </Link>
-                  <div className="flex-1 relative h-6">
+                  <div className="dark-flex-1 relative h-6">
                     {/* Today line */}
                     <div style={{ position:"absolute", left:`${todayPct}%`, top:0, width:1, height:"100%", background:"rgba(239,68,68,0.4)", zIndex:10 }}/>
                     {/* Bar */}
@@ -369,7 +369,7 @@ export default function PortfolioPage() {
                       position:"absolute",
                       left:`calc(${pct(p.start_date)}% + ${widthPct(p.start_date,p.end_date)}% + 4px)`,
                       top:"50%", transform:"translateY(-50%)"
-                    }} className="text-[9px] text-muted-foreground whitespace-nowrap">
+                    }} className="dark-text-[9px] text-muted-foreground whitespace-nowrap">
                       {p.completion ?? 0}%
                     </div>
                   </div>
@@ -380,10 +380,10 @@ export default function PortfolioPage() {
         )}
 
         {/* Filters + Sort */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <Filter size={13} className="text-muted-foreground"/>
-            <span className="text-xs text-muted-foreground">Filtrer :</span>
+        <div className="dark-flex items-center gap-3 flex-wrap">
+          <div className="dark-flex items-center gap-1.5">
+            <Filter size={13} className="dark-text-muted-foreground"/>
+            <span className="dark-text-xs text-muted-foreground">Filtrer :</span>
           </div>
           {["all","active","completed","archived"].map(s => (
             <button key={s} onClick={() => setFilterStatus(s)}
@@ -391,15 +391,15 @@ export default function PortfolioPage() {
               {s==="all"?"Tous":s==="active"?"Actifs":s==="completed"?"Terminés":"Archivés"}
             </button>
           ))}
-          <div className="h-4 w-px bg-border"/>
+          <div className="dark-h-4 w-px bg-border"/>
           <select value={sortBy} onChange={e => setSortBy(e.target.value as any)}
-            className="px-3 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40">
+            className="dark-px-3 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40">
             <option value="date">Tri : Date</option>
             <option value="completion">Tri : Avancement</option>
             <option value="budget">Tri : Budget</option>
             <option value="name">Tri : Nom</option>
           </select>
-          <div className="ml-auto flex gap-1 bg-card border border-border rounded-lg p-0.5">
+          <div className="dark-ml-auto flex gap-1 bg-card border border-border rounded-lg p-0.5">
             <button onClick={() => setView("grid")} className={`p-1.5 rounded ${view==="grid"?"bg-accent text-foreground":"text-muted-foreground"}`}><LayoutGrid size={14}/></button>
             <button onClick={() => setView("list")} className={`p-1.5 rounded ${view==="list"?"bg-accent text-foreground":"text-muted-foreground"}`}><List size={14}/></button>
           </div>
@@ -407,12 +407,12 @@ export default function PortfolioPage() {
 
         {/* Projects grid/list */}
         {filtered.length === 0 ? (
-          <div className="bg-card border border-dashed border-border rounded-xl p-12 text-center">
-            <FolderKanban size={40} className="text-muted-foreground mx-auto mb-3"/>
-            <p className="text-sm text-muted-foreground">Aucun projet trouvé</p>
+          <div className="dark-bg-card border border-dashed border-border rounded-xl p-12 text-center">
+            <FolderKanban size={40} className="dark-text-muted-foreground mx-auto mb-3"/>
+            <p className="dark-text-sm text-muted-foreground">Aucun projet trouvé</p>
           </div>
         ) : view === "grid" ? (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="dark-grid grid-cols-3 gap-4">
             {filtered.map(p => {
               const projTools = toolData.filter(t => t.project_id === p.id)
               const raidCrit = projTools.find(t=>t.tool_type==="raid")?.data?.items?.filter((i:any)=>i.priority==="Critique"&&i.status==="Ouvert")?.length ?? 0
@@ -426,35 +426,35 @@ export default function PortfolioPage() {
 
               return (
                 <Link key={p.id} href={`/projects/${p.id}`}
-                  className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all group">
-                  <div className="h-1.5" style={{ background: p.color ?? "#2563eb" }}/>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <span className="text-xl flex-shrink-0">{p.icon ?? "📋"}</span>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors truncate">{p.name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{p.client}</p>
+                  className="dark-bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all group">
+                  <div className="dark-h-1.5" style={{ background: p.color ?? "#2563eb" }}/>
+                  <div className="dark-p-4">
+                    <div className="dark-flex items-start justify-between mb-3">
+                      <div className="dark-flex items-center gap-2 flex-1 min-w-0">
+                        <span className="dark-text-xl flex-shrink-0">{p.icon ?? "📋"}</span>
+                        <div className="dark-min-w-0">
+                          <p className="dark-font-semibold text-sm text-foreground group-hover:text-primary transition-colors truncate">{p.name}</p>
+                          <p className="dark-text-xs text-muted-foreground truncate">{p.client}</p>
                         </div>
                       </div>
-                      <ArrowUpRight size={14} className="text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 mt-0.5"/>
+                      <ArrowUpRight size={14} className="dark-text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 mt-0.5"/>
                     </div>
                     {/* Progress */}
-                    <div className="mb-3">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-muted-foreground">Avancement</span>
-                        <span className="font-medium text-foreground">{p.completion ?? 0}%</span>
+                    <div className="dark-mb-3">
+                      <div className="dark-flex justify-between text-xs mb-1">
+                        <span className="dark-text-muted-foreground">Avancement</span>
+                        <span className="dark-font-medium text-foreground">{p.completion ?? 0}%</span>
                       </div>
-                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width:`${p.completion??0}%`, background:p.color??"#2563eb" }}/>
+                      <div className="dark-h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div className="dark-h-full rounded-full" style={{ width:`${p.completion??0}%`, background:p.color??"#2563eb" }}/>
                       </div>
                     </div>
                     {/* KPIs mini */}
-                    <div className="flex items-center gap-3 text-xs">
-                      {p.budget > 0 && <span className="text-green-400">{(p.budget/1000).toFixed(0)}k€</span>}
+                    <div className="dark-flex items-center gap-3 text-xs">
+                      {p.budget > 0 && <span className="dark-text-green-400">{(p.budget/1000).toFixed(0)}k€</span>}
                       {cpi && <span className={parseFloat(cpi)>=1?"text-green-400":"text-red-400"}>CPI:{cpi}</span>}
-                      {raidCrit > 0 && <span className="text-red-400 flex items-center gap-0.5"><AlertTriangle size={10}/>{raidCrit}</span>}
-                      <span className="ml-auto text-muted-foreground">{p.methodology}</span>
+                      {raidCrit > 0 && <span className="dark-text-red-400 flex items-center gap-0.5"><AlertTriangle size={10}/>{raidCrit}</span>}
+                      <span className="dark-ml-auto text-muted-foreground">{p.methodology}</span>
                     </div>
                   </div>
                 </Link>
@@ -463,12 +463,12 @@ export default function PortfolioPage() {
           </div>
         ) : (
           /* List view */
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <table className="w-full border-collapse text-sm">
+          <div className="dark-bg-card border border-border rounded-xl overflow-hidden">
+            <table className="dark-w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-primary/10 border-b border-border">
+                <tr className="dark-bg-primary/10 border-b border-border">
                   {["Projet","Client","Méthodo","Avancement","Budget","CPI","Statut",""].map(h => (
-                    <th key={h} className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">{h}</th>
+                    <th key={h} className="dark-px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -485,28 +485,28 @@ export default function PortfolioPage() {
                   const cfg = statusCfg[p.status as keyof typeof statusCfg] ?? statusCfg.active
 
                   return (
-                    <tr key={p.id} className="border-b border-border hover:bg-accent/20 group">
-                      <td className="px-3 py-2.5">
-                        <div className="flex items-center gap-2">
+                    <tr key={p.id} className="dark-border-b border-border hover:bg-accent/20 group">
+                      <td className="dark-px-3 py-2.5">
+                        <div className="dark-flex items-center gap-2">
                           <span>{p.icon ?? "📋"}</span>
-                          <Link href={`/projects/${p.id}`} className="font-medium text-foreground group-hover:text-primary transition-colors text-xs">{p.name}</Link>
+                          <Link href={`/projects/${p.id}`} className="dark-font-medium text-foreground group-hover:text-primary transition-colors text-xs">{p.name}</Link>
                         </div>
                       </td>
-                      <td className="px-3 py-2.5 text-xs text-muted-foreground">{p.client}</td>
-                      <td className="px-3 py-2.5"><span className="text-[10px] px-2 py-0.5 bg-muted rounded">{p.methodology}</span></td>
-                      <td className="px-3 py-2.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full rounded-full" style={{ width:`${p.completion??0}%`, background:p.color??"#2563eb" }}/>
+                      <td className="dark-px-3 py-2.5 text-xs text-muted-foreground">{p.client}</td>
+                      <td className="dark-px-3 py-2.5"><span className="dark-text-[10px] px-2 py-0.5 bg-muted rounded">{p.methodology}</span></td>
+                      <td className="dark-px-3 py-2.5">
+                        <div className="dark-flex items-center gap-2">
+                          <div className="dark-w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div className="dark-h-full rounded-full" style={{ width:`${p.completion??0}%`, background:p.color??"#2563eb" }}/>
                           </div>
-                          <span className="text-xs text-muted-foreground">{p.completion??0}%</span>
+                          <span className="dark-text-xs text-muted-foreground">{p.completion??0}%</span>
                         </div>
                       </td>
-                      <td className="px-3 py-2.5 text-xs text-green-400">{p.budget>0?`${(p.budget/1000).toFixed(0)}k€`:"—"}</td>
-                      <td className="px-3 py-2.5 text-xs font-bold" style={{ color:cpi?(parseFloat(cpi)>=1?"#22c55e":"#ef4444"):"#64748b" }}>{cpi??"-"}</td>
-                      <td className="px-3 py-2.5"><span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background:cfg.c+"22",color:cfg.c }}>{cfg.l}</span></td>
-                      <td className="px-3 py-2.5">
-                        <Link href={`/projects/${p.id}`} className="text-xs text-primary hover:underline">Ouvrir →</Link>
+                      <td className="dark-px-3 py-2.5 text-xs text-green-400">{p.budget>0?`${(p.budget/1000).toFixed(0)}k€`:"—"}</td>
+                      <td className="dark-px-3 py-2.5 text-xs font-bold" style={{ color:cpi?(parseFloat(cpi)>=1?"#22c55e":"#ef4444"):"#64748b" }}>{cpi??"-"}</td>
+                      <td className="dark-px-3 py-2.5"><span className="dark-text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background:cfg.c+"22",color:cfg.c }}>{cfg.l}</span></td>
+                      <td className="dark-px-3 py-2.5">
+                        <Link href={`/projects/${p.id}`} className="dark-text-xs text-primary hover:underline">Ouvrir →</Link>
                       </td>
                     </tr>
                   )
