@@ -114,7 +114,7 @@ export default function WorkPackagesPage() {
               <div>
                 {(["cards","table"] as const).map(tab => (
                   <button key={tab} onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab===tab ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+                    style={{padding:"6px 14px",borderRadius:"var(--r8)",fontSize:12,fontWeight:500,cursor:"pointer",border:"none",background:activeTab===tab?"var(--primary-bg)":"transparent",color:activeTab===tab?"var(--primary-light)":"var(--text-2)"}}>
                     {tab==="cards" ? "🃏 Cards" : "📋 Tableau"}
                   </button>
                 ))}
@@ -122,7 +122,7 @@ export default function WorkPackagesPage() {
               <div>
                 {phases.map(p => (
                   <button key={p} onClick={() => setFilterPhase(p)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${filterPhase===p ? "border-primary bg-primary/20 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>
+                    style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:500,cursor:"pointer",border:`1px solid ${filterPhase===p?"var(--primary)":"var(--border)"}`,background:filterPhase===p?"var(--primary-bg)":"transparent",color:filterPhase===p?"var(--primary-light)":"var(--text-3)"}}>
                     {p} {p!=="Tous" && `(${wps.filter(w=>w.phase===p).length})`}
                   </button>
                 ))}
