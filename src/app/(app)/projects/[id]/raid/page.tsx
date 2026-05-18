@@ -159,7 +159,7 @@ export default function RAIDPage() {
             const cfg = CAT[item.category]
             const priColor = PRI[item.priority as keyof typeof PRI] ?? "#64748b"
             return (
-              <div key={item.id}style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:"var(--r12)",padding:16,marginBottom:10}}  style={{ borderLeft: `4px solid ${cfg.color}` }}>
+              <div key={item.id} style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderLeft:`4px solid ${cfg.color}`,borderRadius:"var(--r12)",padding:16,marginBottom:10}}>
               <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8}}>
                   <div>
                     <div>
