@@ -116,7 +116,7 @@ function PERTCircle({ task, selected, onSelect, onDrag, dragging }: {
   task: PERTTask; selected: boolean
   onSelect: () => void; onDrag: (e: React.MouseEvent) => void; dragging: boolean
 }) {
-  const color = task.critical ? "#dc2626" : "#185FA5"
+  const color = task.critical ? "#dc2626" : "var(--primary-light)"
   const fill  = task.critical ? "#fef2f2" : "#eff6ff"
   const textC = task.critical ? "#991b1b" : "#1e40af"
 
@@ -454,7 +454,7 @@ export default function PERTPage() {
   const totalDur = Math.max(...computed.map(t=>t.eft),0)
   const critCount = computed.filter(t=>t.critical).length
 
-  const INPUT = { style:{ width:"100%", padding:"5px 8px", border:"1px solid var(--border)", borderRadius:"var(--r6)", fontSize:12, color:"var(--text-1)", background:"#fff", outline:"none" } as const }
+  const INPUT = { style:{ width:"100%", padding:"5px 8px", border:"1px solid var(--border)", borderRadius:"var(--r6)", fontSize:12, color:"var(--text-1)", background:"var(--bg-card)", outline:"none" } as const }
 
   return (
     <AppLayout>
@@ -529,7 +529,7 @@ export default function PERTPage() {
                     <td style={{ padding:"6px 8px" }}>
                       <div style={{ display:"flex", gap:4 }}>
                         <button onClick={addTask}
-                          style={{ padding:"4px 12px", background:"#185FA5", color:"#fff", border:"none", borderRadius:"var(--r6)", cursor:"pointer", fontSize:12, fontWeight:600 }}>
+                          style={{ padding:"4px 12px", background:"var(--primary-light)", color:"#fff", border:"none", borderRadius:"var(--r6)", cursor:"pointer", fontSize:12, fontWeight:600 }}>
                           ✓ Ajouter
                         </button>
                         <button onClick={()=>setShowAddRow(false)}
@@ -564,7 +564,7 @@ export default function PERTPage() {
                         <td colSpan={3}/>
                         <td style={{ padding:"5px 8px" }}>
                           <div style={{ display:"flex", gap:4 }}>
-                            <button onClick={confirmEdit} style={{ padding:"3px 8px", background:"#185FA5", color:"#fff", border:"none", borderRadius:"var(--r6)", cursor:"pointer" }}>✓</button>
+                            <button onClick={confirmEdit} style={{ padding:"3px 8px", background:"var(--primary-light)", color:"#fff", border:"none", borderRadius:"var(--r6)", cursor:"pointer" }}>✓</button>
                             <button onClick={cancelEdit} style={{ padding:"3px 8px", background:"var(--border)", color:"var(--text-1)", border:"none", borderRadius:"var(--r6)", cursor:"pointer" }}>✕</button>
                           </div>
                         </td>
@@ -575,8 +575,8 @@ export default function PERTPage() {
                         <td style={{ padding:"7px 10px", color:"var(--text-1)", maxWidth:120, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }} title={task.name}>{task.name}</td>
                         <td style={{ padding:"7px 10px", textAlign:"center", fontWeight:600, color:"var(--text-1)" }}>{task.duration}j</td>
                         <td style={{ padding:"7px 10px", color:"var(--text-2)", fontSize:11 }}>{task.deps.join(", ")||"—"}</td>
-                        <td style={{ padding:"7px 10px", textAlign:"center", color:"#185FA5", fontWeight:600 }}>{task.est}</td>
-                        <td style={{ padding:"7px 10px", textAlign:"center", color:"#185FA5", fontWeight:600 }}>{task.eft}</td>
+                        <td style={{ padding:"7px 10px", textAlign:"center", color:"var(--primary-light)", fontWeight:600 }}>{task.est}</td>
+                        <td style={{ padding:"7px 10px", textAlign:"center", color:"var(--primary-light)", fontWeight:600 }}>{task.eft}</td>
                         <td style={{ padding:"7px 10px", textAlign:"center", fontWeight:700, color:task.critical?"#dc2626":"#27500A" }}>
                           {task.critical ? <span style={{ fontSize:10, background:"#FCEBEB", color:"#A32D2D", borderRadius:10, padding:"2px 6px" }}>Critique</span> : task.slack+"j"}
                         </td>
@@ -617,15 +617,15 @@ export default function PERTPage() {
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"10px 14px", borderBottom:"1px solid var(--border)", background:"var(--bg)" }}>
               <div style={{ display:"flex", alignItems:"center", gap:5 }}>
                 {/* Légende quadrants */}
-                <div style={{ background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r6)", padding:"4px 10px", fontSize:10, color:"var(--text-2)" }}>
-                  <span style={{ color:"#185FA5", fontWeight:600 }}>EST | EFT</span> · ID · <span style={{ color:"#185FA5", fontWeight:600 }}>LST | LFT</span>
+                <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--r6)", padding:"4px 10px", fontSize:10, color:"var(--text-2)" }}>
+                  <span style={{ color:"var(--primary-light)", fontWeight:600 }}>EST | EFT</span> · ID · <span style={{ color:"var(--primary-light)", fontWeight:600 }}>LST | LFT</span>
                 </div>
               </div>
               <div style={{ display:"flex", gap:6, alignItems:"center" }}>
-                <button onClick={()=>setScale(s=>Math.min(3,s*1.2))} style={{ width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r6)", cursor:"pointer" }}><ZoomIn size={13}/></button>
-                <button onClick={()=>setScale(s=>Math.max(0.25,s*0.8))} style={{ width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r6)", cursor:"pointer" }}><ZoomOut size={13}/></button>
+                <button onClick={()=>setScale(s=>Math.min(3,s*1.2))} style={{ width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--r6)", cursor:"pointer" }}><ZoomIn size={13}/></button>
+                <button onClick={()=>setScale(s=>Math.max(0.25,s*0.8))} style={{ width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--r6)", cursor:"pointer" }}><ZoomOut size={13}/></button>
                 <span style={{ fontSize:10, color:"var(--text-3)", minWidth:32, textAlign:"center" }}>{Math.round(scale*100)}%</span>
-                <button onClick={()=>{setScale(1);setOffset({x:40,y:60})}} style={{ width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r6)", cursor:"pointer" }}><RotateCcw size={12}/></button>
+                <button onClick={()=>{setScale(1);setOffset({x:40,y:60})}} style={{ width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--r6)", cursor:"pointer" }}><RotateCcw size={12}/></button>
               </div>
             </div>
 
@@ -709,8 +709,8 @@ export default function PERTPage() {
                   <p style={{ fontSize:11, color:"var(--text-3)", margin:"2px 0 0" }}>Durée : {selectedTask.duration}j · Dépend de : {selectedTask.deps.join(", ")||"—"}</p>
                 </div>
                 {[
-                  { label:"EST", value:selectedTask.est, color:"#185FA5" },
-                  { label:"EFT", value:selectedTask.eft, color:"#185FA5" },
+                  { label:"EST", value:selectedTask.est, color:"var(--primary-light)" },
+                  { label:"EFT", value:selectedTask.eft, color:"var(--primary-light)" },
                   { label:"LST", value:selectedTask.lst, color:"#3C3489" },
                   { label:"LFT", value:selectedTask.lft, color:"#3C3489" },
                   { label:"Marge", value:selectedTask.critical?"Critique ⚠️":`${selectedTask.slack}j`, color:selectedTask.critical?"#A32D2D":"#27500A" },

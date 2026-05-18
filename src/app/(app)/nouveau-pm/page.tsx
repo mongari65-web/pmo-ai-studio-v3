@@ -7,7 +7,7 @@ const PROJECT_TYPES = [
   {
     id:"migration", icon:"🖥️", title:"Migration Infrastructure",
     desc:"Migration serveurs, SGBD, middleware, ERP",
-    color:"#185FA5", bg:"#E6F1FB",
+    color:"var(--primary-light)", bg:"#E6F1FB",
     examples:["Migration JBoss", "Migration Oracle → PostgreSQL", "Migration DC vers Cloud"],
     week1: [
       "📋 Récupérer le dossier d'architecture existante (As-Is)",
@@ -458,7 +458,7 @@ export default function NouveauPMPage() {
         <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12, marginTop:20 }}>
           {[
             { href:"/guide", icon:"✨", title:"Guide CP IA", desc:"Créer votre 1er projet avec l'IA", color:"#854F0B", bg:"#FAEEDA" },
-            { href:"/pmp-simulator", icon:"🎯", title:"Simulateur PMP", desc:"Testez vos connaissances PMBOK 7", color:"#185FA5", bg:"#E6F1FB" },
+            { href:"/pmp-simulator", icon:"🎯", title:"Simulateur PMP", desc:"Testez vos connaissances PMBOK 7", color:"var(--primary-light)", bg:"#E6F1FB" },
             { href:"/pmp-conseils", icon:"📖", title:"Conseils PMP", desc:"Guide complet pour réussir l'examen", color:"#27500A", bg:"#EAF3DE" },
           ].map(item => (
             <Link key={item.href} href={item.href}

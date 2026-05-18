@@ -28,7 +28,7 @@ const STATUS_COLORS = {
   active: "#22c55e", completed: "#3b82f6", archived: "#64748b"
 }
 
-const CHART_COLORS = ["#2563eb","#7c3aed","#059669","#d97706","#dc2626","#0891b2","#be185d","#7c3aed"]
+const CHART_COLORS = ["var(--primary)","#7c3aed","#059669","#d97706","#dc2626","#0891b2","#be185d","#7c3aed"]
 
 export default function PortfolioPage() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -104,7 +104,7 @@ export default function PortfolioPage() {
     projects.slice(0, 8).map(p => ({
       name: p.name.length > 12 ? p.name.slice(0,11)+"…" : p.name,
       Avancement: p.completion ?? 0,
-      color: p.color ?? "#2563eb"
+      color: p.color ?? "var(--primary)"
     })), [projects])
 
   const statusData = useMemo(() => [
@@ -256,7 +256,7 @@ export default function PortfolioPage() {
                   <Tooltip contentStyle={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:8 }} formatter={(v:any)=>[`${v}%`,"Avancement"]}/>
                   <Bar dataKey="Avancement" radius={[4,4,0,0]}>
                     {completionData.map((d,i) => (
-                      <Cell key={i} fill={d.color ?? "#2563eb"}/>
+                      <Cell key={i} fill={d.color ?? "var(--primary)"}/>
                     ))}
                   </Bar>
                 </BarChart>
@@ -357,7 +357,7 @@ export default function PortfolioPage() {
                       width:`${widthPct(p.start_date, p.end_date)}%`,
                       top:"50%", transform:"translateY(-50%)",
                       height:20, borderRadius:4, minWidth:4,
-                      background: p.color ?? "#2563eb",
+                      background: p.color ?? "var(--primary)",
                     }}>
                       {/* Progress */}
                       {(p.completion ?? 0) > 0 && (
@@ -427,7 +427,7 @@ export default function PortfolioPage() {
               return (
                 <Link key={p.id} href={`/projects/${p.id}`}
                   className="dark-bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all group">
-                  <div className="dark-h-1.5" style={{ background: p.color ?? "#2563eb" }}/>
+                  <div className="dark-h-1.5" style={{ background: p.color ?? "var(--primary)" }}/>
                   <div className="dark-p-4">
                     <div className="dark-flex items-start justify-between mb-3">
                       <div className="dark-flex items-center gap-2 flex-1 min-w-0">
@@ -446,7 +446,7 @@ export default function PortfolioPage() {
                         <span className="dark-font-medium text-foreground">{p.completion ?? 0}%</span>
                       </div>
                       <div className="dark-h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div className="dark-h-full rounded-full" style={{ width:`${p.completion??0}%`, background:p.color??"#2563eb" }}/>
+                        <div className="dark-h-full rounded-full" style={{ width:`${p.completion??0}%`, background:p.color??"var(--primary)" }}/>
                       </div>
                     </div>
                     {/* KPIs mini */}
@@ -497,7 +497,7 @@ export default function PortfolioPage() {
                       <td className="dark-px-3 py-2.5">
                         <div className="dark-flex items-center gap-2">
                           <div className="dark-w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div className="dark-h-full rounded-full" style={{ width:`${p.completion??0}%`, background:p.color??"#2563eb" }}/>
+                            <div className="dark-h-full rounded-full" style={{ width:`${p.completion??0}%`, background:p.color??"var(--primary)" }}/>
                           </div>
                           <span className="dark-text-xs text-muted-foreground">{p.completion??0}%</span>
                         </div>

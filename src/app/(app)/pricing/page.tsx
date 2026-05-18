@@ -5,7 +5,7 @@ import { Check, X, Zap, Rocket, Crown, Star, Shield, CreditCard } from "lucide-r
 
 const PLANS = [
   {
-    key:"free", icon:"🌱", label:"Gratuit", color:"#5E6C84", bg:"rgba(94,108,132,0.1)", border:"rgba(94,108,132,0.2)",
+    key:"free", icon:"🌱", label:"Gratuit", color:"var(--text-2)", bg:"rgba(94,108,132,0.1)", border:"rgba(94,108,132,0.2)",
     price_m:0, price_y:0, desc:"Découvrez l'IA PMO sur un projet réel, sans engagement.",
     badge:"14 jours gratuits",
     features:[

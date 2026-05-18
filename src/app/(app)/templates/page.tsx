@@ -96,7 +96,7 @@ const PACKS = [
     icon: "🚀",
     title: "Pack Démarrage Projet",
     desc: "Documents essentiels pour lancer un projet selon PMBOK 7",
-    color: "#0052CC",
+    color: "var(--primary)",
     bg: "#DEEBFF",
     border: "#B3D4FF",
     templates: [
@@ -348,7 +348,7 @@ export default function TemplatesPage() {
             ].map(([title,desc])=>(
               <div key={title} style={{ background:"rgba(255,255,255,0.6)", borderRadius:"var(--r8)", padding:"10px 12px" }}>
                 <p style={{ fontSize:12, fontWeight:600, color:"var(--primary-t)", margin:"0 0 4px" }}>{title}</p>
-                <p style={{ fontSize:11, color:"#185FA5", margin:0, lineHeight:1.5 }}>{desc}</p>
+                <p style={{ fontSize:11, color:"var(--primary-light)", margin:0, lineHeight:1.5 }}>{desc}</p>
               </div>
             ))}
           </div>

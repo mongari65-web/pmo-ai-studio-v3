@@ -12,7 +12,7 @@ interface Alert { type:string; message:string; project:string; projectId:string;
 const SEV = {
   danger:  { bg:"#FCEBEB", border:"#E24B4A", icon:AlertTriangle, color:"#A32D2D" },
   warning: { bg:"#FAEEDA", border:"#EF9F27", icon:Clock,         color:"#854F0B" },
-  info:    { bg:"#E6F1FB", border:"#378ADD", icon:CheckCircle2,  color:"#185FA5" },
+  info:    { bg:"#E6F1FB", border:"#378ADD", icon:CheckCircle2,  color:"var(--primary-light)" },
 }
 
 export default function DashboardPage() {
@@ -62,7 +62,7 @@ export default function DashboardPage() {
 
   const chartData = projects.slice(0,8).map(p=>({
     name:p.name.length>12?p.name.slice(0,11)+"…":p.name,
-    v:p.completion??0, fill:p.color??"#185FA5"
+    v:p.completion??0, fill:p.color??"var(--primary-light)"
   }))
 
   const KPI = ({label,value,icon:Icon,color,bg,sub}:any) => (
@@ -103,7 +103,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <div style={{ display:"flex", gap:8 }}>
-            <Link href="/guide" style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 14px", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:12, fontWeight:500, color:"#854F0B", textDecoration:"none" }}>
+            <Link href="/guide" style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:12, fontWeight:500, color:"#854F0B", textDecoration:"none" }}>
               <Wand2 size={14}/> Guide CP
             </Link>
             <Link href="/guide" style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 14px", background:"var(--primary)", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, color:"#fff", textDecoration:"none" }}>
@@ -114,10 +114,10 @@ export default function DashboardPage() {
 
         {/* KPIs */}
         <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:20 }}>
-          <KPI label="Projets actifs"   value={active.length} icon={FolderKanban} color="#185FA5" sub={`${projects.length} au total`}/>
+          <KPI label="Projets actifs"   value={active.length} icon={FolderKanban} color="var(--primary-light)" sub={`${projects.length} au total`}/>
           <KPI label="Avancement moyen" value={`${avg}%`}     icon={Target}       color="#639922" sub="tous projets confondus"/>
           <KPI label="Budget total"     value={totalBudget>0?`${(totalBudget/1000).toFixed(0)}k€`:"—"} icon={DollarSign} color="#27500A" sub="engagé"/>
-          <KPI label="Alertes actives"  value={alerts.length}  icon={Bell}         color={alerts.length>0?"#A32D2D":"#185FA5"} bg={alerts.length>0?"#FCEBEB":undefined} sub={alerts.length>0?"à traiter":"tout va bien"}/>
+          <KPI label="Alertes actives"  value={alerts.length}  icon={Bell}         color={alerts.length>0?"#A32D2D":"var(--primary-light)"} bg={alerts.length>0?"#FCEBEB":undefined} sub={alerts.length>0?"à traiter":"tout va bien"}/>
         </div>
 
         <div style={{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:16, marginBottom:20 }}>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
                   <XAxis dataKey="name" tick={{fill:"#94a3b8",fontSize:10}} axisLine={false} tickLine={false}/>
                   <YAxis domain={[0,100]} tick={{fill:"#94a3b8",fontSize:10}} axisLine={false} tickLine={false} tickFormatter={v=>`${v}%`}/>
-                  <Tooltip contentStyle={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:8,boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}} formatter={(v:any)=>[`${v}%`,"Avancement"]} labelStyle={{color:"#0f172a",fontWeight:600}}/>
+                  <Tooltip contentStyle={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:8,boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}} formatter={(v:any)=>[`${v}%`,"Avancement"]} labelStyle={{color:"var(--text-1)",fontWeight:600}}/>
                   <Bar dataKey="v" radius={[4,4,0,0]}>
                     {chartData.map((d,i)=><Cell key={i} fill={d.fill}/>)}
                   </Bar>

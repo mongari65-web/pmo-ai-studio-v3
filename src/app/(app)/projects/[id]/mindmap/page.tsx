@@ -144,8 +144,8 @@ function MindMapSVG({ data, svgRef }: { data: MindMapData; svgRef: React.RefObje
           })}
 
           {/* Center */}
-          <circle cx={cx} cy={cy} r={75} fill="url(#centerGrad)" stroke="#2563eb" strokeWidth={2}/>
-          <circle cx={cx} cy={cy} r={68} fill="none" stroke="#2563eb" strokeWidth={1} strokeOpacity={0.3}/>
+          <circle cx={cx} cy={cy} r={75} fill="url(#centerGrad)" stroke="var(--primary)" strokeWidth={2}/>
+          <circle cx={cx} cy={cy} r={68} fill="none" stroke="var(--primary)" strokeWidth={1} strokeOpacity={0.3}/>
           <text x={cx} y={cy - 12} textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="700">
             {data.center?.length > 18 ? data.center.slice(0,17)+"…" : data.center}
           </text>

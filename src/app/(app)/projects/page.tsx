@@ -131,8 +131,8 @@ export default function ProjectsPage() {
               return (
                 <div key={p.id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all group">
                   {/* Color bar */}
-                  <div className="h-1" style={{ background: p.color ?? "#2563eb" }}/>
-                  <div className="p-4">
+                  <div className="h-1" style={{ background: p.color ?? "var(--primary)" }}/>
+                  <div style={{padding:16}}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <span className="text-xl flex-shrink-0">{p.icon ?? "📋"}</span>
@@ -157,11 +157,11 @@ export default function ProjectsPage() {
                     {/* Progress */}
                     <div className="mb-3">
                       <div className="flex justify-between text-xs mb-1">
-                        <span className="text-muted-foreground">Avancement</span>
+                        <span style={{color:"var(--text-2)"}}>Avancement</span>
                         <span className="font-medium text-foreground">{p.completion ?? 0}%</span>
                       </div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${p.completion ?? 0}%`, background: p.color ?? "#2563eb" }}/>
+                        <div className="h-full rounded-full" style={{ width: `${p.completion ?? 0}%`, background: p.color ?? "var(--primary)" }}/>
                       </div>
                     </div>
 

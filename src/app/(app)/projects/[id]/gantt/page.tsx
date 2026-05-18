@@ -14,7 +14,7 @@ interface GanttTask {
   dependencies: string; critical: boolean; type?: "task"|"milestone"
 }
 
-const PHASE_COLORS = ["#2563eb","#7c3aed","#059669","#d97706","#dc2626","#0891b2"]
+const PHASE_COLORS = ["var(--primary)","#7c3aed","#059669","#d97706","#dc2626","#0891b2"]
 const TODAY = new Date().toISOString().split("T")[0]
 
 function daysBetween(a: string, b: string) {
@@ -103,7 +103,7 @@ export default function GanttPage() {
 
   const pct = (date: string) => Math.max(0, Math.min(100, daysBetween(minDate, date) / totalDays * 100))
   const widthPct = (start: string, end: string) => Math.max(0.5, daysBetween(start, end) / totalDays * 100)
-  const phaseColor = (phase: string) => PHASE_COLORS[phases.indexOf(phase) % PHASE_COLORS.length] ?? "#2563eb"
+  const phaseColor = (phase: string) => PHASE_COLORS[phases.indexOf(phase) % PHASE_COLORS.length] ?? "var(--primary)"
 
   // Timeline header — mois
   const monthHeaders = useMemo(() => {
@@ -194,13 +194,13 @@ export default function GanttPage() {
         {/* Stats */}
         <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:16 }}>
           {[
-            { label:"Tâches", value:tasks.length, color:"#e2e8f0" },
+            { label:"Tâches", value:tasks.length, color:"var(--border)" },
             { label:"Critiques", value:criticalCount, color:"#ef4444" },
             { label:"En cours", value:inProgressCount, color:"#f59e0b" },
             { label:"Terminées", value:doneCount, color:"#22c55e" },
           ].map(s => (
             <div key={s.label} style={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:10, padding:"12px 16px", textAlign:"center" }}>
-              <p style={{ fontSize:11, color:"#64748b", textTransform:"uppercase", letterSpacing:1, marginBottom:4 }}>{s.label}</p>
+              <p style={{ fontSize:11, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:1, marginBottom:4 }}>{s.label}</p>
               <p style={{ fontSize:24, fontWeight:700, color:s.color }}>{s.value}</p>
             </div>
           ))}
@@ -211,7 +211,7 @@ export default function GanttPage() {
           {[["visual","📊 Gantt visuel"],["table","📋 Tableau"]].map(([k,l]) => (
             <button key={k} onClick={() => setViewMode(k as any)}
               style={{ padding:"7px 14px", borderRadius:8, border:"1px solid", fontSize:12, fontWeight:600, cursor:"pointer",
-                borderColor:viewMode===k?"#2563eb":"#1e293b", background:viewMode===k?"#1e3a5f":"#0f172a",
+                borderColor:viewMode===k?"var(--primary)":"#1e293b", background:viewMode===k?"#1e3a5f":"#0f172a",
                 color:viewMode===k?"#60a5fa":"#64748b" }}>
               {l}
             </button>
@@ -234,27 +234,27 @@ export default function GanttPage() {
                 { label:"Avancement %", key:"progress", type:"number" },
               ].map(f => (
                 <div key={f.key}>
-                  <label style={{ fontSize:11, color:"#64748b", display:"block", marginBottom:4 }}>{f.label}</label>
+                  <label style={{ fontSize:11, color:"var(--text-3)", display:"block", marginBottom:4 }}>{f.label}</label>
                   <input type={f.type} value={(newTask as any)[f.key]??""} placeholder={f.ph}
                     onChange={e => setNewTask(prev => ({...prev, [f.key]: f.type==="number"?+e.target.value:e.target.value}))}
-                    style={{ width:"100%", background:"#1e293b", border:"1px solid #334155", borderRadius:6, color:"#e2e8f0", padding:"6px 10px", fontSize:12 }}/>
+                    style={{ width:"100%", background:"#1e293b", border:"1px solid #334155", borderRadius:6, color:"var(--border)", padding:"6px 10px", fontSize:12 }}/>
                 </div>
               ))}
             </div>
             <div style={{ display:"flex", gap:6, alignItems:"center", marginTop:10 }}>
-              <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#64748b", cursor:"pointer" }}>
+              <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"var(--text-3)", cursor:"pointer" }}>
                 <input type="checkbox" checked={newTask.critical??false} onChange={e => setNewTask(p=>({...p,critical:e.target.checked}))}/>
                 Chemin critique
               </label>
-              <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#64748b", cursor:"pointer", marginLeft:12 }}>
+              <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"var(--text-3)", cursor:"pointer", marginLeft:12 }}>
                 <input type="checkbox" checked={newTask.type==="milestone"} onChange={e => setNewTask(p=>({...p,type:e.target.checked?"milestone":"task"}))}/>
                 Jalon ◆
               </label>
               <div style={{ marginLeft:"auto", display:"flex", gap:6 }}>
-                <button onClick={addTask} style={{ padding:"6px 16px", background:"#2563eb", color:"#fff", border:"none", borderRadius:6, fontSize:12, fontWeight:600, cursor:"pointer" }}>
+                <button onClick={addTask} style={{ padding:"6px 16px", background:"var(--primary)", color:"#fff", border:"none", borderRadius:6, fontSize:12, fontWeight:600, cursor:"pointer" }}>
                   Ajouter
                 </button>
-                <button onClick={() => setShowAddForm(false)} style={{ padding:"6px 12px", background:"#1e293b", color:"#94a3b8", border:"none", borderRadius:6, fontSize:12, cursor:"pointer" }}>
+                <button onClick={() => setShowAddForm(false)} style={{ padding:"6px 12px", background:"#1e293b", color:"var(--text-3)", border:"none", borderRadius:6, fontSize:12, cursor:"pointer" }}>
                   Annuler
                 </button>
               </div>
@@ -265,8 +265,8 @@ export default function GanttPage() {
         {tasks.length === 0 && !loading && (
           <div style={{ background:"#0f172a", border:"1px dashed #1e293b", borderRadius:12, padding:48, textAlign:"center" }}>
             <div style={{ fontSize:48, marginBottom:12 }}>📅</div>
-            <p style={{ fontSize:16, fontWeight:600, color:"#64748b" }}>Aucun planning Gantt</p>
-            <p style={{ fontSize:13, color:"#475569", marginTop:8 }}>Générez automatiquement ou ajoutez des tâches manuellement</p>
+            <p style={{ fontSize:16, fontWeight:600, color:"var(--text-3)" }}>Aucun planning Gantt</p>
+            <p style={{ fontSize:13, color:"var(--text-2)", marginTop:8 }}>Générez automatiquement ou ajoutez des tâches manuellement</p>
           </div>
         )}
 
@@ -278,12 +278,12 @@ export default function GanttPage() {
               {phases.map((p,i) => (
                 <div key={p} style={{ display:"flex", alignItems:"center", gap:6 }}>
                   <div style={{ width:10, height:10, borderRadius:2, background:PHASE_COLORS[i%PHASE_COLORS.length] }}/>
-                  <span style={{ fontSize:11, color:"#64748b" }}>{p}</span>
+                  <span style={{ fontSize:11, color:"var(--text-3)" }}>{p}</span>
                 </div>
               ))}
               <div style={{ display:"flex", alignItems:"center", gap:6, marginLeft:"auto" }}>
                 <div style={{ width:10, height:10, borderRadius:2, background:"#ef4444" }}/>
-                <span style={{ fontSize:11, color:"#64748b" }}>Chemin critique</span>
+                <span style={{ fontSize:11, color:"var(--text-3)" }}>Chemin critique</span>
               </div>
             </div>
 
@@ -306,10 +306,10 @@ export default function GanttPage() {
                         background: selectedId===task.id ? "rgba(37,99,235,0.1)" : "transparent", cursor:"pointer" }}
                         onClick={() => setSelectedId(selectedId===task.id?null:task.id)}>
                         <div style={{ display:"flex", alignItems:"center", gap:4, overflow:"hidden" }}>
-                          <span style={{ fontSize:9, color:"#475569", fontFamily:"monospace", flexShrink:0 }}>{task.wbs}</span>
+                          <span style={{ fontSize:9, color:"var(--text-2)", fontFamily:"monospace", flexShrink:0 }}>{task.wbs}</span>
                           {task.type==="milestone" && <span style={{ color:"#f59e0b", fontSize:10 }}>◆</span>}
                           {task.critical && <span style={{ color:"#ef4444", fontSize:9 }}>●</span>}
-                          <span style={{ fontSize:11, color: task.critical?"#fca5a5":"#e2e8f0", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+                          <span style={{ fontSize:11, color: task.critical?"#fca5a5":"var(--border)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
                             {task.name}
                           </span>
                         </div>
@@ -318,7 +318,7 @@ export default function GanttPage() {
                             onChange={e => updateProgress(task.id, +e.target.value)}
                             style={{ width:"100%", accentColor: task.progress===100?"#22c55e":"#3b82f6", cursor:"pointer" }}
                             title={`${task.progress}%`}/>
-                          <span style={{ fontSize:9, color:"#475569" }}>{task.progress}%</span>
+                          <span style={{ fontSize:9, color:"var(--text-2)" }}>{task.progress}%</span>
                         </div>
                       </div>
                     ))}
@@ -333,7 +333,7 @@ export default function GanttPage() {
                   {monthHeaders.map((mh,i) => (
                     <div key={i} style={{ position:"absolute", left:`${mh.left}%`, width:`${mh.width}%`, height:"100%",
                       borderRight:"1px solid rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <span style={{ fontSize:10, color:"#94a3b8", fontWeight:600 }}>{mh.label}</span>
+                      <span style={{ fontSize:10, color:"var(--text-3)", fontWeight:600 }}>{mh.label}</span>
                     </div>
                   ))}
                   {/* Today line header */}
@@ -427,7 +427,7 @@ export default function GanttPage() {
               return (
                 <div style={{ padding:"12px 16px", borderTop:"1px solid #1e293b", background:"#0a0f1a", display:"flex", gap:16, flexWrap:"wrap", alignItems:"center" }}>
                   <span style={{ fontSize:12, fontWeight:600, color:"#f1f5f9" }}>{t.name}</span>
-                  <span style={{ fontSize:11, color:"#64748b" }}>📅 {t.start} → {t.end} ({t.duration}j)</span>
+                  <span style={{ fontSize:11, color:"var(--text-3)" }}>📅 {t.start} → {t.end} ({t.duration}j)</span>
                   <span style={{ fontSize:11, color:"#60a5fa" }}>👤 {t.responsible}</span>
                   <span style={{ fontSize:11, color:t.critical?"#ef4444":"#22c55e" }}>{t.critical?"⚠️ Critique":"✅ Normal"}</span>
                   {t.dependencies && <span style={{ fontSize:11, color:"#f59e0b" }}>→ Dép: {t.dependencies}</span>}
@@ -461,30 +461,30 @@ export default function GanttPage() {
                         {(["wbs","name","phase"] as const).map(k => (
                           <td key={k} style={{ padding:"4px 6px" }}>
                             <input value={editRow[k]} onChange={e=>setEditRow({...editRow,[k]:e.target.value})}
-                              style={{ width:"100%", background:"#1e293b", border:"1px solid #2563eb", borderRadius:4, color:"#e2e8f0", padding:"3px 6px", fontSize:11 }}/>
+                              style={{ width:"100%", background:"#1e293b", border:"1px solid #2563eb", borderRadius:4, color:"var(--border)", padding:"3px 6px", fontSize:11 }}/>
                           </td>
                         ))}
                         {(["start","end"] as const).map(k => (
                           <td key={k} style={{ padding:"4px 6px" }}>
                             <input type="date" value={editRow[k]} onChange={e=>setEditRow({...editRow,[k]:e.target.value})}
-                              style={{ background:"#1e293b", border:"1px solid #2563eb", borderRadius:4, color:"#e2e8f0", padding:"3px 6px", fontSize:11 }}/>
+                              style={{ background:"#1e293b", border:"1px solid #2563eb", borderRadius:4, color:"var(--border)", padding:"3px 6px", fontSize:11 }}/>
                           </td>
                         ))}
-                        <td style={{ padding:"4px 6px", color:"#64748b", fontSize:11 }}>{daysBetween(editRow.start,editRow.end)}j</td>
+                        <td style={{ padding:"4px 6px", color:"var(--text-3)", fontSize:11 }}>{daysBetween(editRow.start,editRow.end)}j</td>
                         <td style={{ padding:"4px 6px" }}>
                           <input value={editRow.responsible} onChange={e=>setEditRow({...editRow,responsible:e.target.value})}
-                            style={{ width:"100%", background:"#1e293b", border:"1px solid #2563eb", borderRadius:4, color:"#e2e8f0", padding:"3px 6px", fontSize:11 }}/>
+                            style={{ width:"100%", background:"#1e293b", border:"1px solid #2563eb", borderRadius:4, color:"var(--border)", padding:"3px 6px", fontSize:11 }}/>
                         </td>
                         <td style={{ padding:"4px 6px" }}>
                           <input type="number" min="0" max="100" value={editRow.progress} onChange={e=>setEditRow({...editRow,progress:+e.target.value})}
-                            style={{ width:50, background:"#1e293b", border:"1px solid #2563eb", borderRadius:4, color:"#e2e8f0", padding:"3px 6px", fontSize:11 }}/>%
+                            style={{ width:50, background:"#1e293b", border:"1px solid #2563eb", borderRadius:4, color:"var(--border)", padding:"3px 6px", fontSize:11 }}/>%
                         </td>
                         <td style={{ padding:"4px 6px" }}>
                           <input type="checkbox" checked={editRow.critical} onChange={e=>setEditRow({...editRow,critical:e.target.checked})}/>
                         </td>
                         <td style={{ padding:"4px 6px" }}>
                           <input value={editRow.dependencies} onChange={e=>setEditRow({...editRow,dependencies:e.target.value})}
-                            style={{ width:"100%", background:"#1e293b", border:"1px solid #2563eb", borderRadius:4, color:"#e2e8f0", padding:"3px 6px", fontSize:11 }}/>
+                            style={{ width:"100%", background:"#1e293b", border:"1px solid #2563eb", borderRadius:4, color:"var(--border)", padding:"3px 6px", fontSize:11 }}/>
                         </td>
                         <td style={{ padding:"4px 6px" }}>
                           <div style={{ display:"flex", gap:4 }}>
@@ -497,21 +497,21 @@ export default function GanttPage() {
                       </>
                     ) : (
                       <>
-                        <td style={{ padding:"7px 10px", color:"#64748b", fontFamily:"monospace" }}>{task.wbs}</td>
-                        <td style={{ padding:"7px 10px", color:"#e2e8f0", fontWeight:500 }}>
+                        <td style={{ padding:"7px 10px", color:"var(--text-3)", fontFamily:"monospace" }}>{task.wbs}</td>
+                        <td style={{ padding:"7px 10px", color:"var(--border)", fontWeight:500 }}>
                           {task.type==="milestone"&&<span style={{ color:"#f59e0b", marginRight:4 }}>◆</span>}{task.name}
                         </td>
                         <td style={{ padding:"7px 10px", color:phaseColor(task.phase) }}>{task.phase}</td>
-                        <td style={{ padding:"7px 10px", color:"#64748b" }}>{task.start}</td>
-                        <td style={{ padding:"7px 10px", color:"#64748b" }}>{task.end}</td>
-                        <td style={{ padding:"7px 10px", color:"#e2e8f0" }}>{task.duration}j</td>
+                        <td style={{ padding:"7px 10px", color:"var(--text-3)" }}>{task.start}</td>
+                        <td style={{ padding:"7px 10px", color:"var(--text-3)" }}>{task.end}</td>
+                        <td style={{ padding:"7px 10px", color:"var(--border)" }}>{task.duration}j</td>
                         <td style={{ padding:"7px 10px", color:"#60a5fa" }}>{task.responsible}</td>
                         <td style={{ padding:"7px 10px" }}>
                           <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                             <div style={{ width:50, height:4, background:"#1e293b", borderRadius:2, overflow:"hidden" }}>
                               <div style={{ width:`${task.progress}%`, height:"100%", background:task.progress===100?"#22c55e":"#3b82f6", borderRadius:2 }}/>
                             </div>
-                            <span style={{ fontSize:10, color:"#64748b" }}>{task.progress}%</span>
+                            <span style={{ fontSize:10, color:"var(--text-3)" }}>{task.progress}%</span>
                           </div>
                         </td>
                         <td style={{ padding:"7px 10px" }}>

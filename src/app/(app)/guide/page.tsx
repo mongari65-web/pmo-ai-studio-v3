@@ -16,8 +16,19 @@ const STEPS = [
 ]
 
 const ICONS = ["📋","🚀","💡","🏗️","🔬","📊","🎯","⚙️","🌐","🔧"]
-const COLORS = ["#2563eb","#7c3aed","#059669","#d97706","#dc2626","#0891b2"]
+const COLORS = ["var(--primary)","#7c3aed","#059669","#d97706","#dc2626","#0891b2"]
 const METHODS = ["PMI/PMBOK","Agile/Scrum","SAFe","PRINCE2","Hybride"]
+
+const DARK_INPUT = {
+  background: "var(--bg-card2)",
+  border: "1px solid var(--border)",
+  borderRadius: "var(--r8)",
+  color: "var(--text-1)",
+  fontSize: 13,
+  padding: "10px 14px",
+  outline: "none",
+  width: "100%",
+} as React.CSSProperties
 
 export default function GuidePage() {
   const router = useRouter()
@@ -28,7 +39,7 @@ export default function GuidePage() {
     name: "", description: "", client: "",
     budget: "", start_date: "", end_date: "",
     team: "", methodology: "PMI/PMBOK",
-    icon: "📋", color: "#2563eb"
+    icon: "📋", color: "var(--primary)"
   })
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))

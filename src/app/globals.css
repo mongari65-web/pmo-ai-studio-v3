@@ -79,3 +79,26 @@ tr:hover td{background:var(--bg-glass)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Override inputs blancs hérités ── */
+input, textarea, select {
+  color-scheme: dark;
+  background: var(--bg-card2) !important;
+  color: var(--text-1) !important;
+  border-color: var(--border) !important;
+}
+input::placeholder, textarea::placeholder {
+  color: var(--text-3) !important;
+}
+input[type="password"] {
+  color: var(--text-1) !important;
+  -webkit-text-fill-color: var(--text-1) !important;
+}
+
+/* ── Override className Tailwind résiduel ── */
+.bg-white, .bg-background { background: var(--bg-card) !important; }
+.bg-muted { background: var(--bg-card2) !important; }
+.text-foreground { color: var(--text-1) !important; }
+.text-muted-foreground { color: var(--text-2) !important; }
+.border-border, .border { border-color: var(--border) !important; }
+.bg-card { background: var(--bg-card) !important; }

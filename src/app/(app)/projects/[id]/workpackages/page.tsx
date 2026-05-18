@@ -20,7 +20,7 @@ const STATUS_CFG: Record<string, { color: string; bg: string }> = {
   "Planifié": { color:"#3b82f6", bg:"rgba(59,130,246,0.12)" },
   "En retard":{ color:"#ef4444", bg:"rgba(239,68,68,0.12)" },
 }
-const PHASE_COLORS = ["#2563eb","#7c3aed","#059669","#d97706","#dc2626"]
+const PHASE_COLORS = ["var(--primary)","#7c3aed","#059669","#d97706","#dc2626"]
 
 export default function WorkPackagesPage() {
   const { id } = useParams<{ id: string }>()
@@ -53,7 +53,7 @@ export default function WorkPackagesPage() {
 
   const phases = useMemo(() => ["Tous", ...Array.from(new Set(wps.map(w => w.phase)))], [wps])
   const filtered = filterPhase === "Tous" ? wps : wps.filter(w => w.phase === filterPhase)
-  const phaseColor = (p: string) => PHASE_COLORS[Math.max(0, phases.indexOf(p)-1)] ?? "#2563eb"
+  const phaseColor = (p: string) => PHASE_COLORS[Math.max(0, phases.indexOf(p)-1)] ?? "var(--primary)"
 
   const totalBudget = wps.reduce((s,w) => s+w.budget, 0)
   const avgCompletion = wps.length > 0 ? Math.round(wps.reduce((s,w)=>s+w.completion,0)/wps.length) : 0
@@ -132,7 +132,7 @@ export default function WorkPackagesPage() {
             {activeTab === "cards" && (
               <div className="grid grid-cols-2 gap-4">
                 {filtered.map(wp => {
-                  const cfg = STATUS_CFG[wp.status] ?? { color:"#64748b", bg:"transparent" }
+                  const cfg = STATUS_CFG[wp.status] ?? { color:"var(--text-3)", bg:"transparent" }
                   const pc = phaseColor(wp.phase)
                   return (
                     <div key={wp.id} className="bg-card border border-border rounded-xl p-4 hover:border-primary/40 transition-all group" style={{ borderLeft: `3px solid ${pc}` }}>
@@ -188,7 +188,7 @@ export default function WorkPackagesPage() {
                   </thead>
                   <tbody>
                     {filtered.map(wp => {
-                      const cfg = STATUS_CFG[wp.status] ?? { color:"#64748b", bg:"transparent" }
+                      const cfg = STATUS_CFG[wp.status] ?? { color:"var(--text-3)", bg:"transparent" }
                       const pc = phaseColor(wp.phase)
                       return (
                         <tr key={wp.id} className="border-b border-border hover:bg-accent/20 group" style={{ borderLeft: `3px solid ${pc}` }}>

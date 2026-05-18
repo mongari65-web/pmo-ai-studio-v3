@@ -159,7 +159,7 @@ export default function PMPSimulatorPage() {
             </div>
             <div style={{ display:"flex", gap:8 }}>
               {view !== "select" && (
-                <button onClick={reset} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:12, cursor:"pointer" }}>
+                <button onClick={reset} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:12, cursor:"pointer" }}>
                   <RotateCcw size={13}/> Changer de lot
                 </button>
               )}
@@ -239,7 +239,7 @@ export default function PMPSimulatorPage() {
             <div style={{ background:"var(--card)", border:`1px solid ${levelCfg?.border}`, borderRadius:"var(--r12)", padding:24 }}>
               <div style={{ display:"flex", gap:8, marginBottom:14, flexWrap:"wrap" }}>
                 <span style={{ padding:"3px 10px", background:levelCfg?.bg, color:levelCfg?.color, borderRadius:20, fontSize:11, fontWeight:600 }}>{levelCfg?.icon} {levelCfg?.label}</span>
-                <span style={{ padding:"3px 10px", background:"#E6F1FB", color:"#185FA5", borderRadius:20, fontSize:11, fontWeight:600 }}>{current.domain}</span>
+                <span style={{ padding:"3px 10px", background:"#E6F1FB", color:"var(--primary-light)", borderRadius:20, fontSize:11, fontWeight:600 }}>{current.domain}</span>
                 <span style={{ padding:"3px 10px", background:"#EEEDFE", color:"#3C3489", borderRadius:20, fontSize:11, fontWeight:600 }}>{current.pmbok}</span>
                 <span style={{ fontSize:11, color:"var(--text-3)", marginLeft:"auto" }}>Q{current.id}</span>
               </div>
@@ -274,7 +274,7 @@ export default function PMPSimulatorPage() {
               {showExpl && (
                 <div style={{ marginTop:16, background:"#E6F1FB", border:"1px solid #B5D4F4", borderLeft:"4px solid #185FA5", borderRadius:"var(--r8)", padding:"12px 14px" }}>
                   <p style={{ fontSize:12, fontWeight:600, color:"#0C447C", margin:"0 0 4px" }}>💡 Explication</p>
-                  <p style={{ fontSize:12, color:"#185FA5", margin:0, lineHeight:1.6 }}>{current.explanation}</p>
+                  <p style={{ fontSize:12, color:"var(--primary-light)", margin:0, lineHeight:1.6 }}>{current.explanation}</p>
                 </div>
               )}
             </div>
@@ -282,7 +282,7 @@ export default function PMPSimulatorPage() {
             {/* Navigation */}
             <div style={{ display:"flex", justifyContent:"space-between", marginTop:12 }}>
               <button onClick={() => { setCurrentIdx(c=>Math.max(0,c-1)); setShowExpl(false) }} disabled={currentIdx===0}
-                style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 16px", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:13, color:"var(--text-2)", cursor:currentIdx===0?"not-allowed":"pointer", opacity:currentIdx===0?0.4:1 }}>
+                style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 16px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:13, color:"var(--text-2)", cursor:currentIdx===0?"not-allowed":"pointer", opacity:currentIdx===0?0.4:1 }}>
                 <ChevronLeft size={14}/> Précédente
               </button>
               {answers[current?.id] !== undefined ? (
@@ -336,7 +336,7 @@ export default function PMPSimulatorPage() {
                 <RotateCcw size={14}/> Reprendre ce lot
               </button>
               <button onClick={reset}
-                style={{ display:"flex", alignItems:"center", gap:6, padding:"9px 18px", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:13, cursor:"pointer" }}>
+                style={{ display:"flex", alignItems:"center", gap:6, padding:"9px 18px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:13, cursor:"pointer" }}>
                 Choisir un autre lot
               </button>
             </div>

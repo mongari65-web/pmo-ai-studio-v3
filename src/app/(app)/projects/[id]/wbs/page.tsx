@@ -15,7 +15,7 @@ interface WBSItem {
 }
 
 const LEVEL_COLORS: Record<number, string> = {
-  1: "#2563eb", 2: "#7c3aed", 3: "#059669", 4: "#d97706"
+  1: "var(--primary)", 2: "#7c3aed", 3: "#059669", 4: "#d97706"
 }
 
 const empty = (): WBSItem => ({

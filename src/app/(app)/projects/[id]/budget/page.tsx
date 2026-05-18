@@ -34,12 +34,12 @@ function KPIBadge({ label, value, sub, color, good }: any) {
   const Icon = good === null ? Minus : good ? TrendingUp : TrendingDown
   return (
     <div style={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:10, padding:"10px 14px", minWidth:100 }}>
-      <p style={{ fontSize:10, color:"#64748b", textTransform:"uppercase", letterSpacing:1, marginBottom:4 }}>{label}</p>
+      <p style={{ fontSize:10, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:1, marginBottom:4 }}>{label}</p>
       <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between" }}>
         <p style={{ fontSize:20, fontWeight:700, color }}>{value}</p>
         <Icon size={16} color={color}/>
       </div>
-      {sub && <p style={{ fontSize:10, color:"#475569", marginTop:2 }}>{sub}</p>}
+      {sub && <p style={{ fontSize:10, color:"var(--text-2)", marginTop:2 }}>{sub}</p>}
     </div>
   )
 }
@@ -162,7 +162,7 @@ export default function BudgetEVMPage() {
       <div>
         <div style={{ background:"#0f172a", border:`1px solid ${typeColor}33`, borderRadius:8, padding:"10px 14px", marginBottom:12 }}>
           <p style={{ fontSize:12, color: typeColor, fontWeight:600 }}>{typeLabel}</p>
-          <p style={{ fontSize:11, color:"#64748b", marginTop:2 }}>
+          <p style={{ fontSize:11, color:"var(--text-3)", marginTop:2 }}>
             {type === "pv" ? "Budget cumulatif prévu à chaque période — calculé depuis le BAC." :
              type === "ev" ? "Valeur du travail réellement accompli à chaque période." :
              "Coût réel engagé à chaque période."}
@@ -187,8 +187,8 @@ export default function BudgetEVMPage() {
             <tbody>
               {evm.tasks.map((task, ri) => (
                 <tr key={task.id} style={{ borderBottom:"1px solid #0f172a", background: ri%2===0?"#0f172a":"#0a0f1a" }}>
-                  <td style={{ padding:"6px 10px", color:"#64748b", fontFamily:"monospace" }}>{task.wbs}</td>
-                  <td style={{ padding:"6px 10px", color:"#e2e8f0", fontWeight:500 }}>{task.name}</td>
+                  <td style={{ padding:"6px 10px", color:"var(--text-3)", fontFamily:"monospace" }}>{task.wbs}</td>
+                  <td style={{ padding:"6px 10px", color:"var(--border)", fontWeight:500 }}>{task.name}</td>
                   <td style={{ padding:"6px 10px", textAlign:"right", color:"#f59e0b", fontWeight:700 }}>
                     {task.bac.toLocaleString("fr-FR")}
                   </td>
@@ -208,7 +208,7 @@ export default function BudgetEVMPage() {
                             color: val > 0 ? (mi===cp ? "#60a5fa" : "#94a3b8") : "#334155",
                             cursor:"text"
                           }}
-                          onFocus={e => { e.target.style.background="#1e293b"; e.target.style.color="#e2e8f0" }}
+                          onFocus={e => { e.target.style.background="#1e293b"; e.target.style.color="var(--border)" }}
                         />
                       </td>
                     )
@@ -226,7 +226,7 @@ export default function BudgetEVMPage() {
                 </td>
                 {totals.map((t,i) => (
                   <td key={i} style={{ padding:"8px 6px", textAlign:"right", fontWeight:700, fontSize:11,
-                    color: i===cp ? "#60a5fa" : "#e2e8f0",
+                    color: i===cp ? "#60a5fa" : "var(--border)",
                     background: i===cp ? "rgba(59,130,246,0.15)" : "transparent" }}>
                     {t > 0 ? t.toLocaleString("fr-FR") : "–"}
                   </td>
@@ -253,13 +253,13 @@ export default function BudgetEVMPage() {
         <div style={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:12, padding:"12px 16px", marginBottom:16 }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
             <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-              <span style={{ fontSize:12, color:"#64748b", fontWeight:500 }}>Période courante :</span>
+              <span style={{ fontSize:12, color:"var(--text-3)", fontWeight:500 }}>Période courante :</span>
               <select value={cp} onChange={e => setEvm(prev => ({...prev, currentPeriod: +e.target.value}))}
                 style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:6, color:"#60a5fa", padding:"4px 10px", fontSize:12, fontWeight:600, cursor:"pointer" }}>
                 {MONTHS.map((m,i) => <option key={m} value={i}>{m}</option>)}
               </select>
             </div>
-            <span style={{ fontSize:12, color:"#64748b" }}>BAC total : <strong style={{ color:"#e2e8f0" }}>{fmt(totalBAC)}</strong></span>
+            <span style={{ fontSize:12, color:"var(--text-3)" }}>BAC total : <strong style={{ color:"var(--border)" }}>{fmt(totalBAC)}</strong></span>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(8,1fr)", gap:8 }}>
             <KPIBadge label="PV" value={fmt(totalPV)} sub="Planifié" color="#3b82f6" good={null}/>
@@ -279,7 +279,7 @@ export default function BudgetEVMPage() {
             <button key={t.key} onClick={() => setTab(t.key as any)}
               style={{
                 padding:"7px 14px", borderRadius:8, border:"1px solid", fontSize:12, fontWeight:600, cursor:"pointer",
-                borderColor: tab===t.key ? "#2563eb" : "#1e293b",
+                borderColor: tab===t.key ? "var(--primary)" : "#1e293b",
                 background: tab===t.key ? "#1e3a5f" : "#0f172a",
                 color: tab===t.key ? "#60a5fa" : "#64748b",
                 transition:"all 0.15s"
@@ -293,8 +293,8 @@ export default function BudgetEVMPage() {
         {evm.tasks.length === 0 && !loading && (
           <div style={{ background:"#0f172a", border:"1px dashed #1e293b", borderRadius:12, padding:48, textAlign:"center" }}>
             <div style={{ fontSize:48, marginBottom:12 }}>💰</div>
-            <p style={{ fontSize:16, fontWeight:600, color:"#64748b" }}>Aucun budget EVM</p>
-            <p style={{ fontSize:13, color:"#475569", marginTop:8 }}>Cliquez sur "Générer depuis WBS" pour démarrer</p>
+            <p style={{ fontSize:16, fontWeight:600, color:"var(--text-3)" }}>Aucun budget EVM</p>
+            <p style={{ fontSize:13, color:"var(--text-2)", marginTop:8 }}>Cliquez sur "Générer depuis WBS" pour démarrer</p>
           </div>
         )}
 
@@ -304,11 +304,11 @@ export default function BudgetEVMPage() {
             <div style={{ padding:"14px 16px", borderBottom:"1px solid #1e293b", display:"flex", justifyContent:"space-between" }}>
               <div>
                 <p style={{ fontSize:16, fontWeight:700, color:"#f1f5f9" }}>{project?.name}</p>
-                <p style={{ fontSize:12, color:"#64748b" }}>Rapport Earned Value Analysis</p>
+                <p style={{ fontSize:12, color:"var(--text-3)" }}>Rapport Earned Value Analysis</p>
               </div>
               <div style={{ textAlign:"right" }}>
                 <p style={{ fontSize:12, color:"#60a5fa", fontWeight:600 }}>Période : {MONTHS[cp]}</p>
-                <p style={{ fontSize:11, color:"#475569" }}>{new Date().toLocaleDateString("fr-FR")}</p>
+                <p style={{ fontSize:11, color:"var(--text-2)" }}>{new Date().toLocaleDateString("fr-FR")}</p>
               </div>
             </div>
             <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
@@ -326,8 +326,8 @@ export default function BudgetEVMPage() {
                   const eac = cpi>0?t.bac/cpi:t.bac
                   return (
                     <tr key={t.id} style={{ borderBottom:"1px solid #0f172a", background:i%2===0?"#0f172a":"#0a0f1a" }}>
-                      <td style={{ padding:"7px 10px", color:"#64748b", fontFamily:"monospace" }}>{t.wbs}</td>
-                      <td style={{ padding:"7px 10px", color:"#e2e8f0", fontWeight:500 }}>{t.name}</td>
+                      <td style={{ padding:"7px 10px", color:"var(--text-3)", fontFamily:"monospace" }}>{t.wbs}</td>
+                      <td style={{ padding:"7px 10px", color:"var(--border)", fontWeight:500 }}>{t.name}</td>
                       <td style={{ padding:"7px 10px", color:"#f59e0b", fontWeight:700 }}>{t.bac.toLocaleString("fr-FR")}</td>
                       <td style={{ padding:"7px 10px", color:"#3b82f6" }}>{pv.toLocaleString("fr-FR")}</td>
                       <td style={{ padding:"7px 10px", color:"#a78bfa" }}>{ev.toLocaleString("fr-FR")}</td>
@@ -354,8 +354,8 @@ export default function BudgetEVMPage() {
                 </tr>
                 <tr style={{ background:"#0f172a", borderTop:"1px solid #1e293b" }}>
                   <td colSpan={10} style={{ padding:"10px 14px" }}>
-                    <div style={{ display:"flex", gap:24, fontSize:11, color:"#64748b" }}>
-                      <span>ETC : <strong style={{ color:"#e2e8f0" }}>{fmt(ETC)}</strong></span>
+                    <div style={{ display:"flex", gap:24, fontSize:11, color:"var(--text-3)" }}>
+                      <span>ETC : <strong style={{ color:"var(--border)" }}>{fmt(ETC)}</strong></span>
                       <span>TCPI : <strong style={{ color:TCPI<=1?"#22c55e":"#ef4444" }}>{TCPI.toFixed(2)}</strong></span>
                       <span>Écart BAC : <strong style={{ color:EAC<=totalBAC?"#22c55e":"#ef4444" }}>{fmt(EAC-totalBAC)}</strong></span>
                     </div>
@@ -375,7 +375,7 @@ export default function BudgetEVMPage() {
           <div style={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:12, padding:20 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
               <p style={{ fontSize:14, fontWeight:700, color:"#f1f5f9" }}>Courbe S — EVM dynamique</p>
-              <p style={{ fontSize:11, color:"#475569" }}>Mise à jour automatique à chaque saisie</p>
+              <p style={{ fontSize:11, color:"var(--text-2)" }}>Mise à jour automatique à chaque saisie</p>
             </div>
             <ResponsiveContainer width="100%" height={380}>
               <AreaChart data={curveData} margin={{ top:10, right:30, left:20, bottom:10 }}>
@@ -398,13 +398,13 @@ export default function BudgetEVMPage() {
                 <YAxis tick={{ fill:"#64748b", fontSize:11 }} tickFormatter={v => `${(v/1000).toFixed(0)}k`}/>
                 <Tooltip
                   contentStyle={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:8 }}
-                  labelStyle={{ color:"#e2e8f0", fontWeight:600 }}
+                  labelStyle={{ color:"var(--border)", fontWeight:600 }}
                   formatter={(v: any, name: any) => [v ? `${v.toLocaleString("fr-FR")} €` : "–", name]}
                 />
                 <Legend wrapperStyle={{ fontSize:12 }}/>
                 <ReferenceLine y={totalBAC} stroke="#475569" strokeDasharray="6 3" label={{ value:`BAC ${fmt(totalBAC)}`, position:"right", fill:"#64748b", fontSize:10 }}/>
                 <ReferenceLine y={EAC} stroke="#7c3aed" strokeDasharray="4 2" label={{ value:`EAC ${fmt(EAC)}`, position:"right", fill:"#7c3aed", fontSize:10 }}/>
-                <ReferenceLine x={MONTHS[cp]} stroke="#2563eb" strokeWidth={2} label={{ value:"Auj.", position:"top", fill:"#60a5fa", fontSize:10 }}/>
+                <ReferenceLine x={MONTHS[cp]} stroke="var(--primary)" strokeWidth={2} label={{ value:"Auj.", position:"top", fill:"#60a5fa", fontSize:10 }}/>
                 <Area type="monotone" dataKey="BAC" stroke="#475569" strokeDasharray="4 4" strokeWidth={1} fill="none" name="BAC (Baseline)"/>
                 <Area type="monotone" dataKey="PV" stroke="#3b82f6" strokeWidth={2.5} fill="url(#pvG)" name="PV Planifié" dot={false}/>
                 <Area type="monotone" dataKey="EV" stroke="#a78bfa" strokeWidth={2.5} fill="url(#evG)" name="EV Acquis" connectNulls={false} dot={{ r:4, fill:"#a78bfa" }}/>
@@ -421,7 +421,7 @@ export default function BudgetEVMPage() {
                 { label:"TCPI", value:TCPI.toFixed(2), sub:"Efficacité requise", color:TCPI<=1?"#22c55e":"#ef4444" },
               ].map(item => (
                 <div key={item.label} style={{ background:"#0a0f1a", border:`1px solid ${item.color}33`, borderRadius:8, padding:"10px 12px" }}>
-                  <p style={{ fontSize:10, color:"#64748b", marginBottom:4 }}>{item.label}</p>
+                  <p style={{ fontSize:10, color:"var(--text-3)", marginBottom:4 }}>{item.label}</p>
                   <p style={{ fontSize:18, fontWeight:700, color:item.color }}>{item.value}</p>
                   <p style={{ fontSize:10, color:item.color, opacity:0.7 }}>{item.sub}</p>
                 </div>
@@ -447,7 +447,7 @@ export default function BudgetEVMPage() {
             ].map(item => (
               <div key={item.term} style={{ background:"#0f172a", border:`1px solid ${item.color}22`, borderLeft:`3px solid ${item.color}`, borderRadius:8, padding:"12px 14px" }}>
                 <p style={{ fontSize:12, fontWeight:700, color:item.color, marginBottom:6 }}>{item.term}</p>
-                <p style={{ fontSize:12, color:"#94a3b8", lineHeight:1.6 }}>{item.def}</p>
+                <p style={{ fontSize:12, color:"var(--text-3)", lineHeight:1.6 }}>{item.def}</p>
               </div>
             ))}
           </div>

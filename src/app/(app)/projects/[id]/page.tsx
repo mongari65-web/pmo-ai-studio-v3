@@ -6,14 +6,14 @@ import Link from "next/link"
 import { ArrowLeft, Users, Calendar, DollarSign, Tag, UserPlus, FileText } from "lucide-react"
 
 const TOOLS = [
-  { key:"wbs",          label:"WBS Dict",      icon:"🗂️",  desc:"Structure découpage",  color:"#185FA5" },
+  { key:"wbs",          label:"WBS Dict",      icon:"🗂️",  desc:"Structure découpage",  color:"var(--primary-light)" },
   { key:"workpackages", label:"Work Packages",  icon:"📦",  desc:"Lots de travaux",       color:"#3C3489" },
   { key:"gantt",        label:"Gantt",          icon:"📅",  desc:"Planning visuel",       color:"#639922" },
   { key:"jalons",       label:"Jalons",         icon:"🏁",  desc:"Étapes clés",           color:"#854F0B" },
   { key:"raid",         label:"RAID",           icon:"⚠️",  desc:"Risques & Actions",     color:"#A32D2D" },
   { key:"budget",       label:"Budget EVM",     icon:"💰",  desc:"Earned Value",          color:"#27500A" },
-  { key:"mindmap",      label:"Mind Map",       icon:"🧠",  desc:"Carte mentale",         color:"#185FA5" },
-  { key:"documents",    label:"Documents",      icon:"📄",  desc:"Bibliothèque",          color:"#475569" },
+  { key:"mindmap",      label:"Mind Map",       icon:"🧠",  desc:"Carte mentale",         color:"var(--primary-light)" },
+  { key:"documents",    label:"Documents",      icon:"📄",  desc:"Bibliothèque",          color:"var(--text-2)" },
   { key:"pert",         label:"PERT",           icon:"🔀",  desc:"Chemin critique",       color:"#3C3489" },
 ]
 
@@ -24,7 +24,7 @@ export default function ProjectPage() {
   if (loading) return <AppLayout><div style={{ padding:40, color:"var(--text-3)", textAlign:"center" }}>Chargement...</div></AppLayout>
   if (!project) return <AppLayout><div style={{ padding:40, color:"var(--text-2)" }}>Projet introuvable.</div></AppLayout>
 
-  const color = project.color ?? "#185FA5"
+  const color = project.color ?? "var(--primary-light)"
 
   return (
     <AppLayout>
@@ -71,7 +71,7 @@ export default function ProjectPage() {
             <div style={{ flexShrink:0, textAlign:"center" }}>
               <div style={{ position:"relative", width:64, height:64 }}>
                 <svg viewBox="0 0 64 64" style={{ width:"100%", height:"100%", transform:"rotate(-90deg)" }}>
-                  <circle cx="32" cy="32" r="26" fill="none" stroke="#e2e8f0" strokeWidth="5"/>
+                  <circle cx="32" cy="32" r="26" fill="none" stroke="var(--border)" strokeWidth="5"/>
                   <circle cx="32" cy="32" r="26" fill="none" stroke={color} strokeWidth="5"
                     strokeDasharray={`${(project.completion??0)*1.633} 163.3`} strokeLinecap="round"/>
                 </svg>
@@ -90,7 +90,7 @@ export default function ProjectPage() {
             <Link href={`/projects/${id}/report`} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--primary-bg)", border:"1px solid #B5D4F4", borderRadius:"var(--r8)", fontSize:12, color:"var(--primary-t)", textDecoration:"none", fontWeight:500 }}>
               <FileText size={13}/> Rapport PDF
             </Link>
-            <Link href={`/projects/${id}/members`} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:12, color:"var(--text-1)", textDecoration:"none" }}>
+            <Link href={`/projects/${id}/members`} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:12, color:"var(--text-1)", textDecoration:"none" }}>
               <UserPlus size={13}/> Gérer les membres
             </Link>
           </div>

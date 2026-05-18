@@ -6,7 +6,7 @@ import Link from "next/link"
 const SECTIONS = [
   {
     id: "overview", icon: "🎯", title: "Vue d'ensemble de l'examen",
-    color: "#185FA5", bg: "#E6F1FB",
+    color: "var(--primary-light)", bg: "#E6F1FB",
     content: [
       { subtitle: "Format de l'examen 2024", items: [
         "180 questions en 230 minutes (environ 1'20 par question)",
@@ -239,7 +239,7 @@ export default function PMPConseils() {
               <div style={{ display:"flex", gap:8 }}>
                 {SECTIONS.findIndex(s=>s.id===activeSection) > 0 && (
                   <button onClick={() => setActiveSection(SECTIONS[SECTIONS.findIndex(s=>s.id===activeSection)-1].id)}
-                    style={{ padding:"7px 14px", background:"#fff", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:12, color:"var(--text-2)", cursor:"pointer" }}>
+                    style={{ padding:"7px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:12, color:"var(--text-2)", cursor:"pointer" }}>
                     ← Précédent
                   </button>
                 )}

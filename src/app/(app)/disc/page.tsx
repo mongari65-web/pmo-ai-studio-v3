@@ -125,7 +125,7 @@ function DISCWheel({ scores, primary, secondary }: { scores: Record<DiscKey,numb
           )
         })}
         {/* Cercle central */}
-        <circle cx="90" cy="90" r="28" fill="white" stroke="#e2e8f0" strokeWidth="2"/>
+        <circle cx="90" cy="90" r="28" fill="white" stroke="var(--border)" strokeWidth="2"/>
         <text x="90" y="86" textAnchor="middle" fontSize="11" fontWeight="700" fill="#172B4D">DISC</text>
         <text x="90" y="99" textAnchor="middle" fontSize="9" fill="#5E6C84">{primary}{secondary?"+"+secondary:""}</text>
       </svg>
@@ -153,7 +153,7 @@ function ProfileCard({ discKey, score, total, isPrimary, isSecondary }: {
   const pct = Math.round(score/total*100)
   return (
     <div style={{
-      border:`2px solid ${isPrimary ? cfg.color : isSecondary ? cfg.border : "#DFE1E6"}`,
+      border:`2px solid ${isPrimary ? cfg.color : isSecondary ? cfg.border : "var(--border)"}`,
       borderRadius:12, overflow:"hidden", position:"relative",
       boxShadow: isPrimary ? `0 4px 20px ${cfg.color}33` : "none",
       transform: isPrimary ? "scale(1.01)" : "none",
@@ -487,7 +487,7 @@ Style : direct, factuel, positif. Pas de score scientifique.`}]
             {/* Actions */}
             <div style={{ display:"flex", gap:10 }}>
               <button onClick={restart}
-                style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:7, padding:"11px", background:"#fff", border:"1px solid var(--border)", borderRadius:10, fontSize:13, cursor:"pointer", fontWeight:500 }}>
+                style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:7, padding:"11px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:10, fontSize:13, cursor:"pointer", fontWeight:500 }}>
                 <RotateCcw size={14}/> Refaire le test
               </button>
               <button onClick={()=>{
