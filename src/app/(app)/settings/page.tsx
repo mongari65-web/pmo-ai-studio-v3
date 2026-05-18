@@ -157,7 +157,7 @@ export default function SettingsPage() {
           return (
             <div key={section.title} className="bg-card border border-border rounded-xl overflow-hidden">
               <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border bg-muted/30">
-                <Icon size={15} className="text-muted-foreground"/>
+                <Icon size={15} style={{color:"var(--text-2)"}}/>
                 <h2 className="text-sm font-semibold text-foreground">{section.title}</h2>
               </div>
               <div className="p-4">{section.content}</div>

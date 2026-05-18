@@ -1,4 +1,5 @@
 "use client"
+import { NavButtons } from "@/components/ui/BackButton"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams } from "next/navigation"
 import AppLayout from "@/components/layout/AppLayout"
@@ -52,26 +53,26 @@ function MindMapSVG({ data, svgRef }: { data: MindMapData; svgRef: React.RefObje
   const fit = () => { reset() }
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden relative" style={{ height: 620 }}>
+    <div style={{border:"1px solid var(--border)"}} style={{ height: 620 }}>
       {/* Controls */}
       <div className="absolute top-3 right-3 z-10 flex gap-1.5">
-        <button onClick={() => zoom(1.2)} className="w-8 h-8 bg-card border border-border rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="Zoom +">
+        <button onClick={() => zoom(1.2)} style={{border:"1px solid var(--border)"}} title="Zoom +">
           <ZoomIn size={14}/>
         </button>
-        <button onClick={() => zoom(0.8)} className="w-8 h-8 bg-card border border-border rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="Zoom -">
+        <button onClick={() => zoom(0.8)} style={{border:"1px solid var(--border)"}} title="Zoom -">
           <ZoomOut size={14}/>
         </button>
-        <button onClick={fit} className="w-8 h-8 bg-card border border-border rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="Ajuster">
+        <button onClick={fit} style={{border:"1px solid var(--border)"}} title="Ajuster">
           <Maximize2 size={14}/>
         </button>
-        <button onClick={reset} className="w-8 h-8 bg-card border border-border rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="Réinitialiser">
+        <button onClick={reset} style={{border:"1px solid var(--border)"}} title="Réinitialiser">
           <RotateCcw size={14}/>
         </button>
       </div>
 
       {/* Zoom level */}
       <div className="absolute bottom-3 left-3 z-10">
-        <span className="text-xs text-muted-foreground bg-card/80 border border-border rounded px-2 py-1">
+        <span style={{border:"1px solid var(--border)"}}>
           {Math.round(transform.scale * 100)}% · Molette pour zoomer · Clic+glisser pour déplacer
         </span>
       </div>
@@ -196,7 +197,7 @@ export default function MindMapPage() {
         exportFilename={`MindMap_${project?.name ?? ""}`}>
 
         {!mmData && !loading && (
-          <div className="bg-card border border-dashed border-border rounded-xl p-16 text-center">
+          <div style={{border:"1px solid var(--border)"}}>
             <div className="text-5xl mb-3">🧠</div>
             <p className="font-semibold text-foreground mb-1">Aucun Mind Map</p>
             <p className="text-sm text-muted-foreground">Cliquez sur "Générer Mind Map"</p>
@@ -204,7 +205,7 @@ export default function MindMapPage() {
         )}
 
         {loading && (
-          <div className="bg-card border border-border rounded-xl p-16 text-center text-primary">
+          <div style={{border:"1px solid var(--border)"}}>
             <div className="text-5xl mb-3 animate-pulse">🧠</div>
             <p>Génération du Mind Map...</p>
           </div>

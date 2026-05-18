@@ -1,3 +1,5 @@
+"use client"
+import { NavButtons } from "@/components/ui/BackButton"
 'use client'
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { useParams } from "next/navigation"

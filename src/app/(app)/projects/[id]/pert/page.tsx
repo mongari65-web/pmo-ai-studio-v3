@@ -1,4 +1,5 @@
 "use client"
+import { NavButtons } from "@/components/ui/BackButton"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { useParams } from "next/navigation"
 import AppLayout from "@/components/layout/AppLayout"

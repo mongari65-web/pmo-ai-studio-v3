@@ -1,3 +1,5 @@
+"use client"
+import { NavButtons } from "@/components/ui/BackButton"
 'use client'
 import { useState, useEffect, useMemo } from "react"
 import { useParams } from "next/navigation"
@@ -150,7 +152,7 @@ export default function WorkPackagesPage() {
                       {/* Progress */}
                       <div className="mb-3">
                         <div className="flex justify-between text-xs mb-1">
-                          <span className="text-muted-foreground">Avancement</span>
+                          <span style={{color:"var(--text-2)"}}>Avancement</span>
                           <span className="font-medium text-foreground">{wp.completion}%</span>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -166,7 +168,7 @@ export default function WorkPackagesPage() {
                       </div>
                       {wp.deliverables && (
                         <div className="mt-3 pt-3 border-t border-border">
-                          <p className="text-[10px] text-muted-foreground"><span className="font-medium">Livrable :</span> {wp.deliverables}</p>
+                          <p className="text-[10px] text-muted-foreground"><span style={{fontWeight:500}}>Livrable :</span> {wp.deliverables}</p>
                         </div>
                       )}
                     </div>

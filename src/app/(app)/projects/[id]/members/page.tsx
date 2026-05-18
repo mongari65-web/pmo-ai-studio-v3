@@ -91,8 +91,8 @@ export default function MembersPage() {
             </button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            <strong className="text-foreground">Éditeur</strong> : peut modifier tous les outils ·
-            <strong className="text-foreground"> Lecteur</strong> : lecture seule
+            <strong style={{color:"var(--text-1)"}}>Éditeur</strong> : peut modifier tous les outils ·
+            <strong style={{color:"var(--text-1)"}}> Lecteur</strong> : lecture seule
           </p>
         </div>
 
