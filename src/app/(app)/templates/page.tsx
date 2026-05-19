@@ -1,362 +1,358 @@
 "use client"
-import BackButton from "@/components/ui/BackButton"
 import AppLayout from "@/components/layout/AppLayout"
 import ProGate from "@/components/ProGate"
-import { useState } from "react"
-import { Download, Eye, FileSpreadsheet, Search, CheckCircle2, Clock } from "lucide-react"
+import { useState, useMemo } from "react"
+import { Download, Eye, Search, CheckCircle2, Clock, Star, Filter } from "lucide-react"
 
-// ── Catalogue des templates ──────────────────────────────────
-const PACKS = [
+const ALL_TEMPLATES = [
+  // ── Pack Suivi Opérationnel ──────────────────────────────────
   {
-    id: "suivi",
-    icon: "📊",
-    title: "Pack Suivi Opérationnel",
-    desc: "Reporting hebdomadaire, suivi RAID et avancement projet",
-    color: "#006644",
-    bg: "#E3FCEF",
-    border: "#ABF5D1",
-    templates: [
-      {
-        id: "dashboard-hebdo",
-        icon: "📊",
-        title: "Dashboard Hebdomadaire",
-        desc: "KPIs avancement, phases, jalons, actions prioritaires, points CODIR. Sélecteur de semaine.",
-        tags: ["Reporting", "Hebdo", "KPIs"],
-        status: "ready",
-        file: "/templates/02_Dashboard_Hebdomadaire.xlsx",
-        filename: "02_Dashboard_Hebdomadaire.xlsx",
-        onglets: ["📊 Dashboard", "📖 Tuto"],
-        highlight: "CPI · SPI · Actions · Points CODIR",
-      },
-      {
-        id: "raid",
-        icon: "⚠️",
-        title: "Registre RAID Enrichi",
-        desc: "Risques, Actions, Issues, Décisions avec synthèse automatique et compteurs par statut.",
-        tags: ["Risques", "Actions", "PMBOK 7"],
-        status: "ready",
-        file: "/templates/03_Registre_RAID.xlsx",
-        filename: "03_Registre_RAID.xlsx",
-        onglets: ["📊 Synthèse", "⚠️ Risques", "✅ Actions", "🔥 Issues", "📋 Décisions", "📖 Tuto"],
-        highlight: "Synthèse auto · 5 onglets · Compteurs statuts",
-      },
-      {
-        id: "suivi-jalons",
-        icon: "🏁",
-        title: "Suivi Jalons Visuel",
-        desc: "Timeline colorée avec statuts, dates prévisionnelles vs réelles et indicateur de retard.",
-        tags: ["Planning", "Jalons"],
-        status: "soon",
-        file: null, filename: null, onglets: [], highlight: "",
-      },
-    ]
+    id: "dashboard-hebdo", pack: "Suivi Opérationnel", packColor: "#006644", packBg: "#E3FCEF",
+    icon: "📊", iconBg: "#064e3b",
+    title: "Dashboard Hebdomadaire",
+    desc: "KPIs avancement, phases, jalons, actions prioritaires, points CODIR. Sélecteur de semaine automatique.",
+    tags: ["Reporting", "Hebdo", "KPIs", "CODIR"],
+    status: "ready", rating: 5, downloads: 142,
+    file: "/templates/02_Dashboard_Hebdomadaire.xlsx",
+    filename: "02_Dashboard_Hebdomadaire.xlsx",
+    onglets: ["📊 Dashboard", "📖 Tuto"],
+    highlight: "CPI · SPI · Actions · Points CODIR",
+    type: "Excel",
   },
   {
-    id: "finances",
-    icon: "💰",
-    title: "Pack Finances & Ressources",
-    desc: "Suivi budgétaire EVM complet, plan de charge et gestion fournisseurs",
-    color: "#974F0C",
-    bg: "#FFF7D6",
-    border: "#FFD700",
-    templates: [
-      {
-        id: "budget-evm",
-        icon: "💰",
-        title: "Budget EVM Complet",
-        desc: "Saisie WP par WP, Dashboard KPIs (CPI/SPI/EAC/TCPI), Courbe S automatique, tuto complet.",
-        tags: ["EVM", "Budget", "Courbe S"],
-        status: "ready",
-        file: "/templates/01_Budget_EVM_Complet.xlsx",
-        filename: "01_Budget_EVM_Complet.xlsx",
-        onglets: ["⚙️ Paramètres", "📋 Work Packages", "📥 EV & AC", "📊 Dashboard", "📈 Courbe S", "📖 Tuto"],
-        highlight: "EAC · ETC · VAC · TCPI · Courbe S graphique",
-      },
-      {
-        id: "plan-charge",
-        icon: "👤",
-        title: "Plan de Charge",
-        desc: "Allocation ressources par semaine et par projet, avec indicateurs de surcharge.",
-        tags: ["Ressources", "RH"],
-        status: "soon",
-        file: null, filename: null, onglets: [], highlight: "",
-      },
-      {
-        id: "suivi-fournisseurs",
-        icon: "🤝",
-        title: "Suivi Fournisseurs",
-        desc: "Contrats, livrables, paiements, SLA et indicateurs de performance fournisseurs.",
-        tags: ["Achats", "Contrats"],
-        status: "soon",
-        file: null, filename: null, onglets: [], highlight: "",
-      },
-    ]
+    id: "raid", pack: "Suivi Opérationnel", packColor: "#006644", packBg: "#E3FCEF",
+    icon: "⚠️", iconBg: "#7f1d1d",
+    title: "Registre RAID Enrichi",
+    desc: "Risques, Actions, Issues, Décisions avec synthèse automatique et compteurs par statut.",
+    tags: ["Risques", "RAID", "PMBOK 7"],
+    status: "ready", rating: 5, downloads: 98,
+    file: "/templates/03_Registre_RAID.xlsx",
+    filename: "03_Registre_RAID.xlsx",
+    onglets: ["📊 Synthèse", "⚠️ Risques", "✅ Actions", "🔥 Issues", "📋 Décisions", "📖 Tuto"],
+    highlight: "Synthèse auto · 5 onglets · Compteurs statuts",
+    type: "Excel",
   },
   {
-    id: "demarrage",
-    icon: "🚀",
-    title: "Pack Démarrage Projet",
-    desc: "Documents essentiels pour lancer un projet selon PMBOK 7",
-    color: "var(--primary)",
-    bg: "#DEEBFF",
-    border: "#B3D4FF",
-    templates: [
-      {
-        id: "wbs",
-        icon: "🗂️",
-        title: "WBS Dictionnaire",
-        desc: "Décomposition complète du travail avec code, livrable, responsable, durée, budget et critères d'acceptation.",
-        tags: ["WBS", "Scope", "PMBOK 7"],
-        status: "ready",
-        file: "/templates/04_WBS_Dictionnaire.xlsx",
-        filename: "04_WBS_Dictionnaire.xlsx",
-        onglets: ["📋 WBS Dictionnaire", "📖 Tuto"],
-        highlight: "Budget auto · Critères acceptation · 20 livrables",
-      },
-      {
-        id: "raci",
-        icon: "👥",
-        title: "Matrice RACI",
-        desc: "Matrice responsabilités complète pour 12 rôles × 20 activités avec légende colorée R/A/C/I.",
-        tags: ["RACI", "Personnes", "PMBOK 7"],
-        status: "ready",
-        file: "/templates/05_Matrice_RACI.xlsx",
-        filename: "05_Matrice_RACI.xlsx",
-        onglets: ["👥 Matrice RACI", "📖 Tuto"],
-        highlight: "12 rôles · 20 activités · Légende colorée",
-      },
-      {
-        id: "charte",
-        icon: "🎯",
-        title: "Charte de Projet",
-        desc: "Document d'autorisation officiel du projet avec objectifs, scope, budget et parties prenantes.",
-        tags: ["Initiation", "PMBOK 7"],
-        status: "soon",
-        file: null, filename: null, onglets: [], highlight: "",
-      },
-    ]
+    id: "suivi-jalons", pack: "Suivi Opérationnel", packColor: "#006644", packBg: "#E3FCEF",
+    icon: "🏁", iconBg: "#78350f",
+    title: "Suivi Jalons Visuel",
+    desc: "Timeline colorée avec statuts, dates prévisionnelles vs réelles et indicateur de retard automatique.",
+    tags: ["Planning", "Jalons", "Timeline"],
+    status: "ready", rating: 5, downloads: 67,
+    file: "/templates/04_Suivi_Jalons.xlsx",
+    filename: "04_Suivi_Jalons.xlsx",
+    onglets: ["🏁 Jalons", "📊 Synthèse", "📖 Tuto"],
+    highlight: "Timeline visuelle · Retard auto · Statuts colorés",
+    type: "Excel",
+  },
+
+  // ── Pack Finances & Ressources ───────────────────────────────
+  {
+    id: "budget-evm", pack: "Finances & Ressources", packColor: "#974F0C", packBg: "#FFF7D6",
+    icon: "💰", iconBg: "#166534",
+    title: "Budget EVM Complet",
+    desc: "Saisie WP par WP, Dashboard KPIs (CPI/SPI/EAC/TCPI), Courbe S automatique avec graphique interactif.",
+    tags: ["EVM", "Budget", "Courbe S", "TCPI"],
+    status: "ready", rating: 5, downloads: 215,
+    file: "/templates/01_Budget_EVM_Complet.xlsx",
+    filename: "01_Budget_EVM_Complet.xlsx",
+    onglets: ["⚙️ Paramètres", "📋 Work Packages", "📥 EV & AC", "📊 Dashboard", "📈 Courbe S", "📖 Tuto"],
+    highlight: "EAC · ETC · VAC · TCPI · Courbe S graphique",
+    type: "Excel",
   },
   {
-    id: "cloture",
-    icon: "✅",
-    title: "Pack Clôture & Qualité",
-    desc: "Capitalisation des connaissances et vérification de conformité",
-    color: "#403294",
-    bg: "#EAE6FF",
-    border: "#C0B6F2",
-    templates: [
-      {
-        id: "lessons",
-        icon: "📚",
-        title: "Leçons Apprises (REX)",
-        desc: "Capitalisation structurée par catégorie avec analyse des causes racines.",
-        tags: ["Clôture", "Qualité"],
-        status: "soon",
-        file: null, filename: null, onglets: [], highlight: "",
-      },
-      {
-        id: "checklist",
-        icon: "✅",
-        title: "Checklist Clôture",
-        desc: "30 points de vérification avant la clôture officielle du projet.",
-        tags: ["Clôture", "PMBOK 7"],
-        status: "soon",
-        file: null, filename: null, onglets: [], highlight: "",
-      },
-    ]
+    id: "plan-charge", pack: "Finances & Ressources", packColor: "#974F0C", packBg: "#FFF7D6",
+    icon: "👤", iconBg: "#1e3a5f",
+    title: "Plan de Charge Ressources",
+    desc: "Allocation hebdomadaire par ressource et projet. Indicateurs de surcharge, taux d'occupation et disponibilité.",
+    tags: ["Ressources", "RH", "Capacité"],
+    status: "ready", rating: 5, downloads: 54,
+    file: "/templates/05_Plan_de_Charge.xlsx",
+    filename: "05_Plan_de_Charge.xlsx",
+    onglets: ["👤 Ressources", "📅 Semaines", "📊 Dashboard", "📖 Tuto"],
+    highlight: "Surcharge auto · Taux occupation · Multi-projets",
+    type: "Excel",
+  },
+  {
+    id: "suivi-fournisseurs", pack: "Finances & Ressources", packColor: "#974F0C", packBg: "#FFF7D6",
+    icon: "🤝", iconBg: "#312e81",
+    title: "Suivi Fournisseurs & Contrats",
+    desc: "Contrats, livrables, paiements, SLA et indicateurs de performance fournisseurs avec alertes automatiques.",
+    tags: ["Achats", "Contrats", "SLA"],
+    status: "soon", rating: 5, downloads: 0,
+    file: null, filename: null, onglets: [], highlight: "",
+    type: "Excel",
+  },
+
+  // ── Pack Démarrage Projet ────────────────────────────────────
+  {
+    id: "wbs-dict", pack: "Démarrage Projet", packColor: "#1d4ed8", packBg: "#EFF6FF",
+    icon: "🗂️", iconBg: "#1e3a5f",
+    title: "WBS + Dictionnaire",
+    desc: "Structure de découpage complète sur 3 niveaux avec dictionnaire WBS intégré (responsable, durée, budget, livrables).",
+    tags: ["WBS", "PMBOK 7", "Livrables"],
+    status: "ready", rating: 5, downloads: 89,
+    file: "/templates/06_WBS_Dictionnaire.xlsx",
+    filename: "06_WBS_Dictionnaire.xlsx",
+    onglets: ["🗂️ WBS", "📖 Dictionnaire", "📊 Synthèse", "📖 Tuto"],
+    highlight: "3 niveaux · Dictionnaire auto · Synthèse budget",
+    type: "Excel",
+  },
+  {
+    id: "gantt-master", pack: "Démarrage Projet", packColor: "#1d4ed8", packBg: "#EFF6FF",
+    icon: "📅", iconBg: "#065f46",
+    title: "Gantt Master Multi-Phases",
+    desc: "Planning Gantt avec chemin critique automatique, dépendances, jalons visuels et indicateurs de retard par phase.",
+    tags: ["Gantt", "Planning", "Chemin critique"],
+    status: "ready", rating: 5, downloads: 123,
+    file: "/templates/07_Gantt_Master.xlsx",
+    filename: "07_Gantt_Master.xlsx",
+    onglets: ["📅 Gantt", "🔴 Chemin critique", "🏁 Jalons", "📖 Tuto"],
+    highlight: "Chemin critique auto · Retard visuel · Multi-phases",
+    type: "Excel",
+  },
+  {
+    id: "raci-pro", pack: "Démarrage Projet", packColor: "#1d4ed8", packBg: "#EFF6FF",
+    icon: "👥", iconBg: "#3b0764",
+    title: "RACI Matrix Pro",
+    desc: "Matrice RACI complète avec DACI, matrice de communication et tableau de bord des responsabilités par phase.",
+    tags: ["RACI", "DACI", "Communication"],
+    status: "soon", rating: 5, downloads: 0,
+    file: null, filename: null, onglets: [], highlight: "",
+    type: "Excel",
+  },
+
+  // ── Pack Reporting & Communication ──────────────────────────
+  {
+    id: "rapport-codir", pack: "Reporting & Communication", packColor: "#6b21a8", packBg: "#F5F3FF",
+    icon: "📋", iconBg: "#1e1b4b",
+    title: "Rapport Mensuel CODIR",
+    desc: "Template Word professionnel pour comités de pilotage. Avancement, budget, risques, décisions en 1 page.",
+    tags: ["Reporting", "CODIR", "Word"],
+    status: "soon", rating: 5, downloads: 0,
+    file: null, filename: null, onglets: [], highlight: "",
+    type: "Word",
+  },
+  {
+    id: "note-cadrage", pack: "Reporting & Communication", packColor: "#6b21a8", packBg: "#F5F3FF",
+    icon: "📝", iconBg: "#1c1917",
+    title: "Note de Cadrage Projet",
+    desc: "Document Word structuré : contexte, objectifs, périmètre, parties prenantes, planning macro et budget.",
+    tags: ["Cadrage", "Word", "PMBOK 7"],
+    status: "soon", rating: 5, downloads: 0,
+    file: null, filename: null, onglets: [], highlight: "",
+    type: "Word",
+  },
+  {
+    id: "retex", pack: "Reporting & Communication", packColor: "#6b21a8", packBg: "#F5F3FF",
+    icon: "🔍", iconBg: "#064e3b",
+    title: "RETEX — Clôture Projet",
+    desc: "Template structuré pour réunion de clôture et RETEX. Leçons apprises, succès, axes d'amélioration.",
+    tags: ["Clôture", "RETEX", "Amélioration"],
+    status: "soon", rating: 5, downloads: 0,
+    file: null, filename: null, onglets: [], highlight: "",
+    type: "Word",
   },
 ]
 
-const STATUS_CFG = {
-  ready: { label: "✅ Disponible", color: "#006644", bg: "#E3FCEF" },
-  soon:  { label: "⏳ Bientôt",   color: "#974F0C", bg: "#FFF7D6" },
-}
+const PACKS = [...new Set(ALL_TEMPLATES.map(t => t.pack))]
+const TYPES = ["Tous", "Excel", "Word"]
 
 export default function TemplatesPage() {
-  const [search, setSearch] = useState("")
-  const [filter, setFilter] = useState("all")
-  const [downloading, setDownloading] = useState<string | null>(null)
+  const [search, setSearch]       = useState("")
+  const [filterPack, setFilterPack] = useState("Tous")
+  const [filterType, setFilterType] = useState("Tous")
+  const [filterStatus, setFilterStatus] = useState("Tous")
+  const [downloading, setDownloading] = useState<string|null>(null)
 
-  const allTmpl = PACKS.flatMap(p => p.templates)
-  const readyCount = allTmpl.filter(t => t.status === "ready").length
+  const filtered = useMemo(() => ALL_TEMPLATES.filter(t => {
+    const matchSearch = !search || t.title.toLowerCase().includes(search.toLowerCase()) || t.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()))
+    const matchPack   = filterPack === "Tous" || t.pack === filterPack
+    const matchType   = filterType === "Tous" || t.type === filterType
+    const matchStatus = filterStatus === "Tous" || (filterStatus === "Disponible" ? t.status === "ready" : t.status === "soon")
+    return matchSearch && matchPack && matchType && matchStatus
+  }), [search, filterPack, filterType, filterStatus])
+
+  const readyCount = ALL_TEMPLATES.filter(t => t.status === "ready").length
 
   const download = async (file: string, filename: string, id: string) => {
     setDownloading(id)
-    try {
-      const res = await fetch(file)
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url; a.download = filename; a.click()
-      URL.revokeObjectURL(url)
-    } finally {
-      setTimeout(() => setDownloading(null), 1500)
-    }
+    const a = document.createElement("a"); a.href = file; a.download = filename; a.click()
+    setTimeout(() => setDownloading(null), 2000)
   }
 
   return (
-    <ProGate feature="templates" featureLabel="Pack Templates Pro">
     <AppLayout>
-      <div style={{ padding:"24px 28px", background:"var(--bg)", minHeight:"100%" }}>
+      <ProGate feature="templates" featureLabel="Templates Pro">
+        <div style={{ padding:"20px 24px", background:"var(--bg)", minHeight:"100%" }}>
 
-        {/* Header */}
-        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:24 }}>
-          <div>
-            <p style={{ fontSize:11, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:"1px", margin:"0 0 4px" }}>// RESSOURCES PMO</p>
-            <h1 style={{ fontSize:22, fontWeight:700, color:"var(--text-1)", margin:"0 0 6px", display:"flex", alignItems:"center", gap:10 }}>
-              <FileSpreadsheet size={24} style={{ color:"var(--primary)" }}/> Pack Templates Pro
-            </h1>
-            <p style={{ fontSize:13, color:"var(--text-2)", margin:0 }}>
-              Templates Excel professionnels prêts à l'emploi · Style PMO · Formules dynamiques · Tutos intégrés
-            </p>
-          </div>
-          <div style={{ background:"var(--primary-bg)", border:"1px solid #B5D4F4", borderRadius:"var(--r12)", padding:"12px 18px", textAlign:"center", minWidth:120 }}>
-            <p style={{ fontSize:11, color:"var(--text-2)", margin:"0 0 4px" }}>Disponibles</p>
-            <p style={{ fontSize:28, fontWeight:700, color:"var(--primary-t)", margin:0 }}>
-              {readyCount} <span style={{ fontSize:14, color:"var(--text-3)" }}>/ {allTmpl.length}</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Barre recherche + filtres */}
-        <div style={{ display:"flex", gap:10, marginBottom:20 }}>
-          <div style={{ position:"relative", flex:1, maxWidth:380 }}>
-            <Search size={14} style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)", color:"var(--text-3)" }}/>
-            <input value={search} onChange={e=>setSearch(e.target.value)}
-              placeholder="Rechercher un template..."
-              style={{ width:"100%", paddingLeft:36, paddingRight:12, paddingTop:9, paddingBottom:9, border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:13, background:"var(--card)", color:"var(--text-1)", outline:"none" }}
-              onFocus={e=>(e.target as any).style.borderColor="var(--primary)"}
-              onBlur={e=>(e.target as any).style.borderColor="var(--border)"}/>
-          </div>
-          {[["all","Tous"],["ready","✅ Disponibles"],["soon","⏳ À venir"]].map(([v,l])=>(
-            <button key={v} onClick={()=>setFilter(v)}
-              style={{ padding:"8px 14px", borderRadius:"var(--r8)", border:`1px solid ${filter===v?"var(--primary)":"var(--border)"}`, background:filter===v?"var(--primary-bg)":"var(--card)", color:filter===v?"var(--primary-t)":"var(--text-2)", fontSize:12, cursor:"pointer", fontWeight:filter===v?600:400 }}>
-              {l}
-            </button>
-          ))}
-        </div>
-
-        {/* Packs */}
-        <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
-          {PACKS.map(pack => {
-            const filtered = pack.templates.filter(t =>
-              (filter==="all" || t.status===filter) &&
-              (search==="" || t.title.toLowerCase().includes(search.toLowerCase()) || t.desc.toLowerCase().includes(search.toLowerCase()))
-            )
-            if (!filtered.length) return null
-
-            return (
-              <div key={pack.id} style={{ background:"var(--card)", border:`1px solid ${pack.border}`, borderRadius:"var(--r12)", overflow:"hidden" }}>
-                {/* Pack header */}
-                <div style={{ padding:"14px 20px", background:pack.bg, display:"flex", alignItems:"center", gap:12 }}>
-                  <span style={{ fontSize:26 }}>{pack.icon}</span>
-                  <div style={{ flex:1 }}>
-                    <h2 style={{ fontSize:15, fontWeight:700, color:pack.color, margin:"0 0 2px" }}>{pack.title}</h2>
-                    <p style={{ fontSize:12, color:pack.color, opacity:0.75, margin:0 }}>{pack.desc}</p>
-                  </div>
-                  <div style={{ background:"rgba(255,255,255,0.7)", borderRadius:20, padding:"3px 12px" }}>
-                    <span style={{ fontSize:11, fontWeight:600, color:pack.color }}>
-                      {pack.templates.filter(t=>t.status==="ready").length}/{pack.templates.length} disponibles
-                    </span>
-                  </div>
+          {/* Header */}
+          <div style={{ marginBottom:20 }}>
+            <p style={{ fontSize:10, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:"1px", margin:"0 0 6px" }}>// TEMPLATES PRO</p>
+            <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between" }}>
+              <div>
+                <h1 style={{ fontSize:22, fontWeight:800, color:"var(--text-1)", margin:"0 0 4px" }}>Pack Templates Excel & Word</h1>
+                <p style={{ fontSize:13, color:"var(--text-2)", margin:0 }}>Templates professionnels · Formules dynamiques · Tutos intégrés · Mis à jour chaque mois</p>
+              </div>
+              <div style={{ display:"flex", gap:8, flexShrink:0 }}>
+                <div style={{ textAlign:"center", padding:"8px 16px", background:"rgba(34,197,94,0.1)", border:"1px solid rgba(34,197,94,0.2)", borderRadius:10 }}>
+                  <div style={{ fontSize:20, fontWeight:800, color:"#22c55e" }}>{readyCount}</div>
+                  <div style={{ fontSize:10, color:"var(--text-3)" }}>Disponibles</div>
                 </div>
+                <div style={{ textAlign:"center", padding:"8px 16px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:10 }}>
+                  <div style={{ fontSize:20, fontWeight:800, color:"var(--text-2)" }}>{ALL_TEMPLATES.length}</div>
+                  <div style={{ fontSize:10, color:"var(--text-3)" }}>Total</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                {/* Templates */}
-                <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)" }}>
-                  {filtered.map((t, i) => {
-                    const cfg = STATUS_CFG[t.status as keyof typeof STATUS_CFG]
-                    const isReady = t.status === "ready"
-                    const isDownloading = downloading === t.id
+          {/* Barre de recherche + filtres */}
+          <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:12, padding:"12px 16px", marginBottom:16, display:"flex", gap:10, flexWrap:"wrap", alignItems:"center" }}>
+            <div style={{ position:"relative", flex:1, minWidth:200 }}>
+              <Search size={13} style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:"var(--text-3)" }}/>
+              <input value={search} onChange={e => setSearch(e.target.value)}
+                placeholder="Rechercher un template..."
+                style={{ width:"100%", paddingLeft:32, paddingRight:12, paddingTop:7, paddingBottom:7, border:"1px solid var(--border)", borderRadius:8, background:"var(--bg)", color:"var(--text-1)", fontSize:12, boxSizing:"border-box", outline:"none" }}/>
+            </div>
 
-                    return (
-                      <div key={t.id}
-                        style={{ padding:"18px 20px", borderRight:i%3!==2?"1px solid var(--border)":"none", borderBottom:"1px solid var(--border)", transition:"background 0.1s" }}
-                        onMouseEnter={e=>(e.currentTarget as any).style.background="#FAFBFC"}
-                        onMouseLeave={e=>(e.currentTarget as any).style.background="transparent"}>
+            <div style={{ display:"flex", gap:4, flexWrap:"wrap" }}>
+              {["Tous", ...PACKS].map(p => (
+                <button key={p} onClick={() => setFilterPack(p)}
+                  style={{ padding:"5px 12px", borderRadius:20, fontSize:11, fontWeight:500, cursor:"pointer", border:"1px solid "+(filterPack===p?"var(--primary)":"var(--border)"), background:filterPack===p?"var(--primary-bg)":"transparent", color:filterPack===p?"var(--primary-light)":"var(--text-3)", whiteSpace:"nowrap" }}>
+                  {p === "Tous" ? "Tous les packs" : p}
+                </button>
+              ))}
+            </div>
 
-                        {/* Title + status */}
-                        <div style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:8 }}>
-                          <span style={{ fontSize:24, lineHeight:1 }}>{t.icon}</span>
-                          <div style={{ flex:1 }}>
-                            <p style={{ fontSize:13, fontWeight:700, color:"var(--text-1)", margin:"0 0 4px" }}>{t.title}</p>
-                            <span style={{ fontSize:10, padding:"2px 8px", borderRadius:3, background:cfg.bg, color:cfg.color, fontWeight:600 }}>{cfg.label}</span>
-                          </div>
-                        </div>
+            <div style={{ display:"flex", gap:4 }}>
+              {[["Tous","Tous types"],["Excel","📊 Excel"],["Word","📝 Word"]].map(([v,l]) => (
+                <button key={v} onClick={() => setFilterType(v)}
+                  style={{ padding:"5px 12px", borderRadius:20, fontSize:11, fontWeight:500, cursor:"pointer", border:"1px solid "+(filterType===v?"var(--primary)":"var(--border)"), background:filterType===v?"var(--primary-bg)":"transparent", color:filterType===v?"var(--primary-light)":"var(--text-3)" }}>
+                  {l}
+                </button>
+              ))}
+            </div>
 
-                        {/* Description */}
-                        <p style={{ fontSize:12, color:"var(--text-2)", margin:"0 0 10px", lineHeight:1.55 }}>{t.desc}</p>
+            <div style={{ display:"flex", gap:4 }}>
+              {[["Tous","Tous"],["Disponible","✅ Dispo"],["soon","🔜 Bientôt"]].map(([v,l]) => (
+                <button key={v} onClick={() => setFilterStatus(v)}
+                  style={{ padding:"5px 12px", borderRadius:20, fontSize:11, fontWeight:500, cursor:"pointer", border:"1px solid "+(filterStatus===v?"var(--primary)":"var(--border)"), background:filterStatus===v?"var(--primary-bg)":"transparent", color:filterStatus===v?"var(--primary-light)":"var(--text-3)" }}>
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                        {/* Onglets */}
-                        {isReady && t.onglets.length > 0 && (
-                          <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginBottom:10 }}>
-                            {t.onglets.map(o=>(
-                              <span key={o} style={{ fontSize:10, padding:"2px 7px", background:pack.bg, color:pack.color, borderRadius:3, fontWeight:500 }}>{o}</span>
-                            ))}
-                          </div>
-                        )}
+          {/* Résultats */}
+          <div style={{ fontSize:11, color:"var(--text-3)", marginBottom:12 }}>
+            {filtered.length} template{filtered.length > 1 ? "s" : ""} trouvé{filtered.length > 1 ? "s" : ""}
+          </div>
 
-                        {/* Highlight */}
-                        {isReady && t.highlight && (
-                          <p style={{ fontSize:11, color:pack.color, fontWeight:500, margin:"0 0 12px", fontStyle:"italic" }}>
-                            ✦ {t.highlight}
-                          </p>
-                        )}
+          {/* Liste style Marketplace */}
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {filtered.map(t => {
+              const isReady = t.status === "ready"
+              const isDownloading = downloading === t.id
 
-                        {/* Tags */}
-                        <div style={{ display:"flex", gap:4, flexWrap:"wrap", marginBottom:12 }}>
-                          {t.tags.map(tag=>(
-                            <span key={tag} style={{ fontSize:10, padding:"1px 7px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:3, color:"var(--text-3)" }}>{tag}</span>
-                          ))}
-                        </div>
+              return (
+                <div key={t.id} style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:12, transition:"border-color 0.15s" }}
+                  onMouseEnter={e => (e.currentTarget as any).style.borderColor = "rgba(123,94,255,0.4)"}
+                  onMouseLeave={e => (e.currentTarget as any).style.borderColor = "var(--border)"}>
 
-                        {/* Boutons */}
-                        {isReady && t.file ? (
-                          <div style={{ display:"flex", gap:6 }}>
-                            <a href={t.file} target="_blank" rel="noreferrer"
-                              style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:5, padding:"7px 0", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:"var(--r6)", fontSize:11, color:"var(--text-2)", cursor:"pointer", textDecoration:"none", fontWeight:500 }}>
-                              <Eye size={12}/> Aperçu
-                            </a>
-                            <button onClick={()=>download(t.file!, t.filename!, t.id)}
-                              style={{ flex:2, display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"7px 0", background:isDownloading?"#C0DD97":pack.color, border:"none", borderRadius:"var(--r6)", fontSize:11, color:"#fff", cursor:"pointer", fontWeight:600, transition:"all 0.2s" }}>
-                              {isDownloading ? <><CheckCircle2 size={13}/> Téléchargé !</> : <><Download size={13}/> Télécharger Excel</>}
-                            </button>
-                          </div>
-                        ) : (
-                          <div style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 12px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:"var(--r6)", fontSize:11, color:"var(--text-3)" }}>
-                            <Clock size={12}/> Disponible prochainement
-                          </div>
-                        )}
+                  {/* Icône app */}
+                  <div style={{ width:52, height:52, borderRadius:12, background:t.iconBg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, flexShrink:0, border:"1px solid rgba(255,255,255,0.1)" }}>
+                    {t.icon}
+                  </div>
+
+                  {/* Infos principales */}
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:3 }}>
+                      <span style={{ fontSize:13, fontWeight:700, color:"var(--text-1)" }}>{t.title}</span>
+                      <span style={{ fontSize:9, padding:"1px 7px", borderRadius:4, background:t.packBg, color:t.packColor, fontWeight:600, flexShrink:0 }}>{t.pack}</span>
+                      <span style={{ fontSize:9, padding:"1px 7px", borderRadius:4, background:"var(--bg)", border:"1px solid var(--border)", color:"var(--text-3)", flexShrink:0 }}>{t.type}</span>
+                    </div>
+                    <p style={{ fontSize:11, color:"var(--text-2)", margin:"0 0 6px", lineHeight:1.4, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:600 }}>{t.desc}</p>
+                    <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                      {/* Rating */}
+                      <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+                        {[...Array(t.rating)].map((_,i) => <Star key={i} size={10} style={{ color:"#f59e0b", fill:"#f59e0b" }}/>)}
                       </div>
-                    )
-                  })}
+                      {/* Tags */}
+                      {t.tags.slice(0,3).map(tag => (
+                        <span key={tag} style={{ fontSize:9, padding:"1px 6px", borderRadius:4, background:"var(--bg)", border:"1px solid var(--border)", color:"var(--text-3)" }}>{tag}</span>
+                      ))}
+                      {/* Onglets */}
+                      {isReady && t.onglets.length > 0 && (
+                        <span style={{ fontSize:9, color:"var(--text-3)" }}>{t.onglets.length} onglets</span>
+                      )}
+                      {/* Highlight */}
+                      {isReady && t.highlight && (
+                        <span style={{ fontSize:9, color:t.packColor, fontWeight:500 }}>✦ {t.highlight}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Downloads count */}
+                  {isReady && t.downloads > 0 && (
+                    <div style={{ textAlign:"center", flexShrink:0, minWidth:50 }}>
+                      <div style={{ fontSize:14, fontWeight:700, color:"var(--text-1)" }}>{t.downloads}</div>
+                      <div style={{ fontSize:9, color:"var(--text-3)" }}>télécharg.</div>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div style={{ display:"flex", gap:6, flexShrink:0 }}>
+                    {isReady && t.file ? (
+                      <>
+                        <a href={t.file} target="_blank" rel="noreferrer"
+                          style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 12px", border:"1px solid var(--border)", borderRadius:8, fontSize:11, color:"var(--text-2)", cursor:"pointer", textDecoration:"none", fontWeight:500, background:"transparent" }}>
+                          <Eye size={12}/> Aperçu
+                        </a>
+                        <button onClick={() => download(t.file!, t.filename!, t.id)}
+                          style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 16px", background:isDownloading?"#22c55e":"var(--primary)", border:"none", borderRadius:8, fontSize:11, color:"#fff", cursor:"pointer", fontWeight:600, transition:"all 0.2s", whiteSpace:"nowrap" }}>
+                          {isDownloading ? <><CheckCircle2 size={12}/> Téléchargé !</> : <><Download size={12}/> Télécharger {t.type}</>}
+                        </button>
+                      </>
+                    ) : (
+                      <div style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:8, fontSize:11, color:"var(--text-3)", whiteSpace:"nowrap" }}>
+                        <Clock size={11}/> Bientôt disponible
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Guide utilisation */}
-        <div style={{ marginTop:20, background:"var(--primary-bg)", border:"1px solid #B5D4F4", borderRadius:"var(--r12)", padding:"16px 20px" }}>
-          <p style={{ fontSize:13, fontWeight:600, color:"var(--primary-t)", margin:"0 0 8px" }}>
-            📖 Comment utiliser les templates
-          </p>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12 }}>
-            {[
-              ["1️⃣ Télécharger","Cliquez sur 'Télécharger Excel' pour obtenir le fichier .xlsx"],
-              ["2️⃣ Remplir","Complétez uniquement les cellules en BLEU — les formules se calculent seules"],
-              ["3️⃣ Lire le tuto","Consultez l'onglet '📖 Tuto & Définitions' intégré pour les définitions et le guide"],
-              ["4️⃣ Exporter","Ctrl+P → PDF pour distribuer ou imprimer votre rapport"],
-            ].map(([title,desc])=>(
-              <div key={title} style={{ background:"rgba(255,255,255,0.6)", borderRadius:"var(--r8)", padding:"10px 12px" }}>
-                <p style={{ fontSize:12, fontWeight:600, color:"var(--primary-t)", margin:"0 0 4px" }}>{title}</p>
-                <p style={{ fontSize:11, color:"var(--primary-light)", margin:0, lineHeight:1.5 }}>{desc}</p>
-              </div>
-            ))}
+              )
+            })}
           </div>
-        </div>
 
-      </div>
+          {filtered.length === 0 && (
+            <div style={{ textAlign:"center", padding:"60px 20px" }}>
+              <div style={{ fontSize:36, marginBottom:12 }}>🔍</div>
+              <p style={{ color:"var(--text-2)", fontSize:14 }}>Aucun template trouvé</p>
+              <p style={{ color:"var(--text-3)", fontSize:12 }}>Essayez d'autres mots-clés</p>
+            </div>
+          )}
+
+          {/* Guide utilisation */}
+          <div style={{ marginTop:20, background:"var(--primary-bg)", border:"1px solid rgba(123,94,255,0.2)", borderRadius:12, padding:"14px 18px" }}>
+            <p style={{ fontSize:12, fontWeight:700, color:"var(--primary-light)", margin:"0 0 10px" }}>📖 Comment utiliser les templates</p>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10 }}>
+              {[
+                ["1️⃣ Télécharger","Cliquez sur 'Télécharger Excel' ou 'Télécharger Word'"],
+                ["2️⃣ Remplir","Complétez les cellules en BLEU — les formules se calculent seules"],
+                ["3️⃣ Lire le tuto","Consultez l'onglet '📖 Tuto' intégré dans chaque fichier"],
+                ["4️⃣ Exporter","Ctrl+P → PDF pour distribuer ou imprimer votre rapport"],
+              ].map(([title, desc]) => (
+                <div key={title} style={{ background:"rgba(123,94,255,0.06)", borderRadius:8, padding:"10px 12px" }}>
+                  <p style={{ fontSize:11, fontWeight:600, color:"var(--primary-light)", margin:"0 0 3px" }}>{title}</p>
+                  <p style={{ fontSize:11, color:"var(--text-2)", margin:0, lineHeight:1.5 }}>{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </ProGate>
     </AppLayout>
-    </ProGate>
   )
 }
