@@ -22,6 +22,7 @@ const TOOLS = [
   { key:"sprint",       label:"Sprint Review",  icon:"🔄",  desc:"Agile / SAFe",          color:"#22c55e" },
   { key:"fiche-mission",label:"Fiche Mission",  icon:"📋",  desc:"Cadrage 1 page",        color:"#1e3a5f" },
   { key:"codir",        label:"Rapport CODIR",  icon:"📊",  desc:"Comité de pilotage",    color:"#312e81" },
+  { key:"integrations", label:"Intégrations",   icon:"🔗",  desc:"Jira / Notion / CSV",  color:"#0052CC" },
 ]
 
 export default function ProjectPage() {
