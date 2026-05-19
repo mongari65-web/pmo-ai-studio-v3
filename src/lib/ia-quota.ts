@@ -2,9 +2,10 @@ import { createClient } from "@/lib/supabase/server"
 import crypto from "crypto"
 
 export const PLAN_LIMITS = {
-  free:  { ai_calls: 20,  label: "Gratuit" },
-  pro:   { ai_calls: 150, label: "Pro" },
-  team:  { ai_calls: 500, label: "Équipe" },
+  free:    { ai_calls: 5,   label: "Gratuit" },
+  starter: { ai_calls: 20,  label: "Starter" },
+  pro:     { ai_calls: 200, label: "Pro" },
+  premium: { ai_calls: 300, label: "Premium" },
 } as const
 
 export const TOOL_MODEL: Record<string, string> = {
@@ -32,7 +33,7 @@ export async function checkQuota(userId: string): Promise<{
     const supabase = await createClient()
     const { data: profile } = await supabase
       .from("profiles")
-      .select("plan, ai_calls_count, ai_calls_reset_at, is_banned")
+      .select("plan_id, ai_calls_count, ai_calls_reset_at, is_banned")
       .eq("id", userId)
       .single()
 
@@ -49,10 +50,10 @@ export async function checkQuota(userId: string): Promise<{
       callsCount = 0
     }
 
-    const plan = (profile.plan ?? "free") as keyof typeof PLAN_LIMITS
+    const plan = (profile.plan_id ?? "free") as keyof typeof PLAN_LIMITS
     const limit = PLAN_LIMITS[plan]?.ai_calls ?? 20
     if (callsCount >= limit) {
-      const upgrade = plan === "free" ? "Pro (150/mois)" : plan === "pro" ? "Équipe (500/mois)" : null
+      const upgrade = plan === "free" ? "Starter (20/mois)" : plan === "starter" ? "Pro (200/mois)" : plan === "pro" ? "Premium (300/mois)" : null
       return {
         allowed: false, current: callsCount, limit, plan,
         message: upgrade
