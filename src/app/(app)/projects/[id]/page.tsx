@@ -21,6 +21,7 @@ const TOOLS = [
   { key:"okr",          label:"OKR Tracker",    icon:"🎯",  desc:"Objectifs & KRs",      color:"#f59e0b" },
   { key:"sprint",       label:"Sprint Review",  icon:"🔄",  desc:"Agile / SAFe",          color:"#22c55e" },
   { key:"fiche-mission",label:"Fiche Mission",  icon:"📋",  desc:"Cadrage 1 page",        color:"#1e3a5f" },
+  { key:"codir",        label:"Rapport CODIR",  icon:"📊",  desc:"Comité de pilotage",    color:"#312e81" },
 ]
 
 export default function ProjectPage() {
