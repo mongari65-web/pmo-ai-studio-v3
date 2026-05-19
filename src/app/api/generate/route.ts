@@ -156,6 +156,38 @@ function buildPrompt(tool: string, name: string, desc: string, extra: any): stri
   " CONTRAINTES: 12 nœuds, structure séquentielle D→T1→T2→...→F, max 2 tâches parallèles, durées 5-30j, optimistic=durée-2, pessimistic=durée+5, noms spécifiques au projet." +
   ' JSON: {"nodes":[{"id":"D","name":"Début","duration":0,"optimistic":0,"pessimistic":0,"deps":[]},{"id":"T1","name":"[NOM SPÉCIFIQUE]","duration":[JOURS],"optimistic":[JOURS-2],"pessimistic":[JOURS+5],"deps":["D"]},{"id":"T2","name":"[NOM]","duration":[JOURS],"optimistic":[JOURS-2],"pessimistic":[JOURS+5],"deps":["T1"]},{"id":"F","name":"Fin","duration":0,"optimistic":0,"pessimistic":0,"deps":["T10"]}]}',
 
+
+    okr: "Génère des OKRs pour ce projet." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 4 objectifs stratégiques avec 3 KRs chacun, trimestres Q2-Q4 2026, catégories variées (Stratégique/Client/Qualité/Finance)." +
+      ' JSON: {"objectives":[{"id":"O1","title":"[OBJECTIF]","description":"[DESC]","owner":"Chef de Projet","quarter":"Q2 2026","category":"Stratégique","keyResults":[{"id":"KR1","text":"[RÉSULTAT MESURABLE]","unit":"%","target":100,"current":0,"weight":1},{"id":"KR2","text":"[RÉSULTAT]","unit":"€","target":50000,"current":0,"weight":1},{"id":"KR3","text":"[RÉSULTAT]","unit":"items","target":10,"current":0,"weight":1}]}]}',
+    sprint: "Génère une revue de sprint Agile pour ce projet." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 2 sprints de 2 semaines, 5-7 user stories chacun, vélocité réaliste, rétrospective complète." +
+      ' JSON: {"sprints":[{"id":"S1","num":1,"goal":"[OBJECTIF SPRINT]","startDate":"2026-05-01","endDate":"2026-05-14","velocity":0,"plannedPoints":34,"completedPoints":28,"stories":[{"id":"US1","title":"[US titre]","points":5,"status":"Terminé","assignee":"Dev Lead","priority":"Haute"},{"id":"US2","title":"[US titre]","points":3,"status":"Terminé","assignee":"Dev","priority":"Moyenne"}],"demo":"[DEMO NOTES]","retro":{"bien":["[POINT POSITIF]","[POINT POSITIF]"],"ameliorer":["[AMÉLIORATION]"],"actions":["[ACTION]"]}}]}',
+    swot: "Génère une analyse SWOT pour ce projet." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 4 forces, 3 faiblesses, 4 opportunités, 3 menaces, spécifiques au projet. 3 recommandations stratégiques." +
+      ' JSON: {"S":[{"text":"[FORCE SPÉCIFIQUE]","score":4},{"text":"[FORCE]","score":3}],"W":[{"text":"[FAIBLESSE]","score":3}],"O":[{"text":"[OPPORTUNITÉ]","score":4}],"T":[{"text":"[MENACE]","score":3}],"strategic":["[RECOMMANDATION STRATÉGIQUE 1]","[RECOMMANDATION 2]","[RECOMMANDATION 3]"]}',
+    communication: "Génère un plan de communication pour ce projet." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 8 parties prenantes, canaux variés (Email/Réunion/Teams/Dashboard/Rapport), fréquences variées, influence/intérêt différenciés." +
+      ' JSON: {"items":[{"stakeholder":"[NOM/RÔLE]","role":"[TITRE]","influence":"Élevée","interest":"Élevé","message":"[MESSAGE CLÉ]","channel":"Email","frequency":"Hebdomadaire","format":"Email","owner":"Chef de Projet","status":"Actif"}]}',
+    decisions: "Génère un registre de décisions pour ce projet." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 6 décisions importantes, dates réalistes, impacts variés (Critique/Élevé/Moyen), statuts variés." +
+      ' JSON: {"items":[{"num":"DEC-001","date":"2026-05-01","title":"[TITRE DÉCISION]","description":"[CONTEXTE]","decision":"[DÉCISION PRISE]","owner":"Chef de Projet","deadline":"2026-06-01","status":"Appliquée","impact":"Élevé","tags":"Architecture","notes":""}]}',
+    raci: "Génère une matrice RACI pour ce projet." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 10 activités par phase, 5 acteurs (Chef de Projet/Sponsor/Équipe/Client/MOE), 1 seul A par activité." +
+      ' JSON: {"actors":["Chef de Projet","Sponsor","Équipe Technique","Client","MOE"],"rows":[{"activity":"[ACTIVITÉ]","phase":"[PHASE]","responsible":"Chef de Projet","accountable":"Sponsor","consulted":"Client","informed":"MOE","notes":""}]}',
+    "fiche-mission": "Génère une fiche de mission pour ce projet." +
+      " Nom: " + n + ". Description: " + d + ". Budget: " + b + "€. Période: " + s + " → " + e + "." +
+      ' JSON: {"fiche":{"codeMission":"' + n.slice(0,3).toUpperCase() + '001","version":"1.0","dateCreation":"' + s + '","dateRevision":"","client":"[CLIENT]","direction":"[DIRECTION]","contexte":"[CONTEXTE DÉTAILLÉ]","enjeux":"[ENJEUX BUSINESS]","intitule":"' + n + '","type":"Projet","perimetre":"[PÉRIMÈTRE INCLUS]","horsPerimetre":"[EXCLUSIONS]","objectifPrincipal":"[OBJECTIF PRINCIPAL]","objectifsSecondaires":["[OBJ 2]","[OBJ 3]"],"livrables":[{"titre":"[LIVRABLE]","echeance":"' + e + '","format":"Document Word"}],"chefProjet":"[NOM CP]","equipe":"[ÉQUIPE]","budget":"' + b + '€","duree":"[DURÉE]","instances":"COPIL mensuel, CODIR trimestriel","frequence":"Mensuel","escalade":"[ESCALADE]","contraintes":"[CONTRAINTES]","risquesPrincipaux":"[RISQUES]","hypotheses":"[HYPOTHÈSES]","commanditaire":"[SPONSOR]","dateValidation":"' + s + '"}}',
+    "codir-commentary": "Génère un commentaire de rapport CODIR pour ce projet." +
+      " Contexte: " + d + "." +
+      " CONTRAINTES: synthèse factuelle 3-4 phrases, 3 décisions concrètes, 4 prochaines étapes avec responsables." +
+      ' JSON: {"commentary":"[SYNTHÈSE FACTUELLE 3-4 PHRASES sur avancement, budget et risques]","decisions":["[DÉCISION 1 à prendre]","[DÉCISION 2]","[DÉCISION 3]"],"nextSteps":["[ACTION 1 — Responsable — Délai]","[ACTION 2]","[ACTION 3]","[ACTION 4]"]}',
     documents: "Génère une liste de documents projet." +
       " Nom: " + n + ". Description: " + d + "." +
       " CONTRAINTES: 8 documents adaptés au type de projet." +
