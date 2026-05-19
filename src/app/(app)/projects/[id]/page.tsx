@@ -23,6 +23,7 @@ const TOOLS = [
   { key:"fiche-mission",label:"Fiche Mission",  icon:"📋",  desc:"Cadrage 1 page",        color:"#1e3a5f" },
   { key:"codir",        label:"Rapport CODIR",  icon:"📊",  desc:"Comité de pilotage",    color:"#312e81" },
   { key:"integrations", label:"Intégrations",   icon:"🔗",  desc:"Jira / Notion / CSV",  color:"#0052CC" },
+  { key:"widget",       label:"Widget Embed",   icon:"🖼️",  desc:"Iframe SharePoint",     color:"#0ea5e9" },
 ]
 
 export default function ProjectPage() {
