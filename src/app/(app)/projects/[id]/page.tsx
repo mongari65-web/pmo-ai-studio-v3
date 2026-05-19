@@ -15,6 +15,8 @@ const TOOLS = [
   { key:"mindmap",      label:"Mind Map",       icon:"🧠",  desc:"Carte mentale",         color:"var(--primary-light)" },
   { key:"documents",    label:"Documents",      icon:"📄",  desc:"Bibliothèque",          color:"var(--text-2)" },
   { key:"pert",         label:"PERT",           icon:"🔀",  desc:"Chemin critique",       color:"#3C3489" },
+  { key:"decisions",    label:"Décisions",      icon:"📌",  desc:"Registre CODIR",        color:"#7B5EFF" },
+  { key:"communication",label:"Communication",  icon:"📣",  desc:"Plan parties prenantes",color:"#0EA5E9" },
 ]
 
 export default function ProjectPage() {
