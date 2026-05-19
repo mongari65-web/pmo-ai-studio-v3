@@ -120,7 +120,7 @@ export default function AdminUsersPage() {
                 const aiLimit = AI_LIMITS[user.plan as keyof typeof AI_LIMITS] ?? 20
                 const aiPct = Math.min(100, Math.round((user.ai_calls_count ?? 0) / aiLimit * 100))
                 return (
-                  <tr key={user.user_id} className={`border-b border-border hover:bg-accent/10 ${user.is_banned ? "opacity-50" : ""}`}>
+                  <tr key={user.id ?? user.user_id} className={`border-b border-border hover:bg-accent/10 ${user.is_banned ? "opacity-50" : ""}`}>
                     {/* Utilisateur */}
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2.5">
