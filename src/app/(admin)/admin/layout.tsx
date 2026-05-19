@@ -34,50 +34,57 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <aside className="w-56 flex-shrink-0 bg-card border-r border-border flex flex-col">
-        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-border">
-          <div className="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center">
-            <Shield size={16} className="text-red-400"/>
+    <div style={{ display:"flex", height:"100vh", background:"var(--bg)", overflow:"hidden" }}>
+      <aside style={{ width:200, flexShrink:0, background:"var(--bg-card)", borderRight:"1px solid var(--border)", display:"flex", flexDirection:"column" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, padding:"14px", borderBottom:"1px solid var(--border)" }}>
+          <div style={{ width:32, height:32, borderRadius:8, background:"rgba(239,68,68,0.15)", border:"1px solid rgba(239,68,68,0.3)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+            <Shield size={15} style={{ color:"#ef4444" }}/>
           </div>
           <div>
-            <p className="text-sm font-bold text-foreground">Admin Panel</p>
-            <p className="text-[10px] text-red-400">Accès restreint</p>
+            <p style={{ fontSize:13, fontWeight:700, color:"var(--text-1)", margin:0 }}>Admin Panel</p>
+            <p style={{ fontSize:10, color:"#ef4444", margin:0 }}>Accès restreint</p>
           </div>
         </div>
 
-        <nav className="flex-1 px-2 py-3 overflow-y-auto">
+        <nav style={{ flex:1, padding:"10px 8px", overflowY:"auto" }}>
           {GROUPS.map(group => {
             const items = NAV.filter(n => n.group === group.id)
             return (
-              <div key={group.id} className="mb-4">
-                <p className="text-[10px] font-600 text-muted-foreground uppercase tracking-wider px-3 mb-1">{group.label}</p>
-                {items.map(({ href, icon: Icon, label }) => (
-                  <Link key={href} href={href}
-                    className={"flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all mb-0.5 " +
-                      (pathname === href ? "bg-primary text-white font-medium" : "text-muted-foreground hover:bg-accent hover:text-foreground")}>
-                    <Icon size={14} className="flex-shrink-0"/>
-                    <span className="truncate text-xs">{label}</span>
-                  </Link>
-                ))}
+              <div key={group.id} style={{ marginBottom:16 }}>
+                <p style={{ fontSize:10, fontWeight:600, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:"0.05em", padding:"0 8px", marginBottom:4, margin:"0 0 4px" }}>{group.label}</p>
+                {items.map(({ href, icon: Icon, label }) => {
+                  const active = pathname === href
+                  return (
+                    <Link key={href} href={href} style={{
+                      display:"flex", alignItems:"center", gap:8, padding:"7px 10px",
+                      borderRadius:8, fontSize:12, marginBottom:2, textDecoration:"none",
+                      background: active ? "var(--primary-bg)" : "transparent",
+                      color: active ? "var(--primary-light)" : "var(--text-2)",
+                      fontWeight: active ? 600 : 400,
+                    }}>
+                      <Icon size={13} style={{ flexShrink:0 }}/>
+                      <span>{label}</span>
+                    </Link>
+                  )
+                })}
               </div>
             )
           })}
         </nav>
 
-        <div className="px-2 py-3 border-t border-border space-y-0.5">
-          <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all">
-            <ChevronRight size={15} className="rotate-180 flex-shrink-0"/>
-            <span className="text-xs">Retour app</span>
+        <div style={{ padding:"8px", borderTop:"1px solid var(--border)" }}>
+          <Link href="/dashboard" style={{ display:"flex", alignItems:"center", gap:8, padding:"7px 10px", borderRadius:8, fontSize:12, color:"var(--text-2)", textDecoration:"none", marginBottom:2 }}>
+            <ChevronRight size={13} style={{ transform:"rotate(180deg)" }}/>
+            Retour app
           </Link>
-          <button onClick={logout} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all">
-            <LogOut size={15} className="flex-shrink-0"/>
-            <span className="text-xs">Déconnexion</span>
+          <button onClick={logout} style={{ width:"100%", display:"flex", alignItems:"center", gap:8, padding:"7px 10px", borderRadius:8, fontSize:12, color:"var(--text-2)", background:"transparent", border:"none", cursor:"pointer", textAlign:"left" }}>
+            <LogOut size={13}/>
+            Déconnexion
           </button>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main style={{ flex:1, overflowY:"auto" }}>{children}</main>
     </div>
   )
 }
