@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap, Package, Lock, Brain, Users, FileText, Briefcase, Building2, Settings2, CalendarRange } from "lucide-react"
+import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap, Package, Lock, Brain, Users, FileText, Briefcase, Building2, Settings2, CalendarRange, Target, Map } from "lucide-react"
 
 const TOP = [
   { href:"/dashboard",     icon:LayoutDashboard, label:"Dashboard" },
@@ -14,6 +14,8 @@ const TOP = [
   { href:"/propale",        icon:Briefcase,        label:"Propale / Contrat", hl:true },
   { href:"/portfolio",     icon:BarChart3,        label:"Portfolio" },
   { href:"/timeline",     icon:CalendarRange,    label:"Timeline" },
+  { href:"/okr-global",  icon:Target,           label:"OKR Global" },
+  { href:"/roadmap",     icon:Map,              label:"Roadmap" },
   { href:"/ressources",    icon:Users,            label:"Ressources" },
   { href:"/clients",        icon:Building2,        label:"Clients" },
   { href:"/configuration",  icon:Settings2,        label:"Configuration" },
