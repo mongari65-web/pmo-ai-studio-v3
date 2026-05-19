@@ -17,6 +17,9 @@ const TOOLS = [
   { key:"pert",         label:"PERT",           icon:"🔀",  desc:"Chemin critique",       color:"#3C3489" },
   { key:"decisions",    label:"Décisions",      icon:"📌",  desc:"Registre CODIR",        color:"#7B5EFF" },
   { key:"communication",label:"Communication",  icon:"📣",  desc:"Plan parties prenantes",color:"#0EA5E9" },
+  { key:"swot",         label:"SWOT",           icon:"🔍",  desc:"Analyse stratégique",   color:"#7c3aed" },
+  { key:"okr",          label:"OKR Tracker",    icon:"🎯",  desc:"Objectifs & KRs",      color:"#f59e0b" },
+  { key:"sprint",       label:"Sprint Review",  icon:"🔄",  desc:"Agile / SAFe",          color:"#22c55e" },
 ]
 
 export default function ProjectPage() {
