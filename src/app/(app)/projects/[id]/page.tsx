@@ -20,6 +20,7 @@ const TOOLS = [
   { key:"swot",         label:"SWOT",           icon:"🔍",  desc:"Analyse stratégique",   color:"#7c3aed" },
   { key:"okr",          label:"OKR Tracker",    icon:"🎯",  desc:"Objectifs & KRs",      color:"#f59e0b" },
   { key:"sprint",       label:"Sprint Review",  icon:"🔄",  desc:"Agile / SAFe",          color:"#22c55e" },
+  { key:"fiche-mission",label:"Fiche Mission",  icon:"📋",  desc:"Cadrage 1 page",        color:"#1e3a5f" },
 ]
 
 export default function ProjectPage() {
