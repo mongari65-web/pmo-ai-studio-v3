@@ -152,9 +152,9 @@ function buildPrompt(tool: string, name: string, desc: string, extra: any): stri
       ' JSON: {"center":"' + n + '","branches":[{"id":"B1","label":"[BRANCHE]","color":"#3b82f6","children":[{"id":"B1-1","label":"[SOUS]"},{"id":"B1-2","label":"[SOUS]"},{"id":"B1-3","label":"[SOUS]"}]}]}',
 
     pert: "Génère un réseau PERT pour ce projet." +
-      " Nom: " + n + ". Description: " + d + ". Période: " + s + " → " + e + "." +
-      " CONTRAINTES: 10-12 nœuds avec dépendances logiques, chemin critique identifié." +
-      ' JSON: {"nodes":[{"id":"T1","name":"[NOM]","duration":[JOURS],"optimistic":[JOURS],"pessimistic":[JOURS],"deps":[],"critical":true}]}',
+  " Nom: " + n + ". Description: " + d + ". Période: " + s + " → " + e + "." +
+  " CONTRAINTES: 12 nœuds, structure séquentielle D→T1→T2→...→F, max 2 tâches parallèles, durées 5-30j, optimistic=durée-2, pessimistic=durée+5, noms spécifiques au projet." +
+  ' JSON: {"nodes":[{"id":"D","name":"Début","duration":0,"optimistic":0,"pessimistic":0,"deps":[]},{"id":"T1","name":"[NOM SPÉCIFIQUE]","duration":[JOURS],"optimistic":[JOURS-2],"pessimistic":[JOURS+5],"deps":["D"]},{"id":"T2","name":"[NOM]","duration":[JOURS],"optimistic":[JOURS-2],"pessimistic":[JOURS+5],"deps":["T1"]},{"id":"F","name":"Fin","duration":0,"optimistic":0,"pessimistic":0,"deps":["T10"]}]}',
 
     documents: "Génère une liste de documents projet." +
       " Nom: " + n + ". Description: " + d + "." +
