@@ -58,16 +58,12 @@ export async function proxy(request: NextRequest) {
 
   // ── ProGate : routes réservées aux plans payants ─────────────
   if (user && PRO_ROUTES.some(r => path.startsWith(r))) {
-    const { data: sub } = await supabase
-      .from("subscriptions")
-      .select("plan, status")
-      .eq("user_id", user.id)
-      .in("status", ["active", "trialing"])
-      .order("created_at", { ascending: false })
-      .limit(1)
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("plan_id")
+      .eq("id", user.id)
       .single()
-
-    const plan = sub?.plan ?? "free"
+    const plan = profile?.plan_id ?? "free"
     const hasPaidPlan = ["starter", "pro", "premium"].includes(plan)
 
     if (!hasPaidPlan) {
