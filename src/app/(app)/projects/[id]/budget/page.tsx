@@ -189,7 +189,7 @@ export default function BudgetEVMPage() {
               {evm.tasks.map((task, ri) => (
                 <tr key={task.id} style={{ borderBottom:"1px solid #0f172a", background: ri%2===0?"#0f172a":"#0a0f1a" }}>
                   <td style={{ padding:"6px 10px", color:"var(--text-3)", fontFamily:"monospace" }}>{task.wbs}</td>
-                  <td style={{ padding:"6px 10px", color:"var(--border)", fontWeight:500 }}>{task.name}</td>
+                  <td style={{ padding:"6px 10px", color:"var(--text-1)", fontWeight:500 }}>{task.name}</td>
                   <td style={{ padding:"6px 10px", textAlign:"right", color:"#f59e0b", fontWeight:700 }}>
                     {task.bac.toLocaleString("fr-FR")}
                   </td>
@@ -328,7 +328,7 @@ export default function BudgetEVMPage() {
                   return (
                     <tr key={t.id} style={{ borderBottom:"1px solid #0f172a", background:i%2===0?"#0f172a":"#0a0f1a" }}>
                       <td style={{ padding:"7px 10px", color:"var(--text-3)", fontFamily:"monospace" }}>{t.wbs}</td>
-                      <td style={{ padding:"7px 10px", color:"var(--border)", fontWeight:500 }}>{t.name}</td>
+                      <td style={{ padding:"7px 10px", color:"var(--text-1)", fontWeight:500 }}>{t.name}</td>
                       <td style={{ padding:"7px 10px", color:"#f59e0b", fontWeight:700 }}>{t.bac.toLocaleString("fr-FR")}</td>
                       <td style={{ padding:"7px 10px", color:"#3b82f6" }}>{pv.toLocaleString("fr-FR")}</td>
                       <td style={{ padding:"7px 10px", color:"#a78bfa" }}>{ev.toLocaleString("fr-FR")}</td>
