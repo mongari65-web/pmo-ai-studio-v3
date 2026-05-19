@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
 </html>`
 
     const { data, error } = await resend.emails.send({
-      from: "PMO AI Studio <notifications@pmoai.studio>",
+      from: "PMO AI Studio <onboarding@resend.dev>",
       to:   user.email!,
       subject: `📊 Résumé hebdo — ${projectName} · ${stats.rag==="G"?"🟢":stats.rag==="A"?"🟡":"🔴"} Score ${stats.score}/100`,
       html,
