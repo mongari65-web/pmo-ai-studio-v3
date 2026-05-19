@@ -24,6 +24,7 @@ const TOOLS = [
   { key:"codir",        label:"Rapport CODIR",  icon:"📊",  desc:"Comité de pilotage",    color:"#312e81" },
   { key:"integrations", label:"Intégrations",   icon:"🔗",  desc:"Jira / Notion / CSV",  color:"#0052CC" },
   { key:"widget",       label:"Widget Embed",   icon:"🖼️",  desc:"Iframe SharePoint",     color:"#0ea5e9" },
+  { key:"raci",         label:"RACI Pro",       icon:"👥",  desc:"Matrice RACI/DACI",    color:"#7B5EFF" },
 ]
 
 export default function ProjectPage() {
