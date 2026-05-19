@@ -58,7 +58,7 @@ export default function ToolLayout({
 
       {/* ── HEADER ── */}
       <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between",
-        flexWrap:"wrap", gap:12, marginBottom:20, position:"relative", zIndex:1 }}>
+        flexWrap:"wrap", gap:12, marginBottom:20, position:"relative", zIndex:50 }}>
 
         {/* Titre */}
         <div>
@@ -102,7 +102,7 @@ export default function ToolLayout({
             </button>
 
             {histOpen && (
-              <div style={{ position:"absolute", right:0, top:"calc(100% + 6px)", zIndex:100,
+              <div style={{ position:"absolute", right:0, top:"calc(100% + 6px)", zIndex:1000,
                 background:"var(--bg-card)", border:"1px solid var(--border)",
                 borderRadius:"var(--r10)", padding:6, minWidth:240,
                 boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
