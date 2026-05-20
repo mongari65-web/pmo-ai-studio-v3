@@ -103,7 +103,22 @@ export default function Sidebar() {
   return (
     <aside style={{ width:col?60:220, flexShrink:0, background:"var(--sidebar)", borderRight:"1px solid var(--border)", display:"flex", flexDirection:"column", height:"100vh", position:"sticky", top:0, transition:"width 0.2s ease" }}>
       <div style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 14px 12px", borderBottom:"1px solid var(--border)" }}>
-        <div style={{ width:32, height:32, borderRadius:8, background:"linear-gradient(135deg,#185FA5,#3C3489)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, fontWeight:800, color:"#fff", flexShrink:0 }}>P</div>
+        <div style={{ width:32, height:32, borderRadius:8, background:"#0F172A", border:"1px solid rgba(123,94,255,0.4)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, overflow:"hidden" }}>
+          <svg viewBox="0 0 32 32" width="32" height="32">
+            <circle cx="16" cy="13" r="6" fill="#7B5EFF"/>
+            <text x="16" y="15.5" textAnchor="middle" fontFamily="Arial" fontSize="5" fontWeight="900" fill="#fff">PMO</text>
+            <circle cx="7" cy="6" r="3" fill="#1e40af"/>
+            <circle cx="25" cy="6" r="3" fill="#166534"/>
+            <circle cx="6" cy="20" r="3" fill="#92400e"/>
+            <circle cx="26" cy="20" r="3" fill="#991b1b"/>
+            <circle cx="16" cy="26" r="3" fill="#5b21b6"/>
+            <line x1="11" y1="9" x2="9" y2="8" stroke="#3b82f6" strokeWidth="1"/>
+            <line x1="21" y1="9" x2="23" y2="8" stroke="#22c55e" strokeWidth="1"/>
+            <line x1="11" y1="17" x2="8" y2="19" stroke="#f59e0b" strokeWidth="1"/>
+            <line x1="21" y1="17" x2="24" y2="19" stroke="#ef4444" strokeWidth="1"/>
+            <line x1="16" y1="19" x2="16" y2="23" stroke="#8b5cf6" strokeWidth="1"/>
+          </svg>
+        </div>
         {!col && <div style={{ flex:1 }}><div style={{ fontSize:13, fontWeight:700, color:"var(--text-1)" }}>PMO AI</div><div style={{ fontSize:10, color:"var(--text-3)" }}>Studio</div></div>}
         <button onClick={()=>setCol(!col)} style={{ background:"none", border:"none", cursor:"pointer", color:"var(--text-3)", padding:4, marginLeft:col?"auto":0, display:"flex", alignItems:"center" }}>
           {col ? <ChevronRight size={13}/> : <ChevronLeft size={13}/>}
