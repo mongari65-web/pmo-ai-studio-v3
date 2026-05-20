@@ -1,7 +1,8 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
+import Link from "next/link"
 
 export default function ArticleFeedback({ slug }: { slug: string }) {
   const [rating, setRating]   = useState(0)
@@ -9,7 +10,19 @@ export default function ArticleFeedback({ slug }: { slug: string }) {
   const [comment, setComment] = useState("")
   const [sent, setSent]       = useState(false)
   const [sending, setSending] = useState(false)
+  const [user, setUser]       = useState<any>(null)
+  const [emailVerified, setEmailVerified] = useState(false)
   const supabase = createClient()
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setUser(data.user)
+        // Email vérifié si email_confirmed_at est défini
+        setEmailVerified(!!data.user.email_confirmed_at)
+      }
+    })
+  }, [])
 
   const submit = async () => {
     if (!rating) { toast.error("Choisissez une note !"); return }
@@ -52,8 +65,30 @@ export default function ArticleFeedback({ slug }: { slug: string }) {
         Votre avis nous aide à améliorer le contenu PMO AI Studio
       </div>
 
-      {/* Étoiles */}
-      <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:12 }}>
+      {/* Bloc accès restreint */}
+      {!user && (
+        <div style={{ padding:"14px 16px", background:"rgba(123,94,255,0.06)", border:"1px solid rgba(123,94,255,0.2)", borderRadius:10, marginBottom:14 }}>
+          <div style={{ fontSize:12, fontWeight:600, color:"var(--text-1)", marginBottom:6 }}>🔒 Connectez-vous pour laisser un avis</div>
+          <div style={{ fontSize:11, color:"var(--text-3)", marginBottom:10 }}>Créez un compte gratuit — aucune carte bancaire requise.</div>
+          <div style={{ display:"flex", gap:8 }}>
+            <Link href="/auth/register" style={{ padding:"6px 14px", background:"var(--primary)", color:"#fff", borderRadius:7, fontSize:11, fontWeight:700, textDecoration:"none" }}>
+              Créer un compte gratuit →
+            </Link>
+            <Link href="/auth/login" style={{ padding:"6px 14px", background:"transparent", border:"1px solid var(--border)", color:"var(--text-2)", borderRadius:7, fontSize:11, textDecoration:"none" }}>
+              Se connecter
+            </Link>
+          </div>
+        </div>
+      )}
+      {user && !emailVerified && (
+        <div style={{ padding:"14px 16px", background:"rgba(245,158,11,0.08)", border:"1px solid rgba(245,158,11,0.3)", borderRadius:10, marginBottom:14 }}>
+          <div style={{ fontSize:12, fontWeight:600, color:"#f59e0b", marginBottom:4 }}>📧 Vérifiez votre email pour laisser un avis</div>
+          <div style={{ fontSize:11, color:"var(--text-3)" }}>Un email de confirmation vous a été envoyé. Cliquez sur le lien pour activer votre compte.</div>
+        </div>
+      )}
+
+      {/* Étoiles — uniquement si connecté ET email vérifié */}
+      {user && emailVerified && <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:12 }}>
         {[1,2,3,4,5].map(i => (
           <button key={i}
             onClick={() => setRating(i)}
@@ -88,6 +123,7 @@ export default function ArticleFeedback({ slug }: { slug: string }) {
           {sending ? "Envoi..." : "✓ Envoyer mon avis"}
         </button>
       )}
+      </div>}
     </div>
   )
 }
