@@ -30,6 +30,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className="dark">
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+        <link rel="shortcut icon" href="/favicon.svg"/>
+        <link rel="apple-touch-icon" href="/favicon.svg"/>
+      </head>
       <body>
         {children}
         <Toaster richColors position="top-right" />
