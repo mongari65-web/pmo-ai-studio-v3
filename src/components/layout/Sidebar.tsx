@@ -24,6 +24,7 @@ const TOP = [
   { href:"/quiz-pmi",     icon:Zap,              label:"Quiz Rapide PMI",   hl:true },
   { href:"/pmp-conseils",  icon:GraduationCap,    label:"Conseils PMP" },
   { href:"/nouveau-pm",    icon:GraduationCap,    label:"Guide Nouveau PM" },
+  { href:"/scrum-guide",  icon:Zap,              label:"Guide Scrum" },
   { href:"/disc",          icon:Brain,            label:"Analyse DISC",     hl:true },
 ]
 const BOT = [
