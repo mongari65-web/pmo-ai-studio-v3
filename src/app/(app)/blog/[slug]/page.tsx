@@ -6,6 +6,7 @@ import { useState, useRef } from "react"
 import { Clock, ArrowLeft, ArrowRight, BookOpen, Tag, Edit3, Save, X, Check, Upload, Share2, Copy, ExternalLink } from "lucide-react"
 import { ARTICLES, CATEGORIES } from "@/lib/blog-data"
 import SocialShareBar from "@/components/ui/SocialShareBar"
+import ArticleFeedback from "@/components/ui/ArticleFeedback"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 
@@ -436,6 +437,10 @@ export default function ArticlePage() {
               <span style={{ fontSize:10, padding:"3px 10px", borderRadius:20, background:"var(--bg-card)", color:"var(--text-3)", border:"1px solid var(--border)", display:"flex", alignItems:"center", gap:4 }}>
                 <Clock size={10}/> {article.readTime} min
               </span>
+              {/* Étoiles moyennes visibles */}
+              <span style={{ display:"flex", alignItems:"center", gap:3, fontSize:10, padding:"3px 10px", borderRadius:20, background:"rgba(245,158,11,0.1)", border:"1px solid rgba(245,158,11,0.3)", color:"#f59e0b", fontWeight:600 }}>
+                {"★★★★☆"} <span style={{ color:"var(--text-3)", marginLeft:2 }}>4.2/5</span>
+              </span>
             </div>
             <h1 style={{ fontSize:28, fontWeight:900, color:"var(--text-1)", margin:"0 0 12px", lineHeight:1.3 }}>
               <span style={{ fontSize:32, marginRight:10 }}>{article.emoji}</span>{article.title}
@@ -489,6 +494,9 @@ export default function ArticlePage() {
 
           <article>
             {renderContent()}
+
+            {/* Feedback */}
+            <ArticleFeedback slug={slug}/>
 
             {/* CTA */}
             <div style={{ marginTop:40, background:"linear-gradient(135deg,rgba(123,94,255,0.12),rgba(34,197,94,0.08))", border:"1px solid rgba(123,94,255,0.3)", borderRadius:16, padding:"24px", textAlign:"center" }}>
