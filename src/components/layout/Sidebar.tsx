@@ -6,27 +6,59 @@ import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap, Package, Lock, Brain, Users, FileText, Briefcase, Building2, Settings2, CalendarRange, Target, Map, Zap } from "lucide-react"
 
-const TOP = [
-  { href:"/dashboard",     icon:LayoutDashboard, label:"Dashboard" },
-  { href:"/projects",      icon:FolderKanban,    label:"Mes projets" },
-  { href:"/guide",         icon:Wand2,            label:"Guide CP",         hl:true },
-  { href:"/documents-pmi",  icon:FileText,         label:"Documents PMI",    hl:true },
-  { href:"/propale",        icon:Briefcase,        label:"Propale / Contrat", hl:true },
-  { href:"/portfolio",     icon:BarChart3,        label:"Portfolio" },
-  { href:"/timeline",     icon:CalendarRange,    label:"Timeline" },
-  { href:"/okr-global",  icon:Target,           label:"OKR Global" },
-  { href:"/roadmap",     icon:Map,              label:"Roadmap" },
-  { href:"/ressources",    icon:Users,            label:"Ressources" },
-  { href:"/clients",        icon:Building2,        label:"Clients" },
-  { href:"/configuration",  icon:Settings2,        label:"Configuration" },
-  { href:"/templates",     icon:Package,          label:"Templates Pro",    pro:true },
-  { href:"/pmp-simulator", icon:GraduationCap,    label:"Simulateur PMP",   hl:true, pro:true },
-  { href:"/quiz-pmi",     icon:Zap,              label:"Quiz Rapide PMI",   hl:true },
-  { href:"/pmp-conseils",  icon:GraduationCap,    label:"Conseils PMP" },
-  { href:"/nouveau-pm",    icon:GraduationCap,    label:"Guide Nouveau PM" },
-  { href:"/scrum-guide",  icon:Zap,              label:"Guide Scrum" },
-  { href:"/disc",          icon:Brain,            label:"Analyse DISC",     hl:true },
+// Groupes sidebar avec séparateurs
+const NAV_GROUPS = [
+  {
+    label: null, // Pas de titre pour le groupe principal
+    items: [
+      { href:"/dashboard",    icon:LayoutDashboard, label:"Dashboard" },
+      { href:"/projects",     icon:FolderKanban,    label:"Mes projets" },
+    ]
+  },
+  {
+    label: "Vue Portfolio",
+    items: [
+      { href:"/portfolio",    icon:BarChart3,    label:"Portfolio RAG" },
+      { href:"/timeline",     icon:CalendarRange, label:"Timeline" },
+      { href:"/okr-global",   icon:Target,        label:"OKR Global" },
+      { href:"/roadmap",      icon:Map,           label:"Roadmap" },
+    ]
+  },
+  {
+    label: "Outils CP",
+    items: [
+      { href:"/guide",        icon:Wand2,       label:"Guide CP",          hl:true },
+      { href:"/documents-pmi",icon:FileText,    label:"Documents PMI",     hl:true },
+      { href:"/propale",      icon:Briefcase,   label:"Propale / Contrat", hl:true },
+      { href:"/templates",    icon:Package,     label:"Templates Pro",     pro:true },
+    ]
+  },
+  {
+    label: "Gestion",
+    items: [
+      { href:"/ressources",   icon:Users,     label:"Ressources" },
+      { href:"/clients",      icon:Building2, label:"Clients" },
+    ]
+  },
+  {
+    label: "Formation PMP",
+    items: [
+      { href:"/pmp-simulator",icon:GraduationCap, label:"Simulateur PMP",    hl:true, pro:true },
+      { href:"/quiz-pmi",     icon:Zap,            label:"Quiz Rapide PMI",  hl:true },
+      { href:"/pmp-conseils", icon:GraduationCap,  label:"Conseils PMP" },
+      { href:"/nouveau-pm",   icon:GraduationCap,  label:"Guide Nouveau PM" },
+      { href:"/scrum-guide",  icon:Zap,            label:"Guide Scrum" },
+      { href:"/disc",         icon:Brain,          label:"Analyse DISC",     hl:true },
+    ]
+  },
+  {
+    label: null,
+    items: [
+      { href:"/configuration",icon:Settings2, label:"Configuration" },
+    ]
+  },
 ]
+const TOP = NAV_GROUPS.flatMap(g => g.items)
 const BOT = [
   { href:"/notifications", icon:Bell,       label:"Notifications", badge:true },
   { href:"/pricing",       icon:CreditCard, label:"Abonnement" },
@@ -78,10 +110,20 @@ export default function Sidebar() {
         </button>
       </div>
 
-      <nav style={{ flex:1, padding:"10px 8px", display:"flex", flexDirection:"column", gap:1 }}>
-        {TOP.map(({href,icon,label,hl,pro})=>(
-          <LI key={href} href={href} icon={icon} label={label} active={isActive(href)} collapsed={col}
-            extra={!col ? (hl ? <span style={{ marginLeft:"auto", fontSize:9, padding:"1px 6px", background:"var(--warning-bg)", color:"var(--warning)", borderRadius:10, fontWeight:700 }}>IA</span> : pro ? <Lock size={11} style={{ marginLeft:"auto", color:"var(--text-3)", flexShrink:0 }}/> : null) : null}/>
+      <nav style={{ flex:1, padding:"8px 8px", display:"flex", flexDirection:"column", gap:0, overflowY:"auto", overflowX:"hidden" }}>
+        {NAV_GROUPS.map((group, gi) => (
+          <div key={gi} style={{ marginBottom:4 }}>
+            {group.label && !col && (
+              <div style={{ fontSize:9, fontWeight:700, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:"1px", padding:"8px 10px 4px", marginTop:gi>0?4:0 }}>
+                {group.label}
+              </div>
+            )}
+            {group.label && !col && <div style={{ height:1, background:"var(--border)", margin:"0 4px 4px" }}/>}
+            {group.items.map(({href,icon,label,hl,pro}:any)=>(
+              <LI key={href} href={href} icon={icon} label={label} active={isActive(href)} collapsed={col}
+                extra={!col ? (hl ? <span style={{ marginLeft:"auto", fontSize:9, padding:"1px 6px", background:"var(--warning-bg)", color:"var(--warning)", borderRadius:10, fontWeight:700 }}>IA</span> : pro ? <Lock size={11} style={{ marginLeft:"auto", color:"var(--text-3)", flexShrink:0 }}/> : null) : null}/>
+            ))}
+          </div>
         ))}
       </nav>
 
