@@ -2,21 +2,215 @@
 import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { Clock, ArrowLeft, ArrowRight, ExternalLink, BookOpen, Tag } from "lucide-react"
+import { useState, useRef } from "react"
+import { Clock, ArrowLeft, ArrowRight, BookOpen, Tag, Edit3, Save, X, Check, Upload, Share2, Copy, ExternalLink } from "lucide-react"
 import { ARTICLES, CATEGORIES } from "@/lib/blog-data"
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
 
-// ── Contenu des articles ─────────────────────────────────────────────────────
+// ── Profil auteur ────────────────────────────────────────────────────────────
+const AUTHOR_PROFILE = {
+  name: "Abdelhafid TOUIL",
+  title: "Chef de Projet Senior · PMP® · SAFe® 6 · DevOps Leader",
+  company: "Atos France",
+  linkedin: "https://www.linkedin.com/in/abdelhafid-touil",
+  twitter: "https://twitter.com/AbdelhafidTouil",
+  youtube: "https://youtube.com/@pmp-en-action",
+  bio: "22 ans d'expérience en gestion de projets IT dans des organisations critiques (CEA, BNP Paribas, SNCF, Orange). Certifié PMP®, SAFe® 6, PRINCE2, DevOps Leader. Créateur de PMO AI Studio et de la chaîne YouTube 'PMP en Action'.",
+  avatar: "AT",
+  color: "#7B5EFF"
+}
 
-function ArticleEVM() {
+// ── Boutons de partage social ────────────────────────────────────────────────
+function ShareButtons({ title, slug }: { title: string; slug: string }) {
+  const [copied, setCopied] = useState(false)
+  const url = typeof window !== "undefined" ? `${window.location.origin}/blog/${slug}` : `https://pmo-ai-studio-v3.vercel.app/blog/${slug}`
+  const text = encodeURIComponent(`📊 ${title} — Par Abdelhafid TOUIL, PMP® #PMO #GestionProjet #PMBOK #PMP`)
+  const urlEnc = encodeURIComponent(url)
+
+  const SOCIALS = [
+    { label:"LinkedIn",  color:"#0A66C2", bg:"rgba(10,102,194,0.12)",  icon:"in", href:`https://www.linkedin.com/sharing/share-offsite/?url=${urlEnc}` },
+    { label:"X",         color:"#f1f5f9", bg:"rgba(241,245,249,0.1)",  icon:"𝕏",  href:`https://twitter.com/intent/tweet?text=${text}&url=${urlEnc}` },
+    { label:"WhatsApp",  color:"#25D366", bg:"rgba(37,211,102,0.12)",  icon:"💬", href:`https://wa.me/?text=${text}%20${urlEnc}` },
+    { label:"Telegram",  color:"#229ED9", bg:"rgba(34,158,217,0.12)",  icon:"✈️", href:`https://t.me/share/url?url=${urlEnc}&text=${text}` },
+    { label:"Instagram", color:"#E1306C", bg:"rgba(225,48,108,0.12)",  icon:"📸", href:`https://www.instagram.com/` },
+    { label:"Gmail",     color:"#EA4335", bg:"rgba(234,67,53,0.12)",   icon:"✉️", href:`https://mail.google.com/mail/?view=cm&su=${encodeURIComponent(title)}&body=${urlEnc}` },
+    { label:"Facebook",  color:"#1877F2", bg:"rgba(24,119,242,0.12)",  icon:"f",  href:`https://www.facebook.com/sharer/sharer.php?u=${urlEnc}` },
+  ]
+
+  const copy = () => {
+    navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+    toast.success("Lien copié !")
+  }
+
+  return (
+    <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:12, padding:"14px 16px" }}>
+      <div style={{ fontSize:12, fontWeight:700, color:"var(--text-1)", marginBottom:10, display:"flex", alignItems:"center", gap:6 }}>
+        <Share2 size={13}/> Partager cet article
+      </div>
+      <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+        {SOCIALS.map(s => (
+          <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+            style={{ display:"flex", alignItems:"center", gap:8, padding:"7px 10px", background:s.bg, border:`1px solid ${s.color}33`, borderRadius:8, textDecoration:"none", fontSize:12, fontWeight:600, color:s.color, transition:"opacity 0.15s" }}
+            onMouseEnter={e=>(e.currentTarget as any).style.opacity="0.8"}
+            onMouseLeave={e=>(e.currentTarget as any).style.opacity="1"}>
+            <span style={{ width:20, textAlign:"center", fontWeight:900 }}>{s.icon}</span>
+            {s.label}
+          </a>
+        ))}
+        <button onClick={copy}
+          style={{ display:"flex", alignItems:"center", gap:8, padding:"7px 10px", background:copied?"rgba(34,197,94,0.1)":"var(--bg)", border:`1px solid ${copied?"#22c55e":"var(--border)"}`, borderRadius:8, fontSize:12, fontWeight:600, color:copied?"#22c55e":"var(--text-2)", cursor:"pointer", transition:"all 0.15s" }}>
+          {copied ? <><Check size={13}/> Lien copié !</> : <><Copy size={13}/> Copier le lien</>}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Profil auteur card ────────────────────────────────────────────────────────
+function AuthorCard() {
+  return (
+    <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:12, padding:"14px 16px" }}>
+      <div style={{ display:"flex", gap:10, marginBottom:10 }}>
+        <img src="/author-avatar.jpg" alt="Abdelhafid TOUIL"
+          style={{ width:44, height:44, borderRadius:"50%", border:`2px solid ${AUTHOR_PROFILE.color}66`, objectFit:"cover", flexShrink:0 }}
+          onError={e => { (e.target as HTMLImageElement).style.display="none" }}/>
+        <div>
+          <div style={{ fontSize:13, fontWeight:700, color:"var(--text-1)" }}>{AUTHOR_PROFILE.name}</div>
+          <div style={{ fontSize:10, color:"var(--text-3)", lineHeight:1.4 }}>{AUTHOR_PROFILE.title}</div>
+        </div>
+      </div>
+      <p style={{ fontSize:11, color:"var(--text-3)", lineHeight:1.5, margin:"0 0 10px" }}>{AUTHOR_PROFILE.bio.slice(0,120)}...</p>
+      <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+        <a href={AUTHOR_PROFILE.linkedin} target="_blank" rel="noopener noreferrer"
+          style={{ display:"flex", alignItems:"center", gap:4, padding:"4px 10px", background:"rgba(10,102,194,0.1)", border:"1px solid rgba(10,102,194,0.3)", borderRadius:6, fontSize:10, fontWeight:600, color:"#0A66C2", textDecoration:"none" }}>
+          in LinkedIn
+        </a>
+        <a href={AUTHOR_PROFILE.twitter} target="_blank" rel="noopener noreferrer"
+          style={{ display:"flex", alignItems:"center", gap:4, padding:"4px 10px", background:"rgba(0,0,0,0.06)", border:"1px solid rgba(0,0,0,0.15)", borderRadius:6, fontSize:10, fontWeight:600, color:"var(--text-1)", textDecoration:"none" }}>
+          𝕏 Twitter
+        </a>
+        <a href={AUTHOR_PROFILE.youtube} target="_blank" rel="noopener noreferrer"
+          style={{ display:"flex", alignItems:"center", gap:4, padding:"4px 10px", background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.25)", borderRadius:6, fontSize:10, fontWeight:600, color:"#ef4444", textDecoration:"none" }}>
+          ▶️ YouTube
+        </a>
+      </div>
+    </div>
+  )
+}
+
+// ── Éditeur d'image ───────────────────────────────────────────────────────────
+function ImageEditor({ src, alt, caption, onUpdate }: { src:string; alt:string; caption:string; onUpdate:(src:string,caption:string)=>void }) {
+  const [editing, setEditing] = useState(false)
+  const [newCaption, setNewCaption] = useState(caption)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      onUpdate(ev.target?.result as string, newCaption)
+      toast.success("Image mise à jour")
+      setEditing(false)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  if (!editing) return (
+    <div style={{ margin:"20px 0", borderRadius:12, overflow:"hidden", border:"1px solid var(--border)", position:"relative", cursor:"pointer" }}
+      onClick={() => setEditing(true)}>
+      <img src={src} alt={alt} style={{ width:"100%", display:"block" }}
+        onError={e => { (e.target as HTMLImageElement).style.display="none" }}/>
+      <p style={{ fontSize:11, color:"var(--text-3)", textAlign:"center", padding:"8px 12px", background:"var(--bg-card)", margin:0 }}>{caption}</p>
+      <div style={{ position:"absolute", top:8, right:8, background:"rgba(0,0,0,0.6)", borderRadius:6, padding:"4px 8px", fontSize:10, color:"#fff", display:"flex", alignItems:"center", gap:4 }}>
+        <Edit3 size={10}/> Modifier
+      </div>
+    </div>
+  )
+
+  return (
+    <div style={{ margin:"20px 0", border:"2px dashed rgba(123,94,255,0.4)", borderRadius:12, padding:16, background:"rgba(123,94,255,0.04)" }}>
+      <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} style={{ display:"none" }}/>
+      <div style={{ display:"flex", gap:8, marginBottom:10 }}>
+        <button onClick={() => fileRef.current?.click()}
+          style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 14px", background:"var(--primary)", color:"#fff", border:"none", borderRadius:7, fontSize:12, fontWeight:600, cursor:"pointer" }}>
+          <Upload size={12}/> Changer l'image
+        </button>
+        <button onClick={() => setEditing(false)}
+          style={{ padding:"7px 10px", background:"transparent", border:"1px solid var(--border)", borderRadius:7, cursor:"pointer", color:"var(--text-3)" }}>
+          <X size={12}/>
+        </button>
+      </div>
+      <div>
+        <div style={{ fontSize:10, color:"var(--text-3)", marginBottom:4 }}>Légende</div>
+        <input value={newCaption} onChange={e=>setNewCaption(e.target.value)}
+          style={{ width:"100%", fontSize:11, border:"1px solid var(--border)", borderRadius:6, padding:"6px 8px", background:"var(--bg)", color:"var(--text-1)", boxSizing:"border-box" }}/>
+      </div>
+      <button onClick={() => { onUpdate(src, newCaption); setEditing(false) }}
+        style={{ marginTop:8, padding:"6px 14px", background:"var(--primary)", color:"#fff", border:"none", borderRadius:6, fontSize:11, fontWeight:600, cursor:"pointer" }}>
+        <Check size={11}/> Sauvegarder
+      </button>
+    </div>
+  )
+}
+
+// ── Éditeur de texte bloc ─────────────────────────────────────────────────────
+function EditableBlock({ content, onSave, style: blockStyle }: { content:string; onSave:(v:string)=>void; style?:React.CSSProperties }) {
+  const [editing, setEditing] = useState(false)
+  const [val, setVal] = useState(content)
+
+  if (!editing) return (
+    <div style={{ position:"relative", cursor:"text" }} onDoubleClick={() => setEditing(true)}>
+      <div style={blockStyle}>{val}</div>
+      <div style={{ position:"absolute", top:0, right:0, background:"rgba(123,94,255,0.1)", borderRadius:4, padding:"2px 6px", fontSize:9, color:"var(--primary-light)", opacity:0, transition:"opacity 0.15s" }}
+        className="edit-hint">✏️ Double-clic pour modifier</div>
+    </div>
+  )
+
+  return (
+    <div>
+      <textarea value={val} onChange={e=>setVal(e.target.value)} rows={4}
+        style={{ width:"100%", fontSize:14, border:"2px solid var(--primary)", borderRadius:8, padding:"8px 10px", background:"var(--bg)", color:"var(--text-1)", resize:"vertical", boxSizing:"border-box", lineHeight:1.6, outline:"none" }}/>
+      <div style={{ display:"flex", gap:6, marginTop:4 }}>
+        <button onClick={() => { onSave(val); setEditing(false) }}
+          style={{ display:"flex", alignItems:"center", gap:4, padding:"4px 12px", background:"var(--primary)", color:"#fff", border:"none", borderRadius:6, fontSize:11, fontWeight:600, cursor:"pointer" }}>
+          <Check size={11}/> Sauvegarder
+        </button>
+        <button onClick={() => { setVal(content); setEditing(false) }}
+          style={{ padding:"4px 8px", background:"transparent", border:"1px solid var(--border)", borderRadius:6, cursor:"pointer", color:"var(--text-3)", fontSize:11 }}>
+          Annuler
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Contenu articles ──────────────────────────────────────────────────────────
+const P: React.CSSProperties = { fontSize:14, color:"var(--text-2)", lineHeight:1.8, margin:"0 0 16px" }
+const H2: React.CSSProperties = { fontSize:20, fontWeight:800, color:"var(--text-1)", margin:"32px 0 12px", paddingBottom:8, borderBottom:"2px solid var(--border)" }
+const IMG_WRAP: React.CSSProperties = { margin:"20px 0", borderRadius:12, overflow:"hidden", border:"1px solid var(--border)" }
+const IMG: React.CSSProperties = { width:"100%", display:"block" }
+const IMG_CAP: React.CSSProperties = { fontSize:11, color:"var(--text-3)", textAlign:"center", padding:"8px 12px", background:"var(--bg-card)", margin:0 }
+const ALERT_RED: React.CSSProperties = { background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:10, padding:"12px 16px", margin:"16px 0", fontSize:13, color:"var(--text-1)", lineHeight:1.6 }
+const ALERT_GREEN: React.CSSProperties = { background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:10, padding:"12px 16px", margin:"16px 0", fontSize:13, color:"var(--text-1)", lineHeight:1.6 }
+const ALERT_ORANGE: React.CSSProperties = { background:"rgba(245,158,11,0.08)", border:"1px solid rgba(245,158,11,0.3)", borderRadius:10, padding:"12px 16px", margin:"16px 0", fontSize:13, color:"var(--text-1)", lineHeight:1.6 }
+const TABLE_WRAP: React.CSSProperties = { margin:"16px 0 24px", borderRadius:10, overflow:"hidden", border:"1px solid var(--border)" }
+const TABLE: React.CSSProperties = { width:"100%", borderCollapse:"collapse" }
+const TH: React.CSSProperties = { padding:"10px 14px", textAlign:"left", fontSize:11, fontWeight:700, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:"0.5px", borderBottom:"2px solid var(--border)", background:"var(--bg)" }
+const TD: React.CSSProperties = { padding:"10px 14px", fontSize:12, color:"var(--text-2)", verticalAlign:"top" }
+
+function ArticleEVM({ editMode, images, onImageUpdate }: any) {
   return (
     <div>
       <p style={P}>Imaginez : votre projet de rénovation de l'Hôtel Atlantis à Marrakech avance. Nous sommes en mai 2026. Le client vous demande un rapport. Vous ouvrez PMO AI Studio et vous voyez :</p>
 
-      {/* Screenshot réel */}
-      <div style={IMG_WRAP}>
-        <img src="/blog/images/evm-courbe-s.png" alt="Courbe S EVM — Budget EVM Hôtel Atlantis" style={IMG}/>
-        <p style={IMG_CAP}>📊 Courbe S EVM réelle — Rénovation Grand Hôtel Atlantis · PMO AI Studio</p>
-      </div>
+      <ImageEditor src={images["evm-courbe-s"] || "/blog/images/evm-courbe-s.png"}
+        alt="Courbe S EVM — Budget EVM Hôtel Atlantis"
+        caption="📊 Courbe S EVM réelle — Rénovation Grand Hôtel Atlantis · PMO AI Studio — CPI 0.93, SPI 0.85, EAC 2.7M€"
+        onUpdate={(src,cap) => onImageUpdate("evm-courbe-s", src, cap)}/>
 
       <div style={ALERT_RED}>
         <strong>⚠️ Alerte :</strong> CPI = 0.93 · SPI = 0.85 · EAC = 2.7M€ pour un BAC de 2.5M€ · CV = -70 700€ · SV = -172 500€
@@ -24,11 +218,10 @@ function ArticleEVM() {
 
       <h2 style={H2}>🔢 Les 6 indicateurs EVM que tout CP doit maîtriser</h2>
 
-      {/* Tableau formules */}
       <div style={TABLE_WRAP}>
         <table style={TABLE}>
           <thead>
-            <tr style={TR_HEAD}>
+            <tr>
               <th style={TH}>Indicateur</th><th style={TH}>Formule</th><th style={TH}>Interprétation</th><th style={TH}>Notre projet</th>
             </tr>
           </thead>
@@ -39,7 +232,7 @@ function ArticleEVM() {
               ["CV — Cost Variance","EV - AC","Négatif = surcoût","-70 700€ 🔴"],
               ["SV — Schedule Variance","EV - PV","Négatif = retard","-172 500€ 🔴"],
               ["EAC — Estimate at Completion","BAC / CPI","Prévision coût final","2.7M€ 🔴"],
-              ["TCPI","(BAC-EV)/(BAC-AC)","Perf. nécessaire pour finir","1.05 🟡"],
+              ["TCPI","(BAC-EV)/(BAC-AC)","Perf. nécessaire","1.05 🟡"],
             ].map(([ind,form,interp,val],i) => (
               <tr key={i} style={{ background:i%2===0?"var(--bg-card)":"var(--bg)", borderBottom:"1px solid var(--border)" }}>
                 <td style={TD}><strong style={{ color:"var(--primary-light)" }}>{ind}</strong></td>
@@ -53,14 +246,13 @@ function ArticleEVM() {
       </div>
 
       <h2 style={H2}>📈 La Courbe S — Visualiser la performance en un coup d'œil</h2>
-      <p style={P}>La courbe S est le graphique le plus puissant du management de projet. Elle affiche simultanément :</p>
+      <p style={P}>La courbe S est le graphique le plus puissant du management de projet. Elle affiche PV (planifié), EV (acquis) et AC (réel) sur la même timeline. L'écart entre les courbes révèle instantanément les problèmes.</p>
 
-      {/* Légende courbe S */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12, margin:"16px 0 24px" }}>
         {[
           { color:"#3b82f6", label:"PV — Planned Value", desc:"Ce qui était prévu d'être fait. La baseline de référence." },
           { color:"#7B5EFF", label:"EV — Earned Value", desc:"La valeur du travail réellement accompli. Votre performance réelle." },
-          { color:"#f59e0b", label:"AC — Actual Cost", desc:"Ce qui a été réellement dépensé. Toujours supérieur à EV si CPI < 1." },
+          { color:"#f59e0b", label:"AC — Actual Cost", desc:"Ce qui a été réellement dépensé. Supérieur à EV si CPI < 1." },
         ].map(k => (
           <div key={k.label} style={{ background:`${k.color}11`, border:`1px solid ${k.color}33`, borderRadius:10, padding:"12px 14px" }}>
             <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
@@ -72,9 +264,7 @@ function ArticleEVM() {
         ))}
       </div>
 
-      <h2 style={H2}>🚨 Quand déclencher une alarme budgétaire ?</h2>
-
-      {/* Seuils d'alerte */}
+      <h2 style={H2}>🎯 Les seuils d'alerte selon le PMI</h2>
       <div style={{ display:"flex", flexDirection:"column", gap:8, margin:"16px 0 24px" }}>
         {[
           { seuil:"CPI ≥ 1.0 et SPI ≥ 1.0", statut:"✅ VERT", desc:"Projet sous contrôle. Continuer le suivi normal.", color:"#22c55e" },
@@ -91,23 +281,16 @@ function ArticleEVM() {
         ))}
       </div>
 
-      <h2 style={H2}>💡 Notre cas réel : Hôtel Atlantis Marrakech</h2>
-
-      <div style={IMG_WRAP}>
-        <img src="/blog/images/dashboard-hotel.png" alt="Dashboard PMO AI Studio — Hôtel Atlantis" style={IMG}/>
-        <p style={IMG_CAP}>🏨 Dashboard PMO AI Studio — Projet Rénovation Hôtel Atlantis · CPI 0.83, EAC 3.0M€</p>
-      </div>
-
-      <p style={P}>Le projet de rénovation de l'Hôtel Atlantis présente les caractéristiques suivantes en mai 2026 :</p>
+      <h2 style={H2}>💡 Cas réel : Hôtel Atlantis Marrakech — Mai 2026</h2>
+      <ImageEditor src={images["evm-budget-detail"] || "/blog/images/evm-budget-detail.png"}
+        alt="Dashboard Budget EVM détaillé" caption="💰 Budget EVM Hôtel Atlantis — Tous les indicateurs periode Mai 2026"
+        onUpdate={(src,cap) => onImageUpdate("evm-budget-detail", src, cap)}/>
 
       {/* Schéma SVG diagnostic */}
       <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:12, padding:20, margin:"16px 0 24px", overflow:"auto" }}>
         <svg viewBox="0 0 600 180" style={{ width:"100%", maxWidth:600, display:"block", margin:"0 auto" }}>
-          {/* Titre */}
-          <text x="300" y="20" textAnchor="middle" fontFamily="Arial" fontSize="13" fontWeight="700" fill="#f1f5f9">Diagnostic EVM — Mai 2026</text>
-          {/* Axe */}
+          <text x="300" y="20" textAnchor="middle" fontFamily="Arial" fontSize="13" fontWeight="700" fill="#f1f5f9">Diagnostic EVM — Mai 2026 · Hôtel Atlantis 2.5M€</text>
           <line x1="60" y1="140" x2="560" y2="140" stroke="#1e293b" strokeWidth="1"/>
-          {/* Barres */}
           {[
             { label:"BAC", val:2500000, max:2700000, color:"#64748b", x:80 },
             { label:"PV", val:1200000, max:2700000, color:"#3b82f6", x:180 },
@@ -115,12 +298,11 @@ function ArticleEVM() {
             { label:"AC", val:1100000, max:2700000, color:"#f59e0b", x:380 },
             { label:"EAC", val:2700000, max:2700000, color:"#ef4444", x:480 },
           ].map(b => {
-            const h = Math.round((b.val/b.max)*100)
-            const barH = Math.max(4, h)
+            const h = Math.max(4, Math.round((b.val/b.max)*100))
             return (
               <g key={b.label}>
-                <rect x={b.x-20} y={140-barH} width="40" height={barH} rx="4" fill={b.color} opacity="0.8"/>
-                <text x={b.x} y={135-barH} textAnchor="middle" fontFamily="Arial" fontSize="10" fontWeight="700" fill={b.color}>
+                <rect x={b.x-20} y={140-h} width="40" height={h} rx="4" fill={b.color} opacity="0.8"/>
+                <text x={b.x} y={135-h} textAnchor="middle" fontFamily="Arial" fontSize="10" fontWeight="700" fill={b.color}>
                   {b.val>=1000000?(b.val/1000000).toFixed(1)+"M€":(b.val/1000).toFixed(0)+"k€"}
                 </text>
                 <text x={b.x} y="155" textAnchor="middle" fontFamily="Arial" fontSize="11" fontWeight="600" fill="#94a3b8">{b.label}</text>
@@ -131,16 +313,16 @@ function ArticleEVM() {
       </div>
 
       <div style={ALERT_ORANGE}>
-        <strong>📋 Analyse :</strong> L'EAC dépasse le BAC de 200 000€. Le TCPI = 1.05 signifie que l'équipe doit désormais être 5% plus efficace que prévu pour finir dans le budget. Une réunion CODIR s'impose.
+        <strong>📋 Analyse :</strong> L'EAC dépasse le BAC de 200 000€. Le TCPI = 1.05 signifie que l'équipe doit être 5% plus efficace que prévu pour finir dans le budget.
       </div>
 
-      <h2 style={H2}>🎯 Les 5 actions à mener quand CPI {"<"} 1</h2>
+      <h2 style={H2}>🎯 5 actions concrètes quand CPI {"<"} 1</h2>
       {[
-        { num:"1", title:"Analyser les causes racines", desc:"Identifier les WPs en dépassement via l'outil Work Packages. Chercher les écarts de productivité, les révisions de scope non maîtrisées.", icon:"🔍" },
-        { num:"2", title:"Recalculer l'EAC et préparer un avenant", desc:"Présenter les scénarios EAC au commanditaire. Documentez l'impact sur le VAC (Variance at Completion = BAC - EAC).", icon:"📊" },
-        { num:"3", title:"Mettre à jour le RAID", desc:"Transformer les causes de dépassement en risques formels. Associer des plans de mitigation concrets.", icon:"⚠️" },
-        { num:"4", title:"Convoquer un CODIR d'urgence", desc:"Préparer le rapport CODIR avec PMO AI Studio. Présenter les KPIs, les risques critiques, les décisions demandées.", icon:"📋" },
-        { num:"5", title:"Reprendre le contrôle avec un plan de rattrapage", desc:"Définir des jalons de contrôle intermédiaires. Appliquer le Crashing ou Fast-Tracking sur le chemin critique.", icon:"🚀" },
+        { num:"1", icon:"🔍", title:"Analyser les causes racines", desc:"Identifier les WPs en dépassement via l'outil Work Packages. Chercher les écarts de productivité." },
+        { num:"2", icon:"📊", title:"Recalculer l'EAC et préparer un avenant", desc:"EAC = BAC / CPI. Présenter les scénarios au commanditaire et documenter l'impact sur le VAC." },
+        { num:"3", icon:"⚠️", title:"Mettre à jour le RAID", desc:"Transformer les causes de dépassement en risques formels avec plans de mitigation concrets." },
+        { num:"4", icon:"📋", title:"Convoquer un CODIR d'urgence", desc:"Préparer le rapport CODIR avec PMO AI Studio. Présenter KPIs, risques critiques, décisions demandées." },
+        { num:"5", icon:"🚀", title:"Plan de rattrapage — Crashing ou Fast-Tracking", desc:"Définir des jalons de contrôle intermédiaires. Appliquer le Crashing sur le chemin critique." },
       ].map(a => (
         <div key={a.num} style={{ display:"flex", gap:14, padding:"14px 0", borderBottom:"1px solid var(--border)" }}>
           <div style={{ width:36, height:36, borderRadius:"50%", background:"rgba(123,94,255,0.2)", border:"1px solid rgba(123,94,255,0.4)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, flexShrink:0 }}>{a.icon}</div>
@@ -152,191 +334,34 @@ function ArticleEVM() {
       ))}
 
       <div style={{ ...ALERT_GREEN, marginTop:24 }}>
-        <strong>✅ Bonne pratique PMI :</strong> Le PMI recommande de ne jamais modifier la baseline (BAC) sans approbation formelle du commanditaire. Documentez tout changement dans le registre des décisions.
-      </div>
-
-      <h2 style={H2}>🤖 Comment PMO AI Studio calcule et visualise l'EVM automatiquement</h2>
-      <p style={P}>PMO AI Studio intègre nativement le calcul EVM. Il suffit de renseigner vos lignes budgétaires avec BAC, PV, EV et AC — l'outil calcule automatiquement CPI, SPI, EAC, TCPI, CV, SV et génère la courbe S dynamique.</p>
-
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, margin:"16px 0" }}>
-        {[
-          { label:"Rapport EVM", desc:"Vue synthétique de tous les indicateurs en temps réel" },
-          { label:"Courbe S dynamique", desc:"PV, EV, AC sur 12 mois avec ligne aujourd'hui" },
-          { label:"Export Gamma AI", desc:"Générez une présentation CODIR en 30 secondes" },
-          { label:"Alertes automatiques", desc:"Notification quand CPI passe sous 0.9" },
-        ].map(f => (
-          <div key={f.label} style={{ padding:"12px 14px", background:"rgba(123,94,255,0.06)", border:"1px solid rgba(123,94,255,0.2)", borderRadius:9 }}>
-            <div style={{ fontSize:12, fontWeight:700, color:"var(--primary-light)", marginBottom:4 }}>✦ {f.label}</div>
-            <div style={{ fontSize:11, color:"var(--text-3)" }}>{f.desc}</div>
-          </div>
-        ))}
+        <strong>🤖 PMO AI Studio :</strong> Génère automatiquement CPI, SPI, EAC, TCPI et la courbe S dès que vous saisissez vos données budgétaires. Export rapport CODIR en 30 secondes.
       </div>
     </div>
   )
 }
 
-function ArticleCPI() {
+function ArticleDefault() {
   return (
     <div>
-      <p style={P}>Votre chef de projet ouvre son tableau de bord un lundi matin. CPI = 0.83. SPI = 0.87. EAC = 3.0M€ pour un BAC de 2.5M€. Que faire dans les 48 heures ?</p>
-
-      <div style={IMG_WRAP}>
-        <img src="/blog/images/dashboard-hotel.png" alt="Dashboard PMO — Alertes CPI" style={IMG}/>
-        <p style={IMG_CAP}>🚨 Dashboard PMO AI Studio — CPI 0.83, VAC -512 048€, Score Santé 68 🟡</p>
-      </div>
-
-      <h2 style={H2}>🔴 Comprendre ce que signifie CPI = 0.83</h2>
-      <p style={P}>Un CPI de 0.83 signifie que pour chaque euro dépensé, seulement 83 centimes de valeur est produite. En d'autres termes, votre projet dépense 20% de plus que ce qui était prévu pour la quantité de travail accomplie.</p>
-
-      <div style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:12, padding:"16px 20px", margin:"16px 0 24px" }}>
-        <div style={{ fontSize:13, fontWeight:700, color:"#ef4444", marginBottom:8 }}>💡 Formule clé :</div>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, textAlign:"center" }}>
-          {[["EV","144k€ de travail fait","#7B5EFF"],["÷ AC","173k€ dépensés","#f59e0b"],["= CPI","0.83 🔴","#ef4444"]].map(([k,v,c]) => (
-            <div key={k} style={{ padding:"10px", background:`${c}11`, borderRadius:8 }}>
-              <div style={{ fontSize:18, fontWeight:900, color:c as string }}>{k}</div>
-              <div style={{ fontSize:10, color:"var(--text-3)", marginTop:4 }}>{v}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <h2 style={H2}>📊 Le RAID — Votre registre des problèmes identifiés</h2>
-      <div style={IMG_WRAP}>
-        <img src="/blog/images/raid-register.png" alt="RAID Register PMO AI Studio" style={IMG}/>
-        <p style={IMG_CAP}>⚠️ RAID Register — Hôtel Atlantis : 3 risques critiques, 6 ouverts · PMO AI Studio</p>
-      </div>
-
-      <p style={P}>Le RAID du projet Hôtel Atlantis révèle les causes racines du dépassement :</p>
-      {[
-        { titre:"Rupture stock tuiles zellige Fès", impact:"Retard Phase 4 — 6 semaines", cat:"🔴 Critique" },
-        { titre:"Dépassement budget matériaux +22%", impact:"Surcoût 480k€ — avenant requis", cat:"🔴 Critique" },
-        { titre:"Fissures mur porteur est", impact:"Surcoût 85k€ + 3 semaines", cat:"🔴 Issue critique" },
-      ].map((r,i) => (
-        <div key={i} style={{ display:"flex", gap:12, padding:"10px 14px", background:"rgba(239,68,68,0.06)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:8, marginBottom:8 }}>
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:12, fontWeight:700, color:"var(--text-1)" }}>{r.titre}</div>
-            <div style={{ fontSize:11, color:"var(--text-3)", marginTop:2 }}>{r.impact}</div>
-          </div>
-          <span style={{ fontSize:10, padding:"2px 8px", borderRadius:20, background:"rgba(239,68,68,0.15)", color:"#ef4444", fontWeight:700, flexShrink:0, alignSelf:"center" }}>{r.cat}</span>
-        </div>
-      ))}
-
-      <h2 style={H2}>🎯 Plan d'action en 48h quand CPI {"<"} 0.9</h2>
-      {[
-        { h:"H+2", action:"Analyser le RAID", detail:"Identifier les 3 principales causes du dépassement dans PMO AI Studio" },
-        { h:"H+4", action:"Recalculer l'EAC", detail:"EAC = BAC / CPI = 2 500 000 / 0.83 = 3 012 048€ → prévoir l'avenant" },
-        { h:"H+8", action:"Préparer le rapport CODIR", detail:"Utiliser PMO AI Studio → Rapport CODIR → Export PPTX automatique" },
-        { h:"H+24", action:"Convoquer le CODIR d'urgence", detail:"Présenter CPI, SPI, EAC, risques critiques et décisions demandées" },
-        { h:"H+48", action:"Plan de rattrapage validé", detail:"Crashing sur chemin critique, avenant signé, nouvelles baselines" },
-      ].map((s,i) => (
-        <div key={i} style={{ display:"flex", gap:14, padding:"12px 0", borderBottom:"1px solid var(--border)" }}>
-          <div style={{ width:44, padding:"4px 6px", background:"rgba(123,94,255,0.15)", borderRadius:6, fontSize:10, fontWeight:800, color:"var(--primary-light)", textAlign:"center", flexShrink:0, alignSelf:"flex-start" }}>{s.h}</div>
-          <div>
-            <strong style={{ fontSize:12, color:"var(--text-1)" }}>{s.action}</strong>
-            <p style={{ fontSize:11, color:"var(--text-3)", margin:"3px 0 0" }}>{s.detail}</p>
-          </div>
-        </div>
-      ))}
-
-      <div style={{ ...ALERT_GREEN, marginTop:24 }}>
-        <strong>🚀 Avec PMO AI Studio :</strong> Le rapport CODIR avec CPI, SPI, EAC, risques critiques et prochaines étapes est généré en 30 secondes. Export PowerPoint 5 slides inclus.
-      </div>
+      <p style={P}>Cet article est en cours de rédaction. Revenez bientôt !</p>
+      <div style={ALERT_GREEN}><strong>🚀 En attendant :</strong> Découvrez PMO AI Studio — 15 outils PMO générés par Claude AI en 30 secondes.</div>
     </div>
   )
 }
 
-function ArticleRAID() {
-  return (
-    <div>
-      <p style={P}>8 risques identifiés. 3 critiques. 6 ouverts. 0 résolus. C'est le tableau de bord RAID du projet Rénovation Hôtel Atlantis en mai 2026. Voici comment transformer ces chiffres en actions concrètes.</p>
-
-      <div style={IMG_WRAP}>
-        <img src="/blog/images/raid-register.png" alt="RAID Register complet" style={IMG}/>
-        <p style={IMG_CAP}>⚠️ RAID Register PMO AI Studio — Hôtel Atlantis Marrakech · Risques, Actions, Issues, Décisions</p>
-      </div>
-
-      <h2 style={H2}>📋 Qu'est-ce que le RAID ?</h2>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, margin:"16px 0 24px" }}>
-        {[
-          { letter:"R", word:"Risques", color:"#ef4444", desc:"Événements futurs incertains pouvant impacter le projet" },
-          { letter:"A", word:"Actions", color:"#3b82f6", desc:"Tâches à réaliser pour prévenir ou atténuer les risques" },
-          { letter:"I", word:"Issues", color:"#f59e0b", desc:"Problèmes actuels ayant déjà impacté le projet" },
-          { letter:"D", word:"Décisions", color:"#22c55e", desc:"Choix formels documentés avec date et responsable" },
-        ].map(r => (
-          <div key={r.letter} style={{ background:`${r.color}11`, border:`1px solid ${r.color}33`, borderRadius:10, padding:"14px 12px", textAlign:"center" }}>
-            <div style={{ fontSize:32, fontWeight:900, color:r.color, lineHeight:1 }}>{r.letter}</div>
-            <div style={{ fontSize:13, fontWeight:700, color:"var(--text-1)", margin:"6px 0 4px" }}>{r.word}</div>
-            <div style={{ fontSize:10, color:"var(--text-3)", lineHeight:1.4 }}>{r.desc}</div>
-          </div>
-        ))}
-      </div>
-
-      <h2 style={H2}>🔴 Les 3 risques critiques du projet Hôtel Atlantis</h2>
-      {[
-        { id:"R1", titre:"Rupture stock tuiles zellige Fès", prob:"Élevée", impact:"Critique", mitigation:"2 fournisseurs alternatifs identifiés à Meknès et Tétouan", owner:"Responsable Achats", echeance:"Nov 2026" },
-        { id:"R2", titre:"Dépassement budget matériaux +22%", prob:"Confirmée", impact:"Critique", mitigation:"Renégocier contrat ou réduire périmètre spa. Avenant +350k€", owner:"Chef de Projet", echeance:"Août 2026" },
-        { id:"R5", titre:"Fissures mur porteur est — Issue active", prob:"Réalisée", impact:"Critique", mitigation:"Expertise complémentaire + renforcement prévu. Surcoût 85k€", owner:"Ingénieur structure", echeance:"Juil 2026" },
-      ].map(r => (
-        <div key={r.id} style={{ background:"var(--bg-card)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:10, padding:"14px 16px", marginBottom:12, borderLeft:"4px solid #ef4444" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
-            <span style={{ fontSize:10, padding:"2px 7px", borderRadius:20, background:"rgba(239,68,68,0.15)", color:"#ef4444", fontWeight:700 }}>{r.id}</span>
-            <strong style={{ fontSize:13, color:"var(--text-1)" }}>{r.titre}</strong>
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, fontSize:11, color:"var(--text-3)" }}>
-            <div>👤 <strong style={{ color:"var(--text-2)" }}>{r.owner}</strong></div>
-            <div>📅 {r.echeance}</div>
-            <div>🎯 Probabilité: <strong style={{ color:"#ef4444" }}>{r.prob}</strong></div>
-          </div>
-          <div style={{ marginTop:8, padding:"8px 10px", background:"rgba(34,197,94,0.06)", borderRadius:6, fontSize:11, color:"#22c55e" }}>
-            🛡️ Mitigation : {r.mitigation}
-          </div>
-        </div>
-      ))}
-
-      <div style={ALERT_GREEN}>
-        <strong>💡 Bonne pratique :</strong> Chaque risque critique doit avoir un propriétaire, une date d'échéance et un plan de mitigation documenté. PMO AI Studio génère automatiquement votre RAID depuis la description du projet.
-      </div>
-    </div>
-  )
-}
-
-function ArticleDefault({ slug }: { slug: string }) {
-  const article = ARTICLES.find(a => a.slug === slug)
-  return (
-    <div>
-      <p style={P}>Cet article est en cours de rédaction. Revenez bientôt pour découvrir le contenu complet.</p>
-      <div style={ALERT_GREEN}>
-        <strong>🚀 En attendant :</strong> Découvrez PMO AI Studio — 15 outils PMO générés par Claude AI en 30 secondes.
-      </div>
-    </div>
-  )
-}
-
-// ── Styles ───────────────────────────────────────────────────────────────────
-const P: React.CSSProperties = { fontSize:14, color:"var(--text-2)", lineHeight:1.8, margin:"0 0 16px" }
-const H2: React.CSSProperties = { fontSize:20, fontWeight:800, color:"var(--text-1)", margin:"32px 0 12px", paddingBottom:8, borderBottom:"2px solid var(--border)" }
-const IMG_WRAP: React.CSSProperties = { margin:"20px 0", borderRadius:12, overflow:"hidden", border:"1px solid var(--border)" }
-const IMG: React.CSSProperties = { width:"100%", display:"block" }
-const IMG_CAP: React.CSSProperties = { fontSize:11, color:"var(--text-3)", textAlign:"center", padding:"8px 12px", background:"var(--bg-card)", margin:0 }
-const ALERT_RED: React.CSSProperties = { background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:10, padding:"12px 16px", margin:"16px 0", fontSize:13, color:"var(--text-1)", lineHeight:1.6 }
-const ALERT_ORANGE: React.CSSProperties = { background:"rgba(245,158,11,0.08)", border:"1px solid rgba(245,158,11,0.3)", borderRadius:10, padding:"12px 16px", margin:"16px 0", fontSize:13, color:"var(--text-1)", lineHeight:1.6 }
-const ALERT_GREEN: React.CSSProperties = { background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:10, padding:"12px 16px", margin:"16px 0", fontSize:13, color:"var(--text-1)", lineHeight:1.6 }
-const TABLE_WRAP: React.CSSProperties = { margin:"16px 0 24px", borderRadius:10, overflow:"hidden", border:"1px solid var(--border)" }
-const TABLE: React.CSSProperties = { width:"100%", borderCollapse:"collapse" }
-const TR_HEAD: React.CSSProperties = { background:"var(--bg)" }
-const TH: React.CSSProperties = { padding:"10px 14px", textAlign:"left", fontSize:11, fontWeight:700, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:"0.5px", borderBottom:"2px solid var(--border)" }
-const TD: React.CSSProperties = { padding:"10px 14px", fontSize:12, color:"var(--text-2)", verticalAlign:"top" }
-
-// ── Composant principal ───────────────────────────────────────────────────────
+// ── Page principale ───────────────────────────────────────────────────────────
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>()
   const article = ARTICLES.find(a => a.slug === slug)
+  const [editMode, setEditMode] = useState(false)
+  const [images, setImages] = useState<Record<string,string>>({})
+  const [saved, setSaved] = useState(false)
 
   if (!article) return (
     <AppLayout>
       <div style={{ padding:40, textAlign:"center" }}>
-        <p>Article introuvable</p>
-        <Link href="/blog">← Retour au blog</Link>
+        <p style={{ color:"var(--text-2)" }}>Article introuvable</p>
+        <Link href="/blog" style={{ color:"var(--primary-light)" }}>← Retour au blog</Link>
       </div>
     </AppLayout>
   )
@@ -344,12 +369,22 @@ export default function ArticlePage() {
   const cat     = CATEGORIES.find(c => c.id === article.category)
   const related = ARTICLES.filter(a => a.category === article.category && a.slug !== slug).slice(0,3)
 
+  const onImageUpdate = (key:string, src:string, _cap:string) => {
+    setImages(p => ({ ...p, [key]:src }))
+    toast.success("Image mise à jour — cliquez Sauvegarder pour confirmer")
+  }
+
+  const saveChanges = () => {
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+    toast.success("Modifications sauvegardées !")
+    setEditMode(false)
+  }
+
   const renderContent = () => {
     switch(slug) {
-      case "evm-5-minutes-cpi-spi-eac-tcpi": return <ArticleEVM/>
-      case "cpi-inferieur-1-sauver-projet":   return <ArticleCPI/>
-      case "raid-register-guide-complet":     return <ArticleRAID/>
-      default: return <ArticleDefault slug={slug}/>
+      case "evm-5-minutes-cpi-spi-eac-tcpi": return <ArticleEVM editMode={editMode} images={images} onImageUpdate={onImageUpdate}/>
+      default: return <ArticleDefault/>
     }
   }
 
@@ -357,45 +392,98 @@ export default function ArticlePage() {
     <AppLayout>
       <div style={{ background:"var(--bg)", minHeight:"100%" }}>
 
-        {/* Hero article */}
+        {/* Hero */}
         <div style={{ background:`linear-gradient(135deg,${article.color}15,${article.color}08)`, borderBottom:`1px solid ${article.color}30`, padding:"32px 24px 28px" }}>
           <div style={{ maxWidth:800, margin:"0 auto" }}>
-            <Link href="/blog" style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:12, color:"var(--text-3)", textDecoration:"none", marginBottom:16 }}>
-              <ArrowLeft size={13}/> Retour au blog
-            </Link>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+              <Link href="/blog" style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:12, color:"var(--text-3)", textDecoration:"none" }}>
+                <ArrowLeft size={13}/> Retour au blog
+              </Link>
+              {/* Bouton mode édition */}
+              <div style={{ display:"flex", gap:6 }}>
+                {editMode ? (
+                  <>
+                    <button onClick={saveChanges}
+                      style={{ display:"flex", alignItems:"center", gap:5, padding:"6px 14px", background:"#22c55e", color:"#fff", border:"none", borderRadius:7, fontSize:12, fontWeight:600, cursor:"pointer" }}>
+                      <Save size={12}/> {saved?"Sauvegardé !":"Sauvegarder"}
+                    </button>
+                    <button onClick={() => setEditMode(false)}
+                      style={{ padding:"6px 10px", background:"transparent", border:"1px solid var(--border)", borderRadius:7, cursor:"pointer", color:"var(--text-3)" }}>
+                      <X size={12}/>
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => setEditMode(true)}
+                    style={{ display:"flex", alignItems:"center", gap:5, padding:"6px 14px", background:"rgba(123,94,255,0.12)", border:"1px solid rgba(123,94,255,0.3)", borderRadius:7, fontSize:12, fontWeight:600, color:"var(--primary-light)", cursor:"pointer" }}>
+                    <Edit3 size={12}/> Modifier l'article
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {editMode && (
+              <div style={{ background:"rgba(123,94,255,0.08)", border:"1px solid rgba(123,94,255,0.2)", borderRadius:8, padding:"8px 12px", marginBottom:14, fontSize:11, color:"var(--primary-light)" }}>
+                ✏️ Mode édition actif — Cliquez sur les images pour les remplacer · Double-cliquez sur le texte pour modifier
+              </div>
+            )}
+
             <div style={{ display:"flex", gap:8, marginBottom:14, flexWrap:"wrap" }}>
               <span style={{ fontSize:10, padding:"3px 10px", borderRadius:20, background:article.color, color:"#fff", fontWeight:700 }}>
                 {cat?.emoji} {cat?.label}
               </span>
               {article.featured && <span style={{ fontSize:10, padding:"3px 10px", borderRadius:20, background:"rgba(245,158,11,0.2)", color:"#f59e0b", fontWeight:700 }}>⭐ À la une</span>}
               <span style={{ fontSize:10, padding:"3px 10px", borderRadius:20, background:"var(--bg-card)", color:"var(--text-3)", border:"1px solid var(--border)", display:"flex", alignItems:"center", gap:4 }}>
-                <Clock size={10}/> {article.readTime} min de lecture
+                <Clock size={10}/> {article.readTime} min
               </span>
             </div>
             <h1 style={{ fontSize:28, fontWeight:900, color:"var(--text-1)", margin:"0 0 12px", lineHeight:1.3 }}>
               <span style={{ fontSize:32, marginRight:10 }}>{article.emoji}</span>{article.title}
             </h1>
             <p style={{ fontSize:14, color:"var(--text-3)", margin:"0 0 16px", lineHeight:1.6 }}>{article.excerpt}</p>
-            <div style={{ display:"flex", alignItems:"center", gap:12, fontSize:12, color:"var(--text-3)" }}>
-              <div style={{ width:32, height:32, borderRadius:"50%", background:`${article.color}33`, border:`1px solid ${article.color}66`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:700, color:article.color }}>
-                {article.author.charAt(0)}
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, fontSize:12, color:"var(--text-3)", flexWrap:"wrap" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <img src="/author-avatar.jpg" alt="Abdelhafid TOUIL"
+                  style={{ width:36, height:36, borderRadius:"50%", border:`2px solid ${article.color}66`, objectFit:"cover", flexShrink:0 }}
+                  onError={e => { (e.target as HTMLImageElement).style.display="none" }}/>
+                <div>
+                  <div style={{ fontWeight:700, color:"var(--text-1)", fontSize:13 }}>{article.author}</div>
+                  <div style={{ fontSize:11 }}>{new Date(article.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}</div>
+                </div>
+                <a href={AUTHOR_PROFILE.linkedin} target="_blank" rel="noopener noreferrer"
+                  style={{ padding:"3px 10px", background:"rgba(10,102,194,0.1)", border:"1px solid rgba(10,102,194,0.3)", borderRadius:20, fontSize:10, fontWeight:700, color:"#0A66C2", textDecoration:"none" }}>
+                  in LinkedIn
+                </a>
               </div>
-              <div>
-                <div style={{ fontWeight:600, color:"var(--text-2)" }}>{article.author}</div>
-                <div>{new Date(article.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}</div>
+              {/* Barre de partage inline dans le header */}
+              <div style={{ display:"flex", alignItems:"center", gap:5, flexWrap:"wrap" }}>
+                <span style={{ fontSize:10, color:"var(--text-3)", marginRight:2 }}>Partager :</span>
+                {[
+                  { label:"in", color:"#0A66C2", href:`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://pmo-ai-studio-v3.vercel.app/blog/"+slug)}` },
+                  { label:"𝕏",  color:"#f1f5f9", href:`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title+" #PMO #PMP")}&url=${encodeURIComponent("https://pmo-ai-studio-v3.vercel.app/blog/"+slug)}` },
+                  { label:"💬", color:"#25D366", href:`https://wa.me/?text=${encodeURIComponent(article.title+" https://pmo-ai-studio-v3.vercel.app/blog/"+slug)}` },
+                  { label:"✈️", color:"#229ED9", href:`https://t.me/share/url?url=${encodeURIComponent("https://pmo-ai-studio-v3.vercel.app/blog/"+slug)}&text=${encodeURIComponent(article.title)}` },
+                  { label:"📸", color:"#E1306C", href:"https://www.instagram.com/" },
+                  { label:"✉️", color:"#EA4335", href:`https://mail.google.com/mail/?view=cm&su=${encodeURIComponent(article.title)}&body=${encodeURIComponent("https://pmo-ai-studio-v3.vercel.app/blog/"+slug)}` },
+                ].map(s => (
+                  <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                    style={{ width:30, height:30, borderRadius:"50%", background:`${s.color}18`, border:`1px solid ${s.color}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, textDecoration:"none", transition:"transform 0.15s" }}
+                    onMouseEnter={e=>(e.currentTarget as any).style.transform="scale(1.15)"}
+                    onMouseLeave={e=>(e.currentTarget as any).style.transform="scale(1)"}>
+                    {s.label}
+                  </a>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
         {/* Contenu + Sidebar */}
-        <div style={{ maxWidth:1100, margin:"0 auto", padding:"32px 24px", display:"grid", gridTemplateColumns:"1fr 300px", gap:32 }}>
+        <div style={{ maxWidth:1100, margin:"0 auto", padding:"32px 24px", display:"grid", gridTemplateColumns:"1fr 280px", gap:32 }}>
 
-          {/* Article */}
           <article>
             {renderContent()}
 
-            {/* CTA pratique */}
+            {/* CTA */}
             <div style={{ marginTop:40, background:"linear-gradient(135deg,rgba(123,94,255,0.12),rgba(34,197,94,0.08))", border:"1px solid rgba(123,94,255,0.3)", borderRadius:16, padding:"24px", textAlign:"center" }}>
               <div style={{ fontSize:28, marginBottom:10 }}>🚀</div>
               <h3 style={{ fontSize:18, fontWeight:800, color:"var(--text-1)", margin:"0 0 8px" }}>Pratiquez avec PMO AI Studio</h3>
@@ -413,23 +501,49 @@ export default function ArticlePage() {
                 </span>
               ))}
             </div>
+
+            {/* Partage bas de page */}
+            <div style={{ marginTop:28, padding:"16px 20px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:12 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:"var(--text-1)", marginBottom:12, display:"flex", alignItems:"center", gap:6 }}>
+                <Share2 size={14}/> Cet article vous a plu ? Partagez-le !
+              </div>
+              <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                {[
+                  { label:"LinkedIn", color:"#0A66C2", href:`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://pmo-ai-studio-v3.vercel.app/blog/${slug}`)}` },
+                  { label:"Twitter/X", color:"#000", href:`https://twitter.com/intent/tweet?text=${encodeURIComponent(`📊 ${article.title} par @AbdelhafidTouil #PMO #PMP`)}&url=${encodeURIComponent(`https://pmo-ai-studio-v3.vercel.app/blog/${slug}`)}` },
+                  { label:"WhatsApp", color:"#25D366", href:`https://wa.me/?text=${encodeURIComponent(`📊 ${article.title} https://pmo-ai-studio-v3.vercel.app/blog/${slug}`)}` },
+                  { label:"Telegram", color:"#229ED9", href:`https://t.me/share/url?url=${encodeURIComponent(`https://pmo-ai-studio-v3.vercel.app/blog/${slug}`)}&text=${encodeURIComponent(article.title)}` },
+                ].map(s => (
+                  <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                    style={{ padding:"7px 16px", background:`${s.color}11`, border:`1px solid ${s.color}33`, borderRadius:8, fontSize:12, fontWeight:600, color:s.color, textDecoration:"none" }}>
+                    {s.label}
+                  </a>
+                ))}
+              </div>
+            </div>
           </article>
 
           {/* Sidebar */}
-          <aside style={{ display:"flex", flexDirection:"column", gap:16 }}>
+          <aside style={{ display:"flex", flexDirection:"column", gap:14 }}>
 
             {/* Sommaire */}
             <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:12, padding:"14px 16px", position:"sticky", top:20 }}>
               <h4 style={{ fontSize:12, fontWeight:700, color:"var(--text-1)", margin:"0 0 10px", display:"flex", alignItems:"center", gap:6 }}>
-                <BookOpen size={13}/> Dans cet article
+                <BookOpen size={13}/> Sommaire
               </h4>
-              {["Les indicateurs EVM","La Courbe S","Seuils d'alerte","Cas réel Hôtel Atlantis","5 actions à mener","PMO AI Studio"].map((item,i) => (
+              {["Les 6 indicateurs EVM","La Courbe S","Seuils d'alerte","Cas réel Hôtel Atlantis","5 actions concrètes","PMO AI Studio"].map((item,i) => (
                 <div key={i} style={{ padding:"5px 0", borderBottom:"1px solid var(--border)", fontSize:11, color:"var(--text-3)", display:"flex", alignItems:"center", gap:6 }}>
                   <div style={{ width:16, height:16, borderRadius:"50%", background:"var(--primary-bg)", border:"1px solid rgba(123,94,255,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, color:"var(--primary-light)", flexShrink:0 }}>{i+1}</div>
                   {item}
                 </div>
               ))}
             </div>
+
+            {/* Partage social */}
+            <ShareButtons title={article.title} slug={slug}/>
+
+            {/* Auteur */}
+            <AuthorCard/>
 
             {/* Articles liés */}
             {related.length > 0 && (
@@ -440,8 +554,8 @@ export default function ArticlePage() {
                     <div style={{ display:"flex", gap:8, alignItems:"flex-start" }}>
                       <span style={{ fontSize:16, flexShrink:0 }}>{r.emoji}</span>
                       <div>
-                        <div style={{ fontSize:11, fontWeight:600, color:"var(--text-1)", lineHeight:1.3 }}>{r.title.slice(0,60)}...</div>
-                        <div style={{ fontSize:10, color:"var(--text-3)", marginTop:2 }}>{r.readTime} min</div>
+                        <div style={{ fontSize:11, fontWeight:600, color:"var(--text-1)", lineHeight:1.3 }}>{r.title.slice(0,55)}...</div>
+                        <div style={{ fontSize:10, color:"var(--text-3)", marginTop:2 }}>{r.readTime} min · {r.date}</div>
                       </div>
                     </div>
                   </Link>
@@ -449,14 +563,14 @@ export default function ArticlePage() {
               </div>
             )}
 
-            {/* YouTube CTA */}
+            {/* YouTube */}
             <div style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.25)", borderRadius:12, padding:"14px 16px", textAlign:"center" }}>
-              ▶️
-              <div style={{ fontSize:12, fontWeight:700, color:"var(--text-1)", marginBottom:4 }}>Chaîne YouTube</div>
-              <div style={{ fontSize:11, color:"var(--text-3)", marginBottom:10 }}>PMP en Action — Tutoriels, Quiz, Tips</div>
-              <a href="https://youtube.com/@pmp-en-action" target="_blank" rel="noopener noreferrer"
+              <div style={{ fontSize:24, marginBottom:6 }}>▶️</div>
+              <div style={{ fontSize:12, fontWeight:700, color:"var(--text-1)", marginBottom:4 }}>PMP en Action</div>
+              <div style={{ fontSize:11, color:"var(--text-3)", marginBottom:10 }}>Tutoriels, Quiz PMP, Tips Agile</div>
+              <a href={AUTHOR_PROFILE.youtube} target="_blank" rel="noopener noreferrer"
                 style={{ display:"inline-flex", alignItems:"center", gap:5, padding:"6px 14px", background:"#ef4444", color:"#fff", borderRadius:7, textDecoration:"none", fontSize:11, fontWeight:600 }}>
-                ▶️  S'abonner
+                ▶️ S'abonner
               </a>
             </div>
           </aside>
