@@ -2,7 +2,7 @@
 import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Clock, ArrowLeft, ArrowRight, BookOpen, Tag, Edit3, Save, X, Check, Upload, Share2, Copy, ExternalLink } from "lucide-react"
 import { ARTICLES, CATEGORIES } from "@/lib/blog-data"
 import SocialShareBar from "@/components/ui/SocialShareBar"
@@ -358,6 +358,17 @@ export default function ArticlePage() {
   const [editMode, setEditMode] = useState(false)
   const [images, setImages] = useState<Record<string,string>>({})
   const [saved, setSaved] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const supabase = createClient()
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const adminEmails = ["mongari65@gmail.com","hafid.touil@icloud.com"]
+      if (data.user && adminEmails.includes(data.user.email??"")){
+        setIsAdmin(true)
+      }
+    })
+  }, [])
 
   if (!article) return (
     <AppLayout>
@@ -403,7 +414,7 @@ export default function ArticlePage() {
               </Link>
               {/* Bouton mode édition */}
               <div style={{ display:"flex", gap:6 }}>
-                {editMode ? (
+                {isAdmin && editMode ? (
                   <>
                     <button onClick={saveChanges}
                       style={{ display:"flex", alignItems:"center", gap:5, padding:"6px 14px", background:"#22c55e", color:"#fff", border:"none", borderRadius:7, fontSize:12, fontWeight:600, cursor:"pointer" }}>
@@ -414,12 +425,12 @@ export default function ArticlePage() {
                       <X size={12}/>
                     </button>
                   </>
-                ) : (
+                ) : isAdmin ? (
                   <button onClick={() => setEditMode(true)}
                     style={{ display:"flex", alignItems:"center", gap:5, padding:"6px 14px", background:"rgba(123,94,255,0.12)", border:"1px solid rgba(123,94,255,0.3)", borderRadius:7, fontSize:12, fontWeight:600, color:"var(--primary-light)", cursor:"pointer" }}>
                     <Edit3 size={12}/> Modifier l'article
                   </button>
-                )}
+                ) : null}
               </div>
             </div>
 
