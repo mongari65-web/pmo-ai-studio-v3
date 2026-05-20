@@ -1,0 +1,12 @@
+{
+  "name": "PMO AI Studio",
+  "short_name": "PMO AI",
+  "description": "Le copilote IA des Chefs de Projet certifiés PMP®",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#7B5EFF",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
