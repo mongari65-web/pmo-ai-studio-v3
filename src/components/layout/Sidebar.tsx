@@ -46,6 +46,7 @@ const NAV_GROUPS = [
       { href:"/pmp-simulator",icon:GraduationCap, label:"Simulateur PMP",    hl:true, pro:true },
       { href:"/quiz-pmi",     icon:Zap,            label:"Quiz Rapide PMI",  hl:true },
       { href:"/pmp-conseils", icon:GraduationCap,  label:"Conseils PMP" },
+      { href:"/blog",         icon:BookOpen,       label:"Blog PMO" },
       { href:"/nouveau-pm",   icon:GraduationCap,  label:"Guide Nouveau PM" },
       { href:"/scrum-guide",  icon:Zap,            label:"Guide Scrum" },
       { href:"/disc",         icon:Brain,          label:"Analyse DISC",     hl:true },
