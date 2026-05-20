@@ -459,7 +459,7 @@ export default function ArticlePage() {
                 <span style={{ fontSize:10, color:"var(--text-3)", marginRight:2 }}>Partager :</span>
                 {[
                   { bg:"#0A66C2", href:`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://pmo-ai-studio-v3.vercel.app/blog/"+slug)}`, label:"LinkedIn",
-                    svg:<img src="/icons/linkedin.png" alt="LinkedIn" style={{width:24,height:24,objectFit:"contain"}}/> },
+                    svg:<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="#fff" d="M6.5 8.5H3v11h3.5v-11zm-1.75-1.5a2 2 0 110-4 2 2 0 010 4zM21 19.5h-3.5v-5.5c0-1.3-.9-2-1.8-2-1 0-1.7.8-1.7 2v5.5H10.5v-11H14v1.5c.5-.9 1.7-1.8 3-1.8 2.5 0 4 1.7 4 4.5v6.8z"/></svg> },
                   { bg:"#000000", href:`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title+" #PMO #PMP")}&url=${encodeURIComponent("https://pmo-ai-studio-v3.vercel.app/blog/"+slug)}`, label:"X/Twitter",
                     svg:<svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> },
                   { bg:"#25D366", href:`https://wa.me/?text=${encodeURIComponent(article.title+" https://pmo-ai-studio-v3.vercel.app/blog/"+slug)}`, label:"WhatsApp",
