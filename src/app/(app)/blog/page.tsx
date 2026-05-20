@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import AppLayout from "@/components/layout/AppLayout"
+import PublicBlogLayout from "@/components/layout/PublicBlogLayout"
 import Link from "next/link"
 import { Search, Clock, ArrowRight, Star, Zap } from "lucide-react"
 import { ARTICLES, CATEGORIES } from "@/lib/blog-data"
@@ -17,7 +17,7 @@ export default function BlogPage() {
   const featured = ARTICLES.filter(a => a.featured).slice(0, 3)
 
   return (
-    <AppLayout>
+    <PublicBlogLayout>
       <div style={{ background:"var(--bg)", minHeight:"100%" }}>
 
         {/* Hero */}
@@ -170,6 +170,6 @@ export default function BlogPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </PublicBlogLayout>
   )
 }

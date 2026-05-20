@@ -1,5 +1,5 @@
 "use client"
-import AppLayout from "@/components/layout/AppLayout"
+import PublicBlogLayout from "@/components/layout/PublicBlogLayout"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useState, useRef, useEffect } from "react"
@@ -371,12 +371,12 @@ export default function ArticlePage() {
   }, [])
 
   if (!article) return (
-    <AppLayout>
+    <PublicBlogLayout>
       <div style={{ padding:40, textAlign:"center" }}>
         <p style={{ color:"var(--text-2)" }}>Article introuvable</p>
         <Link href="/blog" style={{ color:"var(--primary-light)" }}>← Retour au blog</Link>
       </div>
-    </AppLayout>
+    </PublicBlogLayout>
   )
 
   const cat     = CATEGORIES.find(c => c.id === article.category)
@@ -402,7 +402,7 @@ export default function ArticlePage() {
   }
 
   return (
-    <AppLayout>
+    <PublicBlogLayout>
       <div style={{ background:"var(--bg)", minHeight:"100%" }}>
 
         {/* Hero */}
@@ -590,6 +590,6 @@ export default function ArticlePage() {
           </aside>
         </div>
       </div>
-    </AppLayout>
+    </PublicBlogLayout>
   )
 }
