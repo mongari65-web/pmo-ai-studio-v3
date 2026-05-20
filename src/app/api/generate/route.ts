@@ -63,10 +63,26 @@ export async function POST(req: NextRequest) {
 
     let parsed: any
     try {
-      const cleaned = rawText.replace(/```json|```/g, "").trim()
+      // Nettoyage robuste
+      let cleaned = rawText.replace(/```json|```/g, "").trim()
+      // Extraire le JSON si entouré de texte
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}|\[[\s\S]*\]/)
+      if (jsonMatch) cleaned = jsonMatch[0]
       parsed = JSON.parse(cleaned)
     } catch {
-      throw new Error("Réponse IA invalide — impossible de parser le JSON")
+      // Tentative de récupération — extraire entre { et }
+      try {
+        const start = rawText.indexOf("{")
+        const end   = rawText.lastIndexOf("}")
+        if (start !== -1 && end !== -1) {
+          parsed = JSON.parse(rawText.slice(start, end + 1))
+        } else {
+          throw new Error("no json")
+        }
+      } catch {
+        console.error("Raw response:", rawText.slice(0, 500))
+        throw new Error("Réponse IA invalide — impossible de parser le JSON. Raw: " + rawText.slice(0, 200))
+      }
     }
 
     await incrementQuota(user.id)
