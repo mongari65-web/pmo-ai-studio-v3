@@ -1,5 +1,7 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
 
@@ -172,9 +174,19 @@ const HOTSPOTS = [
   { id:"retro",    label:"Rétrospective",    x:72,  y:78, w:16, h:18 },
 ]
 
-export default function ScrumGuidePage() {
+function ScrumGuideContent() {
   const [activeStep, setActiveStep] = useState("overview")
   const [hoveredHotspot, setHoveredHotspot] = useState<string|null>(null)
+  const [project, setProject] = useState<any>(null)
+  const searchParams = useSearchParams()
+  const projectId = searchParams.get("projectId")
+  const supabase = createClient()
+
+  useEffect(() => {
+    if (!projectId) return
+    supabase.from("projects").select("*").eq("id", projectId).single()
+      .then(({ data }) => { if (data) setProject(data) })
+  }, [projectId])
   const step = STEPS.find(s=>s.id===activeStep)!
   const content = CONTENT[activeStep]
 
@@ -470,7 +482,7 @@ export default function ScrumGuidePage() {
               <p style={{ fontSize:10, fontWeight:700, color:"var(--text-3)", textTransform:"uppercase", margin:"0 0 6px" }}>🛠️ Outils PMO liés</p>
               <div style={{ display:"flex", flexDirection:"column", gap:5 }}>
                 {content.outils.map((o:any) => (
-                  <Link key={o.href} href={`/projects`}
+                  <Link key={o.href} href={projectId ? `/projects/${projectId}/${o.href}` : `/projects`}
                     style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 12px", background:step.bg, border:"1px solid "+step.color+"33", borderRadius:7, textDecoration:"none" }}>
                     <span style={{ fontSize:11, fontWeight:700, color:step.color }}>{o.label}</span>
                     <span style={{ fontSize:10, color:"var(--text-3)" }}>→ {o.desc}</span>
@@ -500,4 +512,8 @@ export default function ScrumGuidePage() {
       </div>
     </AppLayout>
   )
+}
+
+export default function ScrumGuidePage() {
+  return <Suspense fallback={<div style={{padding:40,color:"var(--text-3)"}}>Chargement...</div>}><ScrumGuideContent/></Suspense>
 }

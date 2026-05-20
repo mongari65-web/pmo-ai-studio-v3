@@ -110,7 +110,7 @@ export default function Sidebar() {
         </button>
       </div>
 
-      <nav style={{ flex:1, padding:"8px 8px", display:"flex", flexDirection:"column", gap:0, overflowY:"auto", overflowX:"hidden" }}>
+      <nav style={{ flex:1, padding:"8px 8px", display:"flex", flexDirection:"column", gap:0, overflowY:"auto", overflowX:"hidden", minHeight:0, scrollbarWidth:"thin" }}>
         {NAV_GROUPS.map((group, gi) => (
           <div key={gi} style={{ marginBottom:4 }}>
             {group.label && !col && (
