@@ -35,6 +35,7 @@ export default function OKRPage() {
   const [newObj, setNewObj]         = useState<Objective>(emptyObj())
   const [filterQ, setFilterQ]       = useState("all")
   const [editingKR, setEditingKR]   = useState<{objId:string;krId:string}|null>(null)
+  const [editingObj, setEditingObj] = useState<string|null>(null)
 
   useState(() => { if (data?.objectives?.length) setObjectives(data.objectives) })
 
@@ -196,18 +197,46 @@ export default function OKRPage() {
                     <Target size={18} style={{ color:pColor }}/>
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:13, fontWeight:800, color:"var(--text-1)", marginBottom:2 }}>{obj.title}</div>
-                    <div style={{ display:"flex", gap:8, fontSize:10, color:"var(--text-3)" }}>
-                      <span>📅 {obj.quarter}</span>
-                      <span>🏷️ {obj.category}</span>
-                      {obj.owner && <span>👤 {obj.owner}</span>}
-                    </div>
+                    {editingObj===obj.id ? (
+                      <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                        <input value={obj.title} onChange={e=>saveObjs(objectives.map(o=>o.id===obj.id?{...o,title:e.target.value}:o))}
+                          style={{ fontSize:12, border:"1px solid var(--primary)", borderRadius:5, padding:"4px 8px", background:"var(--bg)", color:"var(--text-1)", width:"100%" }}/>
+                        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:5 }}>
+                          <input value={obj.owner} onChange={e=>saveObjs(objectives.map(o=>o.id===obj.id?{...o,owner:e.target.value}:o))} placeholder="Responsable"
+                            style={{ fontSize:11, border:"1px solid var(--border)", borderRadius:5, padding:"3px 7px", background:"var(--bg)", color:"var(--text-1)" }}/>
+                          <select value={obj.quarter} onChange={e=>saveObjs(objectives.map(o=>o.id===obj.id?{...o,quarter:e.target.value}:o))}
+                            style={{ fontSize:11, border:"1px solid var(--border)", borderRadius:5, padding:"3px 5px", background:"var(--bg)", color:"var(--text-1)" }}>
+                            {QUARTERS.map(q=><option key={q}>{q}</option>)}
+                          </select>
+                          <select value={obj.category} onChange={e=>saveObjs(objectives.map(o=>o.id===obj.id?{...o,category:e.target.value}:o))}
+                            style={{ fontSize:11, border:"1px solid var(--border)", borderRadius:5, padding:"3px 5px", background:"var(--bg)", color:"var(--text-1)" }}>
+                            {CATEGORIES.map(c=><option key={c}>{c}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ fontSize:13, fontWeight:800, color:"var(--text-1)", marginBottom:2 }}>{obj.title}</div>
+                        <div style={{ display:"flex", gap:8, fontSize:10, color:"var(--text-3)" }}>
+                          <span>📅 {obj.quarter}</span>
+                          <span>🏷️ {obj.category}</span>
+                          {obj.owner && <span>👤 {obj.owner}</span>}
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div style={{ textAlign:"center", flexShrink:0 }}>
                     <div style={{ fontSize:22, fontWeight:900, color:pColor }}>{pct}%</div>
                     <div style={{ fontSize:9, color:"var(--text-3)" }}>progression</div>
                   </div>
-                  <button onClick={() => saveObjs(objectives.filter(o=>o.id!==obj.id))} style={{ padding:"4px 6px", background:"transparent", border:"1px solid rgba(239,68,68,0.3)", borderRadius:6, cursor:"pointer", color:"#ef4444" }}><Trash2 size={11}/></button>
+                  <div style={{ display:"flex", gap:4, flexShrink:0 }}>
+                    {editingObj===obj.id ? (
+                      <button onClick={()=>setEditingObj(null)} style={{ padding:"4px 7px", background:"var(--primary)", color:"#fff", border:"none", borderRadius:6, cursor:"pointer" }}><Check size={11}/></button>
+                    ) : (
+                      <button onClick={()=>setEditingObj(obj.id)} style={{ padding:"4px 6px", background:"transparent", border:"1px solid var(--border)", borderRadius:6, cursor:"pointer", color:"var(--text-3)" }}><Pencil size={11}/></button>
+                    )}
+                    <button onClick={() => saveObjs(objectives.filter(o=>o.id!==obj.id))} style={{ padding:"4px 6px", background:"transparent", border:"1px solid rgba(239,68,68,0.3)", borderRadius:6, cursor:"pointer", color:"#ef4444" }}><Trash2 size={11}/></button>
+                  </div>
                 </div>
                 {/* Barre globale */}
                 <div style={{ height:4, background:"var(--bg)", overflow:"hidden" }}>
@@ -221,7 +250,12 @@ export default function OKRPage() {
                     return (
                       <div key={kr.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"6px 0", borderBottom:ki<obj.keyResults.length-1?"1px solid var(--border)":"none" }}>
                         <span style={{ fontSize:10, fontWeight:700, color:"var(--text-3)", flexShrink:0, minWidth:28 }}>KR{ki+1}</span>
-                        <span style={{ flex:1, fontSize:11, color:"var(--text-1)" }}>{kr.text}</span>
+                        {editingObj===obj.id ? (
+                          <input value={kr.text} onChange={e=>saveObjs(objectives.map(o=>o.id!==obj.id?o:{...o,keyResults:o.keyResults.map(k=>k.id===kr.id?{...k,text:e.target.value}:k)}))}
+                            style={{ flex:1, fontSize:11, border:"1px solid var(--border)", borderRadius:5, padding:"2px 6px", background:"var(--bg)", color:"var(--text-1)" }}/>
+                        ) : (
+                          <span style={{ flex:1, fontSize:11, color:"var(--text-1)" }}>{kr.text}</span>
+                        )}
                         <div style={{ display:"flex", alignItems:"center", gap:6, flexShrink:0 }}>
                           <input type="number" value={kr.current} min={0} max={kr.target}
                             onChange={e => updateKRCurrent(obj.id, kr.id, +e.target.value)}
