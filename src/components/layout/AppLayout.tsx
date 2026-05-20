@@ -1,4 +1,5 @@
 "use client"
+import { LogoIcon } from "@/components/ui/LogoSVG"
 import Sidebar from "@/components/layout/Sidebar"
 
 const SOCIALS = [
@@ -34,7 +35,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div style={{ position:"absolute", inset:0, background:"linear-gradient(90deg,rgba(12,68,124,0.90) 0%,rgba(12,68,124,0.42) 45%,rgba(24,95,165,0.68) 100%)" }}/>
           <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 28px" }}>
             <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-              <div style={{ width:46, height:46, borderRadius:12, background:"rgba(255,255,255,0.18)", border:"1.5px solid rgba(255,255,255,0.38)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, fontWeight:800, color:"#fff", flexShrink:0 }}>P</div>
+              <div style={{ width:46, height:46, flexShrink:0 }}><LogoIcon size={46}/></div>
               <div>
                 <div style={{ fontSize:19, fontWeight:700, color:"#fff", letterSpacing:"-0.3px", lineHeight:1.1 }}>PMO AI Studio</div>
                 <div style={{ fontSize:11, color:"rgba(255,255,255,0.78)", marginTop:4 }}>Le copilote IA des Chefs de Projet · PMBOK 7</div>

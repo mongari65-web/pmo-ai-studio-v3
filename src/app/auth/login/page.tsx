@@ -1,4 +1,5 @@
 "use client"
+import { LogoIcon } from "@/components/ui/LogoSVG"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -46,11 +47,7 @@ export default function LoginPage() {
 
       {/* Logo */}
       <div style={{ textAlign:"center", marginBottom:36, position:"relative" }}>
-        <div style={{ width:56, height:56, borderRadius:14,
-          background:"linear-gradient(135deg,#7B5EFF,#5B3EDF)",
-          display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:26, fontWeight:800, color:"#fff", margin:"0 auto 16px",
-          boxShadow:"0 0 40px rgba(123,94,255,0.35)" }}>P</div>
+        <div style={{ margin:"0 auto 14px", display:"flex", justifyContent:"center" }}><LogoIcon size={64}/></div>
         <h1 style={{ fontSize:22, fontWeight:800, color:"#F0F2FF", margin:"0 0 6px" }}>PMO AI Studio</h1>
         <p style={{ fontSize:13, color:"#5A5F80", margin:0 }}>Le copilote IA des Chefs de Projet</p>
       </div>
