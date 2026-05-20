@@ -182,10 +182,16 @@ function ScrumGuideContent() {
   const projectId = searchParams.get("projectId")
   const supabase = createClient()
 
+  const [allProjects, setAllProjects] = useState<any[]>([])
+
   useEffect(() => {
-    if (!projectId) return
-    supabase.from("projects").select("*").eq("id", projectId).single()
-      .then(({ data }) => { if (data) setProject(data) })
+    if (projectId) {
+      supabase.from("projects").select("*").eq("id", projectId).single()
+        .then(({ data }) => { if (data) setProject(data) })
+    } else {
+      supabase.from("projects").select("id,name,icon,completion").order("updated_at",{ascending:false}).limit(10)
+        .then(({ data }) => { if (data) setAllProjects(data) })
+    }
   }, [projectId])
   const step = STEPS.find(s=>s.id===activeStep)!
   const content = CONTENT[activeStep]
@@ -204,7 +210,7 @@ function ScrumGuideContent() {
         {/* Image interactive */}
         <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:12, overflow:"hidden" }}>
           <div style={{ padding:"10px 16px", borderBottom:"1px solid var(--border)", display:"flex", alignItems:"center", gap:8 }}>
-            <span style={{ fontSize:12, fontWeight:600, color:"var(--text-2)" }}>🗺️ Framework Scrum — cliquez sur les zones</span>
+            <span style={{ fontSize:12, fontWeight:600, color:"var(--text-2)" }}>🗺️ Diagramme Scrum interactif — PMO AI Studio</span>
             
           </div>
           <div style={{ position:"relative", width:"100%", background:"#fff" }}>
