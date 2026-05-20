@@ -20,6 +20,7 @@ const TOOLS = [
   { key:"swot",         label:"SWOT",           icon:"🔍",  desc:"Analyse stratégique",   color:"#7c3aed" },
   { key:"okr",          label:"OKR Tracker",    icon:"🎯",  desc:"Objectifs & KRs",      color:"#f59e0b" },
   { key:"sprint",       label:"Sprint Review",  icon:"🔄",  desc:"Agile / SAFe",          color:"#22c55e" },
+  { key:"members",      label:"Inviter Membre", icon:"👥",  desc:"Collaborateurs",        color:"#7B5EFF" },
   { key:"fiche-mission",label:"Fiche Mission",  icon:"📋",  desc:"Cadrage 1 page",        color:"#1e3a5f" },
   { key:"codir",        label:"Rapport CODIR",  icon:"📊",  desc:"Comité de pilotage",    color:"#312e81" },
   { key:"integrations", label:"Intégrations",   icon:"🔗",  desc:"Jira / Notion / CSV",  color:"#0052CC" },
