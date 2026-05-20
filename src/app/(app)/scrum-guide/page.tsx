@@ -193,10 +193,98 @@ export default function ScrumGuidePage() {
         <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:12, overflow:"hidden" }}>
           <div style={{ padding:"10px 16px", borderBottom:"1px solid var(--border)", display:"flex", alignItems:"center", gap:8 }}>
             <span style={{ fontSize:12, fontWeight:600, color:"var(--text-2)" }}>🗺️ Framework Scrum — cliquez sur les zones</span>
-            <span style={{ fontSize:10, color:"var(--text-3)", marginLeft:"auto" }}>Source : agileforall.com</span>
+            
           </div>
           <div style={{ position:"relative", width:"100%", background:"#fff" }}>
-            {/* SVG Scrum généré — 0 droits d'auteur */}
+            <svg width="100%" viewBox="0 0 680 380" role="img" style={{ display:"block" }}>
+              <title>Framework Scrum — PMO AI Studio</title>
+              <defs>
+                <marker id="sarr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </marker>
+              </defs>
+              {/* Zone Product Backlog */}
+              <rect x="10" y="50" width="110" height="280" rx="12" fill="rgba(123,94,255,0.1)" stroke="rgba(123,94,255,0.4)" strokeWidth="0.5"/>
+              <text x="65" y="78" textAnchor="middle" fontSize="13" fontWeight="700" fill="var(--primary-light)">📋 Product</text>
+              <text x="65" y="96" textAnchor="middle" fontSize="13" fontWeight="700" fill="var(--primary-light)">Backlog</text>
+              {[["⭐⭐⭐ Story 1","rgba(123,94,255,0.3)"],["⭐⭐ Story 2","rgba(123,94,255,0.2)"],["⭐ Story 3","rgba(123,94,255,0.1)"],["Story 4","rgba(123,94,255,0.08)"],["Story 5","rgba(123,94,255,0.06)"]].map(([label,fill],i) => (
+                <g key={i} onClick={() => setActiveStep("backlog")} style={{ cursor:"pointer" }}>
+                  <rect x="20" y={110+i*28} width="90" height="22" rx="5" fill={fill} stroke="rgba(123,94,255,0.3)" strokeWidth="0.5"/>
+                  <text x="65" y={125+i*28} textAnchor="middle" fontSize="10" fill="var(--primary-light)">{label}</text>
+                </g>
+              ))}
+              <circle cx="65" cy="295" r="18" fill="rgba(123,94,255,0.3)" stroke="rgba(123,94,255,0.5)" strokeWidth="1"/>
+              <text x="65" y="291" textAnchor="middle" fontSize="16">👤</text>
+              <text x="65" y="320" textAnchor="middle" fontSize="10" fill="var(--primary-light)">Product Owner</text>
+              {/* Flèche → Sprint */}
+              <line x1="122" y1="190" x2="148" y2="190" stroke="rgba(123,94,255,0.6)" strokeWidth="2" markerEnd="url(#sarr)"/>
+              {/* Zone Sprint */}
+              <rect x="150" y="30" width="340" height="320" rx="14" fill="rgba(34,197,94,0.06)" stroke="rgba(34,197,94,0.3)" strokeWidth="1"/>
+              <text x="320" y="22" textAnchor="middle" fontSize="11" fontWeight="600" fill="#22c55e">🔁 Sprint — 1 à 4 semaines</text>
+              {/* Sprint Planning */}
+              <g onClick={() => setActiveStep("planning")} style={{ cursor:"pointer" }}>
+                <rect x="162" y="48" width="140" height="64" rx="10" fill="rgba(34,197,94,0.15)" stroke="rgba(34,197,94,0.5)" strokeWidth="0.5"/>
+                <text x="232" y="70" textAnchor="middle" fontSize="18">📅</text>
+                <text x="232" y="88" textAnchor="middle" fontSize="13" fontWeight="700" fill="#22c55e">Sprint Planning</text>
+                <text x="232" y="104" textAnchor="middle" fontSize="10" fill="#16a34a">Quoi + Comment · max 8h</text>
+              </g>
+              {/* Daily Scrum */}
+              <g onClick={() => setActiveStep("daily")} style={{ cursor:"pointer" }}>
+                <rect x="162" y="200" width="140" height="64" rx="10" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.5)" strokeWidth="0.5"/>
+                <text x="232" y="222" textAnchor="middle" fontSize="18">☀️</text>
+                <text x="232" y="240" textAnchor="middle" fontSize="13" fontWeight="700" fill="#f59e0b">Daily Scrum</text>
+                <text x="232" y="256" textAnchor="middle" fontSize="10" fill="#d97706">15 min · chaque jour</text>
+              </g>
+              {/* Sprint Backlog */}
+              <rect x="162" y="126" width="316" height="62" rx="8" fill="rgba(255,255,255,0.05)" stroke="rgba(34,197,94,0.3)" strokeWidth="0.5"/>
+              <text x="320" y="148" textAnchor="middle" fontSize="13" fontWeight="700" fill="#22c55e">📋 Sprint Backlog</text>
+              {[["✓ T1","rgba(34,197,94,0.3)",172],["✓ T2","rgba(34,197,94,0.3)",238],["🔄 T3","rgba(34,197,94,0.15)",304],["⏳ T4","rgba(100,116,139,0.15)",370]].map(([t,f,x]:any,i) => (
+                <g key={i}><rect x={x} y="158" width="60" height="18" rx="4" fill={f} stroke="rgba(34,197,94,0.3)" strokeWidth="0.5"/>
+                <text x={x+30} y="171" textAnchor="middle" fontSize="10" fill="var(--text-2)">{t}</text></g>
+              ))}
+              {/* Sprint Review */}
+              <g onClick={() => setActiveStep("review")} style={{ cursor:"pointer" }}>
+                <rect x="316" y="48" width="140" height="64" rx="10" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.5)" strokeWidth="0.5"/>
+                <text x="386" y="70" textAnchor="middle" fontSize="18">🔍</text>
+                <text x="386" y="88" textAnchor="middle" fontSize="13" fontWeight="700" fill="#06b6d4">Sprint Review</text>
+                <text x="386" y="104" textAnchor="middle" fontSize="10" fill="#0891b2">Démo · Feedbacks · max 4h</text>
+              </g>
+              {/* Rétrospective */}
+              <g onClick={() => setActiveStep("retro")} style={{ cursor:"pointer" }}>
+                <rect x="316" y="200" width="140" height="64" rx="10" fill="rgba(239,68,68,0.12)" stroke="rgba(239,68,68,0.4)" strokeWidth="0.5"/>
+                <text x="386" y="222" textAnchor="middle" fontSize="18">🔄</text>
+                <text x="386" y="240" textAnchor="middle" fontSize="13" fontWeight="700" fill="#ef4444">Rétrospective</text>
+                <text x="386" y="256" textAnchor="middle" fontSize="10" fill="#dc2626">Amélioration · max 3h</text>
+              </g>
+              {/* Scrum Master */}
+              <circle cx="320" cy="272" r="20" fill="rgba(34,197,94,0.3)" stroke="rgba(34,197,94,0.6)" strokeWidth="1"/>
+              <text x="320" y="268" textAnchor="middle" fontSize="16">🏃</text>
+              <text x="320" y="308" textAnchor="middle" fontSize="10" fontWeight="600" fill="#22c55e">Scrum Master</text>
+              {/* Flèches internes */}
+              <line x1="232" y1="114" x2="232" y2="124" stroke="rgba(34,197,94,0.6)" strokeWidth="1.5" markerEnd="url(#sarr)"/>
+              <line x1="386" y1="114" x2="386" y2="124" stroke="rgba(6,182,212,0.6)" strokeWidth="1.5" markerEnd="url(#sarr)"/>
+              <line x1="232" y1="190" x2="232" y2="198" stroke="rgba(245,158,11,0.6)" strokeWidth="1.5" markerEnd="url(#sarr)"/>
+              <line x1="304" y1="78" x2="314" y2="78" stroke="rgba(34,197,94,0.4)" strokeWidth="1" strokeDasharray="4 3"/>
+              <line x1="304" y1="232" x2="314" y2="232" stroke="rgba(239,68,68,0.4)" strokeWidth="1" strokeDasharray="4 3"/>
+              {/* Flèche → Output */}
+              <line x1="492" y1="140" x2="518" y2="140" stroke="rgba(59,130,246,0.6)" strokeWidth="2" markerEnd="url(#sarr)"/>
+              {/* Zone Output */}
+              {[["✅ Incrément livrable","rgba(59,130,246,0.15)","rgba(59,130,246,0.4)","#3b82f6",60],
+                ["💬 Feedbacks","rgba(59,130,246,0.1)","rgba(59,130,246,0.3)","#60a5fa",158],
+                ["🎯 Actions amélioration","rgba(59,130,246,0.1)","rgba(59,130,246,0.3)","#60a5fa",220],
+                ["📈 Vélocité","rgba(59,130,246,0.08)","rgba(59,130,246,0.2)","#93c5fd",282]].map(([label,fill,stroke,color,y]:any,i) => (
+                <g key={i} onClick={() => setActiveStep("review")} style={{ cursor:"pointer" }}>
+                  <rect x="520" y={y} width="148" height="52" rx="10" fill={fill} stroke={stroke} strokeWidth="0.5"/>
+                  <text x="594" y={y+30} textAnchor="middle" fontSize="12" fontWeight="600" fill={color}>{label}</text>
+                </g>
+              ))}
+              {/* Boucle retour */}
+              <path d="M 594 336 Q 594 360 320 368 Q 120 368 65 336" stroke="rgba(123,94,255,0.4)" strokeWidth="1.5" strokeDasharray="5 4" markerEnd="url(#sarr)" fill="none"/>
+              <text x="320" y="378" textAnchor="middle" fontSize="10" fill="rgba(123,94,255,0.7)">🔁 Amélioration continue — le backlog évolue à chaque Sprint</text>
+              {/* Légende */}
+              <rect x="150" y="350" width="340" height="20" rx="5" fill="rgba(123,94,255,0.06)" stroke="rgba(123,94,255,0.2)" strokeWidth="0.5"/>
+              <text x="320" y="364" textAnchor="middle" fontSize="10" fill="var(--primary-light)">👆 Cliquez sur chaque zone pour explorer la cérémonie</text>
+            </svg>
             {/* Fallback si pas d'image */}
             <div style={{ position:"absolute", inset:0, display:"flex" }}>
               {HOTSPOTS.map(h => (
