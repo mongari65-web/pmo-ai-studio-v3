@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap, Package, Lock, Brain, Users, FileText, Briefcase, Building2, Settings2, CalendarRange, Target, Map, Zap } from "lucide-react"
+import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap, Package, Lock, Brain, Users, FileText, Briefcase, Building2, Settings2, CalendarRange, Target, Map, Zap, BookOpen } from "lucide-react"
 
 // Groupes sidebar avec séparateurs
 const NAV_GROUPS = [
