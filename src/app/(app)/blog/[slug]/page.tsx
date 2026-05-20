@@ -472,7 +472,7 @@ export default function ArticlePage() {
                     svg:<svg viewBox="0 0 24 24" width="16" height="16"><path fill="#fff" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 010 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg> },
                 ].map(s => (
                   <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" title={s.label}
-                    style={{ width:34, height:34, borderRadius:"50%", background:s.bg, display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", transition:"transform 0.15s, box-shadow 0.15s", boxShadow:"0 2px 8px rgba(0,0,0,0.3)" }}
+                    style={{ width:42, height:42, borderRadius:"50%", background:s.bg, display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", transition:"transform 0.15s, box-shadow 0.15s", boxShadow:"0 2px 8px rgba(0,0,0,0.3)" }}
                     onMouseEnter={e=>{(e.currentTarget as any).style.transform="scale(1.2)";(e.currentTarget as any).style.boxShadow="0 4px 16px rgba(0,0,0,0.4)"}}
                     onMouseLeave={e=>{(e.currentTarget as any).style.transform="scale(1)";(e.currentTarget as any).style.boxShadow="0 2px 8px rgba(0,0,0,0.3)"}}>
                     {s.svg}
