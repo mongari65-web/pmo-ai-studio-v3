@@ -24,7 +24,7 @@ const AUTHOR_PROFILE = {
 // ── Boutons de partage social ────────────────────────────────────────────────
 function ShareButtons({ title, slug }: { title: string; slug: string }) {
   const [copied, setCopied] = useState(false)
-  const url = typeof window !== "undefined" ? `${window.location.origin}/blog/${slug}` : `https://pmo-ai-studio-v3.vercel.app/blog/${slug}`
+  const url = `https://pmo-ai-studio-v3.vercel.app/blog/${slug}`
   const text = encodeURIComponent(`📊 ${title} — Par Abdelhafid TOUIL, PMP® #PMO #GestionProjet #PMBOK #PMP`)
   const urlEnc = encodeURIComponent(url)
 
