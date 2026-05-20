@@ -50,13 +50,26 @@ export default function MembersPage() {
   const invite = async () => {
     if (!email.trim()) { toast.error("Email requis"); return }
     setInviting(true)
-    const { data, error } = await supabase.from("project_members").insert({
-      project_id:id, email:email.trim(), role, status:"pending"
-    }).select().single()
-    if (error) { toast.error(error.message); setInviting(false); return }
-    setMembers(prev => [...prev, data])
-    setEmail(""); toast.success("Invitation envoyée à "+email.trim())
-    setInviting(false)
+    try {
+      const { data, error } = await supabase.from("project_members").insert({
+        project_id:id, email:email.trim(), role, status:"pending"
+      }).select().single()
+      if (error) { toast.error(error.message); return }
+      setMembers(prev => [...prev, data])
+      // Envoyer email invitation
+      const res = await fetch("/api/invite", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ email:email.trim(), role, projectId:id, projectName:project?.name||"Projet" })
+      })
+      const json = await res.json()
+      if (json.simulated) {
+        toast.info("Membre ajouté — configurez RESEND_API_KEY pour envoyer l'email")
+      } else {
+        toast.success("Invitation envoyée par email à "+email.trim())
+      }
+      setEmail("")
+    } catch(e:any) { toast.error(e.message) }
+    finally { setInviting(false) }
   }
 
   const updateRole = async (memberId:string, newRole:string) => {
@@ -204,7 +217,7 @@ export default function MembersPage() {
                         <span style={{ fontSize:10, padding:"1px 7px", borderRadius:8, background:isPending?"rgba(245,158,11,0.1)":"rgba(34,197,94,0.1)", color:isPending?"#f59e0b":"#22c55e", fontWeight:600 }}>
                           {isPending?"⏳ En attente":"✅ Accepté"}
                         </span>
-                        <span style={{ fontSize:10, color:"var(--text-3)" }}>Invité le {new Date(member.created_at).toLocaleDateString("fr-FR")}</span>
+                        <span style={{ fontSize:10, color:"var(--text-3)" }}>Invité le {member.created_at ? new Date(member.created_at).toLocaleDateString("fr-FR") : "—"}</span>
                       </div>
                     </div>
                     <select value={member.role} onChange={e=>updateRole(member.id,e.target.value)}
