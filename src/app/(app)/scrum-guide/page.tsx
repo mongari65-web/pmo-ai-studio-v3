@@ -196,9 +196,7 @@ export default function ScrumGuidePage() {
             <span style={{ fontSize:10, color:"var(--text-3)", marginLeft:"auto" }}>Source : agileforall.com</span>
           </div>
           <div style={{ position:"relative", width:"100%", background:"#fff" }}>
-            <img src="/scrum-framework.png" alt="Scrum Framework"
-              style={{ width:"100%", display:"block", maxHeight:320, objectFit:"contain" }}
-              onError={e => { (e.target as HTMLImageElement).style.display="none" }}/>
+            {/* SVG Scrum généré — 0 droits d'auteur */}
             {/* Fallback si pas d'image */}
             <div style={{ position:"absolute", inset:0, display:"flex" }}>
               {HOTSPOTS.map(h => (
