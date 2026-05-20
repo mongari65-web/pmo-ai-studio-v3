@@ -6,6 +6,7 @@ import ToolLayout from "@/components/tools/ToolLayout"
 import { useProject, useToolData } from "@/hooks/useProject"
 import { toast } from "sonner"
 import { Printer, RefreshCw, Eye, EyeOff, Download } from "lucide-react"
+import GammaExport from "@/components/ui/GammaExport"
 
 const MONTHS = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"]
 
@@ -121,6 +122,7 @@ export default function CODIRPage() {
           <button onClick={() => setPreview(!preview)} style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 14px", border:"1px solid var(--border)", borderRadius:8, background:preview?"var(--primary-bg)":"transparent", color:preview?"var(--primary-light)":"var(--text-2)", fontSize:12, cursor:"pointer" }}>
             {preview?<><EyeOff size={12}/> Éditer</>:<><Eye size={12}/> Aperçu</>}
           </button>
+          <GammaExport type="codir" projectName={project?.name??""} data={{ cpi, spi, rag:ragScore>=75?"VERT":ragScore>=50?"AMBRE":"ROUGE", completion:project?.completion??0, raidCrit:raidCrit.length, jalons:jalonsNext.map((j:any)=>({name:j.name,daysLeft:Math.round((new Date(j.date).getTime()-Date.now())/86400000)})) }}/>
           <a href={`/api/export/pptx/${id}`} download style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 14px", border:"1px solid rgba(123,94,255,0.3)", borderRadius:8, background:"rgba(123,94,255,0.08)", color:"var(--primary-light)", fontSize:12, cursor:"pointer", textDecoration:"none" }}><Download size={13}/> Export PPTX</a>
           <button onClick={print} style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 14px", border:"1px solid var(--border)", borderRadius:8, background:"transparent", color:"var(--text-2)", fontSize:12, cursor:"pointer", marginLeft:"auto" }}>
             <Printer size={13}/> Imprimer / PDF

@@ -6,6 +6,7 @@ import ToolLayout from "@/components/tools/ToolLayout"
 import { useProject, useToolData } from "@/hooks/useProject"
 import { toast } from "sonner"
 import { Printer, Copy } from "lucide-react"
+import GammaExport from "@/components/ui/GammaExport"
 
 interface FicheMission {
   // Identification
@@ -151,6 +152,7 @@ Commanditaire: ${fiche.commanditaire} | Validé le: ${fiche.dateValidation}`
           <button onClick={() => setPreview(!preview)} style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 14px", border:"1px solid var(--border)", borderRadius:8, background:preview?"var(--primary-bg)":"transparent", color:preview?"var(--primary-light)":"var(--text-2)", fontSize:12, cursor:"pointer", fontWeight:500 }}>
             {preview ? "✏️ Éditer" : "👁️ Aperçu"}
           </button>
+          <GammaExport type="fiche-mission" projectName={project?.name??""} data={{ fiche, description:project?.description }}/>
           <button onClick={copyText} style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 14px", border:"1px solid var(--border)", borderRadius:8, background:"transparent", color:"var(--text-2)", fontSize:12, cursor:"pointer" }}>
             <Copy size={13}/> Copier
           </button>

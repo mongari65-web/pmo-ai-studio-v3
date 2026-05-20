@@ -97,7 +97,8 @@ export default function DecisionsPage() {
       <ToolLayout title="Registre Décisions" icon="📌" subtitle="// SUIVI CODIR"
         history={history} onLoadHistory={(e) => { loadHistory(e); if(e.data?.items) setItems(e.data.items) }}
         onGenerate={generate} generateLabel="Générer Décisions" generating={loading}
-        exportRows={toRows()} exportFilename={"Decisions_"+(project?.name??"")} projectName={project?.name}>
+        exportRows={toRows()} exportFilename={"Decisions_"+(project?.name??"")} projectName={project?.name}
+        gammaType="codir" gammaData={data}>
 
         {/* KPIs */}
         {items.length > 0 && (

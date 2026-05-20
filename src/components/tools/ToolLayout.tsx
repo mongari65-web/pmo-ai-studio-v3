@@ -4,6 +4,7 @@ import { History, ChevronDown, Zap, Plus, Loader2 } from "lucide-react"
 import ExportMenu from "./ExportMenu"
 import QuotaBadge from "./QuotaBadge"
 import CollabBar from "@/components/collaboration/CollabBar"
+import GammaExport from "@/components/ui/GammaExport"
 
 interface ToolLayoutProps {
   title: string
@@ -25,6 +26,8 @@ interface ToolLayoutProps {
   jsonData?: any
   pptxSlides?: Array<{ title: string; content: string[] }>
   projectId?: string
+  gammaType?: "codir"|"fiche-mission"|"raid"|"okr"|"scrum"|"formation"|"gantt"|"onboarding"
+  gammaData?: any
 }
 
 export default function ToolLayout({
@@ -33,7 +36,8 @@ export default function ToolLayout({
   onAdd, addLabel = "+ Ajouter",
   children, projectName,
   exportRows, exportFilename = "export", contentId = "tool-content",
-  svgRef, jsonData, pptxSlides, projectId
+  svgRef, jsonData, pptxSlides, projectId,
+  gammaType, gammaData
 }: ToolLayoutProps) {
   const [histOpen, setHistOpen] = useState(false)
 
@@ -135,6 +139,10 @@ export default function ToolLayout({
 
           {/* Export */}
           {exportConfig && <ExportMenu config={exportConfig}/>}
+          {/* Gamma AI */}
+          {gammaType && projectName && (
+            <GammaExport type={gammaType} projectName={projectName} data={gammaData??{}}/>
+          )}
 
           {/* Ajouter */}
           {onAdd && (

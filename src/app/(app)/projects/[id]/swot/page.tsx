@@ -90,7 +90,8 @@ export default function SWOTPage() {
       <ToolLayout title="Matrice SWOT" icon="🔍" subtitle="// ANALYSE STRATÉGIQUE"
         history={history} onLoadHistory={(e) => { loadHistory(e); if(e.data?.items) { setItems(e.data.items); setStrategic(e.data.strategic??[]) } }}
         onGenerate={generate} generateLabel="Générer SWOT" generating={loading}
-        exportRows={toRows()} exportFilename={"SWOT_"+(project?.name??"")} projectName={project?.name}>
+        exportRows={toRows()} exportFilename={"SWOT_"+(project?.name??"")} projectName={project?.name}
+        gammaType="codir" gammaData={data}>
 
         {/* Scores globaux */}
         {items.length > 0 && (

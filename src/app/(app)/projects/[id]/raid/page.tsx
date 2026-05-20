@@ -120,7 +120,8 @@ export default function RAIDPage() {
         onGenerate={generate} generateLabel="Générer RAID" generating={loading}
         onAdd={() => setShowAdd(true)} addLabel="+ Ajouter"
         exportRows={filtered.map(i => ({ Catégorie: i.category, Titre: i.title, Priorité: i.priority, Responsable: i.owner, Échéance: i.due_date, Statut: i.status, Mitigation: i.mitigation }))}
-        exportFilename={"RAID_" + (project?.name ?? "")} projectName={project?.name}>
+        exportFilename={"RAID_" + (project?.name ?? "")} projectName={project?.name}
+        gammaType="raid" gammaData={data}>
 
         {/* KPIs */}
         {items.length > 0 && (

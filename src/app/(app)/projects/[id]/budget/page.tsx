@@ -248,7 +248,8 @@ export default function BudgetEVMPage() {
         onGenerate={generate} generateLabel="Générer depuis WBS" generating={loading}
         exportRows={evm.tasks.map(t => ({ WBS:t.wbs, Tâche:t.name, BAC:t.bac, PV_courant:t.pv[cp]??0, EV_courant:t.ev[cp]??0, AC_courant:t.ac[cp]??0 }))}
         exportFilename={`BudgetEVM_${project?.name??""}`}
-        projectName={project?.name}>
+        projectName={project?.name}
+        gammaType="codir" gammaData={data}>
 
         {/* Barre KPIs période */}
         <div style={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:12, padding:"12px 16px", marginBottom:16 }}>

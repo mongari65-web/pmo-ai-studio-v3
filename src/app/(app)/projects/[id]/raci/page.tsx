@@ -137,7 +137,8 @@ export default function RACIPage() {
       <ToolLayout title="RACI Matrix Pro" icon="👥" subtitle="// RESPONSABILITÉS"
         history={history} onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.rows) { setRows(e.data.rows); if(e.data.actors) setActors(e.data.actors) } }}
         onGenerate={generate} generateLabel="Générer RACI" generating={loading}
-        exportRows={toRows()} exportFilename={"RACI_"+(project?.name||"")} projectName={project?.name}>
+        exportRows={toRows()} exportFilename={"RACI_"+(project?.name||"")} projectName={project?.name}
+        gammaType="codir" gammaData={data}>
 
         {/* Controls */}
         <div style={{ display:"flex", gap:10, marginBottom:14, alignItems:"center", flexWrap:"wrap" }}>

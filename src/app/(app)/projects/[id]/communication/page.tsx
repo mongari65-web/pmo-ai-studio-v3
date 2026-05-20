@@ -90,7 +90,8 @@ export default function CommunicationPage() {
       <ToolLayout title="Plan de Communication" icon="📣" subtitle="// PARTIES PRENANTES"
         history={history} onLoadHistory={(e) => { loadHistory(e); if(e.data?.items) setItems(e.data.items) }}
         onGenerate={generate} generateLabel="Générer Plan Comm" generating={loading}
-        exportRows={toRows()} exportFilename={"Communication_"+(project?.name??"")} projectName={project?.name}>
+        exportRows={toRows()} exportFilename={"Communication_"+(project?.name??"")} projectName={project?.name}
+        gammaType="codir" gammaData={data}>
 
         {/* KPIs */}
         {items.length > 0 && (

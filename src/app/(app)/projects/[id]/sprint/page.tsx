@@ -100,7 +100,8 @@ export default function SprintPage() {
       <ToolLayout title="Revue de Sprint" icon="🔄" subtitle="// AGILE / SAFe"
         history={history} onLoadHistory={(e) => { loadHistory(e); if(e.data?.sprints) { setSprints(e.data.sprints); setActive(e.data.sprints[0]?.id??null) } }}
         onGenerate={generate} generateLabel="Générer Sprint" generating={loading}
-        exportRows={toRows()} exportFilename={"Sprint_"+(project?.name??"")} projectName={project?.name}>
+        exportRows={toRows()} exportFilename={"Sprint_"+(project?.name??"")} projectName={project?.name}
+        gammaType="scrum" gammaData={data}>
 
         {/* KPIs globaux */}
         {sprints.length > 0 && (

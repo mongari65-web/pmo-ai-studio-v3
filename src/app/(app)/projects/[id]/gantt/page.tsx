@@ -190,7 +190,8 @@ export default function GanttPage() {
         onGenerate={generate} generateLabel="Générer Planning Gantt" generating={loading}
         onAdd={() => setShowAddForm(true)} addLabel="+ Tâche"
         exportRows={toRows()} exportFilename={`Gantt_${project?.name??""}`}
-        projectName={project?.name}>
+        projectName={project?.name}
+        gammaType="gantt" gammaData={data}>
 
         {/* Stats */}
         <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:16 }}>

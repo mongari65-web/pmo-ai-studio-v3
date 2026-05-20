@@ -92,7 +92,8 @@ export default function OKRPage() {
       <ToolLayout title="OKR Tracker" icon="🎯" subtitle="// OBJECTIFS & RÉSULTATS CLÉS"
         history={history} onLoadHistory={(e) => { loadHistory(e); if(e.data?.objectives) setObjectives(e.data.objectives) }}
         onGenerate={generate} generateLabel="Générer OKR" generating={loading}
-        exportRows={toRows()} exportFilename={"OKR_"+(project?.name??"")} projectName={project?.name}>
+        exportRows={toRows()} exportFilename={"OKR_"+(project?.name??"")} projectName={project?.name}
+        gammaType="okr" gammaData={data}>
 
         {/* KPIs */}
         {objectives.length > 0 && (
