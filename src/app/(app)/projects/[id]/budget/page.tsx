@@ -81,21 +81,28 @@ export default function BudgetEVMPage() {
       })
       const json = await res.json()
       if (json.error) throw new Error(json.error)
-      // Convertir en format EVM avancé
-      const lines = json.data?.lines ?? []
-      const cp = new Date().getMonth()
-      const tasks: Task[] = lines.map((l: any, i: number) => {
-        const monthlyPV = Math.round(l.pv / (cp + 1))
-        const monthlyEV = Math.round(l.ev / (cp + 1))
-        const monthlyAC = Math.round(l.ac / (cp + 1))
-        return {
-          id: l.id ?? `T${i}`, wbs: `${i+1}.0`, name: l.workpackage, phase: l.phase,
-          responsible: "Chef de Projet", bac: l.bac,
-          pv: Array(12).fill(0).map((_,m) => m <= cp ? monthlyPV * (m+1) : l.bac),
-          ev: Array(12).fill(0).map((_,m) => m <= cp ? monthlyEV * (m+1) : 0),
-          ac: Array(12).fill(0).map((_,m) => m <= cp ? monthlyAC * (m+1) : 0),
-        }
-      })
+      // Support format tasks (nouveau) et lines (ancien)
+      const cp = json.data?.currentPeriod ?? new Date().getMonth()
+      let tasks: Task[] = []
+      if (json.data?.tasks?.length) {
+        // Nouveau format — tasks avec tableaux 12 mois
+        tasks = json.data.tasks
+      } else {
+        // Ancien format — lines avec totaux scalaires
+        const lines = json.data?.lines ?? []
+        tasks = lines.map((l: any, i: number) => {
+          const monthlyPV = Math.round((l.pv ?? 0) / (cp + 1))
+          const monthlyEV = Math.round((l.ev ?? 0) / (cp + 1))
+          const monthlyAC = Math.round((l.ac ?? 0) / (cp + 1))
+          return {
+            id: l.id ?? `T${i}`, wbs: `${i+1}.0`, name: l.workpackage ?? l.phase ?? `WP${i+1}`,
+            phase: l.phase ?? "", responsible: "Chef de Projet", bac: l.bac ?? 0,
+            pv: Array(12).fill(0).map((_,m) => m <= cp ? monthlyPV * (m+1) : l.bac ?? 0),
+            ev: Array(12).fill(0).map((_,m) => m <= cp ? monthlyEV * (m+1) : 0),
+            ac: Array(12).fill(0).map((_,m) => m <= cp ? monthlyAC * (m+1) : 0),
+          }
+        })
+      }
       const newEvm = { tasks, currentPeriod: cp }
       setEvm(newEvm); await save(newEvm)
       toast.success(`Budget EVM généré — ${tasks.length} tâches`)
