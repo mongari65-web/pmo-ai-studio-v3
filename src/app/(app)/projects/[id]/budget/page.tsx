@@ -67,7 +67,7 @@ export default function BudgetEVMPage() {
         ev: Array(12).fill(0).map((_,m) => m <= (evm.currentPeriod) ? Math.round(l.ev / (evm.currentPeriod+1)) : 0),
         ac: Array(12).fill(0).map((_,m) => m <= (evm.currentPeriod) ? Math.round(l.ac / (evm.currentPeriod+1)) : 0),
       }))
-      setEvm({ tasks, currentPeriod: new Date().getMonth() })
+      setEvm({ tasks, currentPeriod: data.currentPeriod ?? new Date().getMonth() })
     }
   }, [data])
 
@@ -256,7 +256,7 @@ export default function BudgetEVMPage() {
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
             <div style={{ display:"flex", alignItems:"center", gap:10 }}>
               <span style={{ fontSize:12, color:"var(--text-3)", fontWeight:500 }}>Période courante :</span>
-              <select value={cp} onChange={e => setEvm(prev => ({...prev, currentPeriod: +e.target.value}))}
+              <select value={cp} onChange={e => { const cp = +e.target.value; setEvm(prev => ({...prev, currentPeriod: cp})); save({...evm, currentPeriod: cp}) }}
                 style={{ background:"#1e293b", border:"1px solid #334155", borderRadius:6, color:"#60a5fa", padding:"4px 10px", fontSize:12, fontWeight:600, cursor:"pointer" }}>
                 {MONTHS.map((m,i) => <option key={m} value={i}>{m}</option>)}
               </select>
