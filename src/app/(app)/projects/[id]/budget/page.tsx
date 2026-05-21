@@ -119,13 +119,21 @@ export default function BudgetEVMPage() {
   const TCPI = (totalBAC - totalEV) > 0 ? (totalBAC - totalEV) / (totalBAC - totalAC) : 1
 
   // Courbe S cumulée
-  const curveData = MONTHS.map((m, i) => ({
-    name: m,
-    PV: evm.tasks.reduce((s,t) => s + (t.pv[i] ?? 0), 0),
-    EV: i <= cp ? evm.tasks.reduce((s,t) => s + (t.ev[i] ?? 0), 0) : null,
-    AC: i <= cp ? evm.tasks.reduce((s,t) => s + (t.ac[i] ?? 0), 0) : null,
-    BAC: totalBAC,
-  }))
+  const curveData = MONTHS.map((m, i) => {
+    let pvC = 0, evC = 0, acC = 0
+    for (let j = 0; j <= i; j++) {
+      pvC += evm.tasks.reduce((s,t) => s + (t.pv[j] ?? 0), 0)
+      evC += evm.tasks.reduce((s,t) => s + (t.ev[j] ?? 0), 0)
+      acC += evm.tasks.reduce((s,t) => s + (t.ac[j] ?? 0), 0)
+    }
+    return {
+      name: m,
+      PV: pvC,
+      EV: i <= cp ? evC : null,
+      AC: i <= cp ? acC : null,
+      BAC: totalBAC,
+    }
+  })
 
   // Éditer une cellule
   const editCell = useCallback((taskId: string, type: "pv"|"ev"|"ac", month: number, val: number) => {
