@@ -27,6 +27,21 @@ const TOOLS = [
   { key:"integrations", label:"Intégrations",   icon:"🔗",  desc:"Jira / Notion / CSV",  color:"#0052CC" },
   { key:"widget",       label:"Widget Embed",   icon:"🖼️",  desc:"Iframe SharePoint",     color:"#0ea5e9" },
   { key:"raci",         label:"RACI Pro",       icon:"👥",  desc:"Matrice RACI/DACI",    color:"#7B5EFF" },
+
+  // ── Agile / Scrum ──────────────────────────────────────────────────────────
+  { key:"backlog",      label:"Product Backlog", icon:"📋",  desc:"User Stories & Epics",  color:"#7B5EFF" },
+  { key:"kanban",       label:"Kanban Board",    icon:"🗂️",  desc:"Flux continu WIP",       color:"#06b6d4" },
+  { key:"velocity",     label:"Vélocité",        icon:"📈",  desc:"Story points & burndown",color:"#22c55e" },
+  { key:"user-stories", label:"User Stories",    icon:"📝",  desc:"BDD / Critères acceptation",color:"#8b5cf6" },
+  { key:"retrospective",label:"Rétrospective",   icon:"🔄",  desc:"Start/Stop/Continue",   color:"#ef4444" },
+
+  // ── DevOps / CI-CD ─────────────────────────────────────────────────────────
+  { key:"cicd",         label:"Pipeline CI/CD",  icon:"⚙️",  desc:"Build · Test · Deploy",  color:"#22c55e" },
+  { key:"test-plan",    label:"Plan de Tests",   icon:"🧪",  desc:"TDD / BDD / ATDD",       color:"#3b82f6" },
+
+  // ── AI / CPMAI ─────────────────────────────────────────────────────────────
+  { key:"cpmai",        label:"Pipeline CPMAI",  icon:"🤖",  desc:"6 phases DIKUW",         color:"#f97316" },
+  { key:"dataset",      label:"Datasets",        icon:"🗄️",  desc:"Sources & qualité data", color:"#f59e0b" },
 ]
 
 export default function ProjectPage() {
