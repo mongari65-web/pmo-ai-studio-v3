@@ -1,4 +1,5 @@
 "use client"
+import React from "react"
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import AppLayout from "@/components/layout/AppLayout"
@@ -61,6 +62,7 @@ const TABS = [
 // ── VelocityChart avec tooltips ──────────────────────────────────────────────
 function VelocityChart({ sprints, avgVel }: { sprints: SprintReview[]; avgVel: number }) {
   const [tooltip, setTooltip] = useState<{x:number;y:number;sprint:SprintReview;type:string}|null>(null)
+  const svgRef = React.useRef<SVGSVGElement>(null)
 
   if (sprints.length === 0) return (
     <div style={{textAlign:"center",padding:40,color:"var(--text-3)"}}>Aucun sprint disponible</div>
@@ -109,9 +111,8 @@ function VelocityChart({ sprints, avgVel }: { sprints: SprintReview[]; avgVel: n
             <circle key={i} cx={p.x} cy={p.y} r="5" fill="#3b82f6" stroke="#1e3a5f" strokeWidth="1.5"
               style={{cursor:"pointer"}}
               onMouseEnter={e => {
-                const svg = (e.target as SVGElement).closest("svg")!.getBoundingClientRect()
-                const el = (e.target as SVGElement).getBoundingClientRect()
-                setTooltip({x:el.left-svg.left+8,y:el.top-svg.top-80,sprint:p.sp,type:"plan"})
+                const rect = (e.currentTarget as SVGElement).getBoundingClientRect()
+                setTooltip({x:rect.left+window.scrollX+10, y:rect.top+window.scrollY-130, sprint:p.sp, type:"plan"})
               }}
               onMouseLeave={()=>setTooltip(null)}/>
           ))}
@@ -121,9 +122,8 @@ function VelocityChart({ sprints, avgVel }: { sprints: SprintReview[]; avgVel: n
             <circle key={i} cx={p.x} cy={p.y} r="6" fill={p.sp.completedPoints>=p.sp.plannedPoints?"#22c55e":"#f59e0b"} stroke="#0f172a" strokeWidth="1.5"
               style={{cursor:"pointer"}}
               onMouseEnter={e => {
-                const svg = (e.target as SVGElement).closest("svg")!.getBoundingClientRect()
-                const el = (e.target as SVGElement).getBoundingClientRect()
-                setTooltip({x:el.left-svg.left+8,y:el.top-svg.top-120,sprint:p.sp,type:"done"})
+                const rect = (e.currentTarget as SVGElement).getBoundingClientRect()
+                setTooltip({x:rect.left+window.scrollX+10, y:rect.top+window.scrollY-130, sprint:p.sp, type:"done"})
               }}
               onMouseLeave={()=>setTooltip(null)}/>
           ))}
