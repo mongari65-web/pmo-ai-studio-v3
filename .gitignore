@@ -4,3 +4,4 @@ node_modules/
 .env
 *.log
 seed_evm.py
+inject_articles.py
