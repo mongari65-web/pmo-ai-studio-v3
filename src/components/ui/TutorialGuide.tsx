@@ -32,7 +32,7 @@ const EXAMPLES = {
     result: ["WBS avec 45 livrables structurés","Gantt 18 mois avec chemin critique","RAID avec 8 risques techniques","Budget EVM avec CPI/SPI temps réel"]
   },
   cpmai: {
-    name: "ACMA — Multi-Agent AI Collaboration",
+    name: "AgentForge — Plateforme Multi-Agents IA",
     description: "Projet R&D CIR — Système multi-agents IA pour automatisation de la coordination de projets. 7 Work Packages, Claude API, architecture LangGraph, éligibilité CIR 30%.",
     client: "Atos / Interne",
     budget: "450000",
