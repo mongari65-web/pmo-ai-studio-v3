@@ -152,14 +152,20 @@ function buildPrompt(tool: string, name: string, desc: string, extra: any): stri
 
     budget: "Génère un budget EVM pour ce projet." +
       " Nom: " + n + ". Description: " + d + ". Budget TOTAL: " + b + "€. Période: " + s + " → " + e + "." +
+      " Aujourd\'hui = Mai 2026 = index mois 4 (Jan=0, Fév=1, Mar=2, Avr=3, Mai=4)." +
       " CONTRAINTES STRICTES:" +
-      " - 6 lignes budgétaires correspondant aux phases" +
+      " - 6 tâches/phases spécifiques au projet, noms détaillés" +
       " - Somme de tous les BAC = exactement " + b + "€" +
-      " - Phases passées (avant mai 2026): EV et AC renseignés, CPI/SPI réalistes" +
-      " - Phases futures: EV=0, AC=0, CPI=1.0, SPI=1.0" +
-      " - EAC = BAC/CPI pour phases actives" +
-      " - Noms de phases spécifiques au projet" +
-      ' JSON: {"lines":[{"id":"B1","phase":"[PHASE]","workpackage":"[NOM WP]","bac":[MONTANT],"pv":[MONTANT],"ev":[MONTANT],"ac":[MONTANT],"cpi":[VALEUR],"spi":[VALEUR],"eac":[MONTANT],"status":"[Terminé|En cours|Planifié]"}]}',
+      " - currentPeriod = 4 (Mai 2026)" +
+      " - Chaque tâche a pv[], ev[], ac[] = tableaux de 12 valeurs mensuelles (index 0=Jan à 11=Déc)" +
+      " - pv[]: distribution réaliste en forme de S selon la phase du projet (montée progressive, plateau, descente)" +
+      " - Pour phases déjà démarrées (index 0 à 4): pv, ev, ac renseignés avec valeurs réalistes" +
+      " - Pour phases futures (index 5 à 11): pv progressif selon planning, ev=0, ac=0" +
+      " - Phases en retard: sum(ev[0..4]) < sum(pv[0..4]), ac légèrement > ev" +
+      " - Phases futures: ev[0..11]=0, ac[0..11]=0" +
+      " - sum(pv[0..11]) pour chaque tâche doit être cohérent avec son BAC (pas x10)" +
+      " - CPI global réaliste entre 0.75 et 0.95 pour un projet en difficulté" +
+      ' JSON: {"currentPeriod":4,"tasks":[{"id":"T1","wbs":"1.0","name":"[NOM PHASE DÉTAILLÉ]","phase":"[PHASE]","responsible":"[RÔLE]","bac":[MONTANT],"pv":[v0,v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11],"ev":[v0,v1,v2,v3,v4,0,0,0,0,0,0,0],"ac":[v0,v1,v2,v3,v4,0,0,0,0,0,0,0]}]}',
 
     mindmap: "Génère une mind map pour ce projet." +
       " Nom: " + n + ". Description: " + d + ". Budget: " + b + "€." +
