@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     let parsed: any
     try {
       // Nettoyage robuste
-      let cleaned = rawText.replace(/```json|```/g, "").trim()
+      let cleaned = rawText.replace(/```json\s*/gi, "").replace(/```/g, "").trim()
       // Extraire le JSON si entouré de texte
       const jsonMatch = cleaned.match(/\{[\s\S]*\}|\[[\s\S]*\]/)
       if (jsonMatch) cleaned = jsonMatch[0]
