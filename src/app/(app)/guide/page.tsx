@@ -57,7 +57,7 @@ const TEST_APPROACHES = [
   { id:"none",  label:"Aucune",icon:"⬜", desc:"Pas d'approche test spécifique définie" },
 ]
 
-const SECTORS = ["IT / Cloud","Finance / Banque","Industrie / Manufacturing","Santé / Médical","Énergie / Nucléaire","Transport / Mobilité","Retail / E-commerce","Télécoms","Administration Publique","Autre"]
+const SECTORS = ["IT / Cloud","Finance / Banque","Industrie / Manufacturing","IoT / Embarqué","Santé / Médical","Énergie / Nucléaire","Transport / Mobilité","Retail / E-commerce","Télécoms","Administration Publique","Autre"]
 const ENV = ["On-premise","Cloud AWS","Cloud Azure","Cloud GCP","Hybride","Multi-cloud","Edge Computing"]
 
 // ── Pipeline visuel Scrum ─────────────────────────────────────────────────────

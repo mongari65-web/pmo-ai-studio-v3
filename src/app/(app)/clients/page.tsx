@@ -9,7 +9,7 @@ type Client = {
   email:string; telephone:string; projets:number; ca:number; statut:"actif"|"inactif"
 }
 
-const SECTEURS = ["IT / Cloud","Finance","Industrie","Santé","Energie","Transport","Retail","Autre"]
+const SECTEURS = ["IT / Cloud","Finance","Industrie","IoT","Santé","Energie","Transport","Retail","Autre"]
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([])
