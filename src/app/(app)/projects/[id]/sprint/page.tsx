@@ -436,31 +436,71 @@ export default function SprintPage() {
               <div style={{textAlign:"center",padding:40,color:"var(--text-3)"}}>Aucun sprint disponible</div>
             ) : (
               <div style={{display:"flex",flexDirection:"column",gap:16}}>
-                {/* Graphe vélocité */}
+                {/* Courbe vélocité SVG */}
                 <div style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:12,padding:"16px 20px"}}>
-                  <div style={{fontSize:12,fontWeight:700,color:"var(--text-2)",marginBottom:12}}>Story Points par sprint</div>
-                  <div style={{display:"flex",alignItems:"flex-end",gap:12,height:120}}>
-                    {sprints.map(sp => {
-                      const maxPts = Math.max(...sprints.map(s=>Math.max(s.plannedPoints,s.completedPoints)),1)
-                      const hP = Math.round((sp.plannedPoints/maxPts)*100)
-                      const hC = Math.round((sp.completedPoints/maxPts)*100)
-                      return (
-                        <div key={sp.id} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
-                          <div style={{display:"flex",gap:3,alignItems:"flex-end",height:100}}>
-                            <div style={{width:16,height:Math.max(4,hP)+"%",background:"rgba(59,130,246,0.4)",borderRadius:"3px 3px 0 0",border:"1px solid #3b82f6"}} title={`Planifiés: ${sp.plannedPoints}pts`}/>
-                            <div style={{width:16,height:Math.max(4,hC)+"%",background:sp.completedPoints>=sp.plannedPoints?"rgba(34,197,94,0.6)":"rgba(245,158,11,0.6)",borderRadius:"3px 3px 0 0",border:`1px solid ${sp.completedPoints>=sp.plannedPoints?"#22c55e":"#f59e0b"}`}} title={`Livrés: ${sp.completedPoints}pts`}/>
-                          </div>
-                          <div style={{fontSize:9,color:"var(--text-3)"}}>S{sp.num}</div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div style={{display:"flex",gap:12,marginTop:8,justifyContent:"center"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:"var(--text-3)"}}>
-                      <div style={{width:12,height:12,background:"rgba(59,130,246,0.4)",border:"1px solid #3b82f6",borderRadius:2}}/> Planifiés
+                  <div style={{fontSize:12,fontWeight:700,color:"var(--text-2)",marginBottom:12}}>📈 Courbe de vélocité — Story Points par sprint</div>
+                  {sprints.length > 0 && (() => {
+                    const W=600, H=160, PAD=40
+                    const maxPts = Math.max(...sprints.flatMap(s=>[s.plannedPoints,s.completedPoints]),1)
+                    const xStep = (W-PAD*2)/Math.max(sprints.length-1,1)
+                    const yScale = (v:number) => H-PAD-(v/maxPts)*(H-PAD*1.5)
+                    const ptsPlan = sprints.map((sp,i)=>({x:PAD+i*xStep, y:yScale(sp.plannedPoints), v:sp.plannedPoints}))
+                    const ptsDone = sprints.map((sp,i)=>({x:PAD+i*xStep, y:yScale(sp.completedPoints), v:sp.completedPoints}))
+                    const polyPlan = ptsPlan.map(p=>`${p.x},${p.y}`).join(" ")
+                    const polyDone = ptsDone.map(p=>`${p.x},${p.y}`).join(" ")
+                    const areaDone = `${PAD},${H-PAD} ${ptsDone.map(p=>`${p.x},${p.y}`).join(" ")} ${PAD+( sprints.length-1)*xStep},${H-PAD}`
+                    const avgY = yScale(avgVel)
+                    return (
+                      <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",display:"block"}}>
+                        {/* Grille */}
+                        {[0,25,50,75,100].map(pct => {
+                          const y = yScale(maxPts*pct/100)
+                          return (
+                            <g key={pct}>
+                              <line x1={PAD} y1={y} x2={W-PAD} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth="1"/>
+                              <text x={PAD-5} y={y+4} textAnchor="end" fontSize="9" fill="#475569">{Math.round(maxPts*pct/100)}</text>
+                            </g>
+                          )
+                        })}
+                        {/* Axe X */}
+                        <line x1={PAD} y1={H-PAD} x2={W-PAD} y2={H-PAD} stroke="#334155" strokeWidth="1"/>
+                        {/* Labels sprints */}
+                        {sprints.map((sp,i) => (
+                          <text key={sp.id} x={PAD+i*xStep} y={H-PAD+14} textAnchor="middle" fontSize="10" fill="#64748b">S{sp.num}</text>
+                        ))}
+                        {/* Aire livrés */}
+                        <polygon points={areaDone} fill="rgba(34,197,94,0.08)"/>
+                        {/* Ligne moyenne vélocité */}
+                        <line x1={PAD} y1={avgY} x2={W-PAD} y2={avgY} stroke="rgba(123,94,255,0.4)" strokeWidth="1" strokeDasharray="5 3"/>
+                        <text x={W-PAD+4} y={avgY+4} fontSize="9" fill="#7B5EFF">moy. {avgVel}</text>
+                        {/* Courbe planifiés */}
+                        <polyline points={polyPlan} fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="5 3"/>
+                        {ptsPlan.map((p,i) => (
+                          <g key={i}>
+                            <circle cx={p.x} cy={p.y} r="4" fill="#3b82f6" stroke="#1e3a5f" strokeWidth="1.5"/>
+                            <text x={p.x} y={p.y-8} textAnchor="middle" fontSize="9" fill="#3b82f6" fontWeight="600">{p.v}</text>
+                          </g>
+                        ))}
+                        {/* Courbe livrés */}
+                        <polyline points={polyDone} fill="none" stroke="#22c55e" strokeWidth="2.5"/>
+                        {ptsDone.map((p,i) => (
+                          <g key={i}>
+                            <circle cx={p.x} cy={p.y} r="5" fill={sprints[i].completedPoints>=sprints[i].plannedPoints?"#22c55e":"#f59e0b"} stroke="#0f172a" strokeWidth="1.5"/>
+                            <text x={p.x} y={p.y-10} textAnchor="middle" fontSize="10" fill={sprints[i].completedPoints>=sprints[i].plannedPoints?"#22c55e":"#f59e0b"} fontWeight="700">{p.v}</text>
+                          </g>
+                        ))}
+                      </svg>
+                    )
+                  })()}
+                  <div style={{display:"flex",gap:16,marginTop:8,justifyContent:"center"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:"var(--text-3)"}}>
+                      <svg width="20" height="4"><line x1="0" y1="2" x2="20" y2="2" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4 2"/></svg> Planifiés
                     </div>
-                    <div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:"var(--text-3)"}}>
-                      <div style={{width:12,height:12,background:"rgba(34,197,94,0.6)",border:"1px solid #22c55e",borderRadius:2}}/> Livrés
+                    <div style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:"var(--text-3)"}}>
+                      <svg width="20" height="4"><line x1="0" y1="2" x2="20" y2="2" stroke="#22c55e" strokeWidth="2.5"/></svg> Livrés
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:"var(--text-3)"}}>
+                      <svg width="20" height="4"><line x1="0" y1="2" x2="20" y2="2" stroke="#7B5EFF" strokeWidth="1" strokeDasharray="4 2"/></svg> Vélocité moy.
                     </div>
                   </div>
                 </div>
