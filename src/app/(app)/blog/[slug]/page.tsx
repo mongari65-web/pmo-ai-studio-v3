@@ -442,7 +442,7 @@ function ArticleSprint({ editMode, images, onImageUpdate }: any) {
   return (
     <div>
       <p style={P}>Le Sprint Planning mal exécuté coûte en moyenne 2 jours de productivité par sprint. Sur 10 sprints, c&apos;est 3 semaines perdues. Voici les 8 étapes pour transformer votre Sprint Planning en moteur de livraison — illustrées avec FinTrack Pro, 5 sprints, 15 stories.</p>
-      <ImageEditor src={images["sprint-planning"] || "/blog/images/evm/fintrack-courbe-s.png"}
+      <ImageEditor src={images["sprint-planning"] || "/blog/images/sprint/sprint-planning-fintrack.png"}
         alt="Sprint Planning FinTrack Pro — PMO AI Studio"
         caption="📅 Sprint Planning — FinTrack Pro · Vélocité moyenne 42 pts · CPI 1.07 · PMO AI Studio"
         onUpdate={(src,cap) => onImageUpdate("sprint-planning", src, cap)}/>
@@ -934,7 +934,19 @@ export default function ArticlePage() {
               <h4 style={{ fontSize:12, fontWeight:700, color:"var(--text-1)", margin:"0 0 10px", display:"flex", alignItems:"center", gap:6 }}>
                 <BookOpen size={13}/> Sommaire
               </h4>
-              {["Les 6 indicateurs EVM","La Courbe S","Seuils d'alerte","Cas réel Hôtel Atlantis","5 actions concrètes","PMO AI Studio"].map((item,i) => (
+              {(({
+                "evm-5-minutes-cpi-spi-eac-tcpi":  ["Les 6 indicateurs EVM","La Courbe S","Seuils d'alerte","Cas réel Hôtel Atlantis","5 actions concrètes","PMO AI Studio"],
+                "cpi-inferieur-1-sauver-projet":    ["Comprendre votre CPI","Plan d'action 48h","5 erreurs fatales","Formules EVM clés","PMO AI Studio"],
+                "raid-register-guide-complet":      ["RAID — 4 lettres","3 risques critiques","Bonnes pratiques","Template RAID","PMO AI Studio"],
+                "sprint-planning-guide-8-etapes":   ["8 étapes Sprint Planning","Calcul vélocité","Sprint Goal","Gestion dépendances","PMO AI Studio"],
+                "devops-pmo-reconcilier":           ["5 tensions DevOps/PMO","Métriques DORA","Framework hybride","Cas réel JBOSS","PMO AI Studio"],
+                "pmp-2026-guide-preparation":       ["Ce qui a changé","3 domaines examen","Plan 12 semaines","Simulateur 225 questions","PMO AI Studio"],
+                "thomas-kilmann-conflits-projet":   ["5 styles TK","Matrice assertivité","5 scénarios projet","Conseil PMP","PMO AI Studio"],
+                "claude-ai-gantt-30-secondes":      ["Tutoriel 5 étapes","Prompts avancés","Types de projets","Export et partage","PMO AI Studio"],
+                "safe-6-guide-illustre":            ["4 niveaux SAFe 6","PI Planning","Métriques clés","Certification SAFe","PMO AI Studio"],
+                "okr-vs-kpi-quelle-difference":     ["OKR vs KPI","Exemple OKR complet","5 règles d'or","Module OKR Studio","PMO AI Studio"],
+              } as Record<string,string[]>)[slug] || ["Introduction","Concepts clés","Exemples pratiques","Conclusion","PMO AI Studio"]
+              ).map((item,i) => (
                 <div key={i} style={{ padding:"5px 0", borderBottom:"1px solid var(--border)", fontSize:11, color:"var(--text-3)", display:"flex", alignItems:"center", gap:6 }}>
                   <div style={{ width:16, height:16, borderRadius:"50%", background:"var(--primary-bg)", border:"1px solid rgba(123,94,255,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, color:"var(--primary-light)", flexShrink:0 }}>{i+1}</div>
                   {item}
