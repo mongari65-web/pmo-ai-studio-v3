@@ -58,6 +58,116 @@ const TABS = [
   { id:"tests",     icon:<FlaskConical size={14}/>,label:"Tests BDD/TDD",     color:"#3b82f6" },
 ]
 
+// ── VelocityChart avec tooltips ──────────────────────────────────────────────
+function VelocityChart({ sprints, avgVel }: { sprints: SprintReview[]; avgVel: number }) {
+  const [tooltip, setTooltip] = useState<{x:number;y:number;sprint:SprintReview;type:string}|null>(null)
+
+  if (sprints.length === 0) return (
+    <div style={{textAlign:"center",padding:40,color:"var(--text-3)"}}>Aucun sprint disponible</div>
+  )
+
+  const W=600, H=180, PAD=44
+  const maxPts = Math.max(...sprints.flatMap(s=>[s.plannedPoints,s.completedPoints]),1)
+  const xStep = (W-PAD*2)/Math.max(sprints.length-1,1)
+  const yScale = (v:number) => H-PAD-(v/maxPts)*(H-PAD*1.5)
+  const ptsPlan = sprints.map((sp,i)=>({x:PAD+i*xStep, y:yScale(sp.plannedPoints), v:sp.plannedPoints, sp}))
+  const ptsDone = sprints.map((sp,i)=>({x:PAD+i*xStep, y:yScale(sp.completedPoints), v:sp.completedPoints, sp}))
+  const polyPlan = ptsPlan.map(p=>`${p.x},${p.y}`).join(" ")
+  const polyDone = ptsDone.map(p=>`${p.x},${p.y}`).join(" ")
+  const areaDone = `${PAD},${H-PAD} ${ptsDone.map(p=>`${p.x},${p.y}`).join(" ")} ${PAD+(sprints.length-1)*xStep},${H-PAD}`
+  const avgY = yScale(avgVel)
+
+  return (
+    <div style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:12,padding:"16px 20px",marginBottom:16,position:"relative"}}>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--text-2)",marginBottom:12}}>📈 Courbe de vélocité — Story Points par sprint</div>
+      <div style={{position:"relative"}}>
+        <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",display:"block",overflow:"visible"}}>
+          {/* Grille */}
+          {[0,25,50,75,100].map(pct => {
+            const y = yScale(maxPts*pct/100)
+            return (
+              <g key={pct}>
+                <line x1={PAD} y1={y} x2={W-PAD} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth="1"/>
+                <text x={PAD-6} y={y+4} textAnchor="end" fontSize="9" fill="#475569">{Math.round(maxPts*pct/100)}</text>
+              </g>
+            )
+          })}
+          {/* Axe X */}
+          <line x1={PAD} y1={H-PAD} x2={W-PAD} y2={H-PAD} stroke="#334155" strokeWidth="1"/>
+          {/* Labels sprints */}
+          {sprints.map((sp,i) => (
+            <text key={sp.id} x={PAD+i*xStep} y={H-PAD+14} textAnchor="middle" fontSize="10" fill="#64748b">S{sp.num}</text>
+          ))}
+          {/* Aire livrés */}
+          <polygon points={areaDone} fill="rgba(34,197,94,0.08)"/>
+          {/* Ligne moyenne */}
+          <line x1={PAD} y1={avgY} x2={W-PAD} y2={avgY} stroke="rgba(123,94,255,0.4)" strokeWidth="1.5" strokeDasharray="5 3"/>
+          <text x={W-PAD+5} y={avgY+4} fontSize="9" fill="#7B5EFF" fontWeight="600">moy.{avgVel}</text>
+          {/* Courbe planifiés */}
+          <polyline points={polyPlan} fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="5 3"/>
+          {ptsPlan.map((p,i) => (
+            <circle key={i} cx={p.x} cy={p.y} r="5" fill="#3b82f6" stroke="#1e3a5f" strokeWidth="1.5"
+              style={{cursor:"pointer"}}
+              onMouseEnter={e => {
+                const svg = (e.target as SVGElement).closest("svg")!.getBoundingClientRect()
+                const el = (e.target as SVGElement).getBoundingClientRect()
+                setTooltip({x:el.left-svg.left+8,y:el.top-svg.top-80,sprint:p.sp,type:"plan"})
+              }}
+              onMouseLeave={()=>setTooltip(null)}/>
+          ))}
+          {/* Courbe livrés */}
+          <polyline points={polyDone} fill="none" stroke="#22c55e" strokeWidth="2.5"/>
+          {ptsDone.map((p,i) => (
+            <circle key={i} cx={p.x} cy={p.y} r="6" fill={p.sp.completedPoints>=p.sp.plannedPoints?"#22c55e":"#f59e0b"} stroke="#0f172a" strokeWidth="1.5"
+              style={{cursor:"pointer"}}
+              onMouseEnter={e => {
+                const svg = (e.target as SVGElement).closest("svg")!.getBoundingClientRect()
+                const el = (e.target as SVGElement).getBoundingClientRect()
+                setTooltip({x:el.left-svg.left+8,y:el.top-svg.top-120,sprint:p.sp,type:"done"})
+              }}
+              onMouseLeave={()=>setTooltip(null)}/>
+          ))}
+          {/* Labels valeurs */}
+          {ptsPlan.map((p,i) => (
+            <text key={i} x={p.x} y={p.y-10} textAnchor="middle" fontSize="9" fill="#3b82f6" fontWeight="600">{p.v}</text>
+          ))}
+          {ptsDone.map((p,i) => (
+            <text key={i} x={p.x} y={p.y-11} textAnchor="middle" fontSize="10" fill={p.sp.completedPoints>=p.sp.plannedPoints?"#22c55e":"#f59e0b"} fontWeight="700">{p.v}</text>
+          ))}
+        </svg>
+
+        {/* Tooltip */}
+        {tooltip && (
+          <div style={{position:"absolute",left:tooltip.x,top:tooltip.y,background:"#0F172A",border:"1px solid rgba(123,94,255,0.4)",borderRadius:10,padding:"10px 14px",minWidth:200,zIndex:100,boxShadow:"0 8px 32px rgba(0,0,0,0.5)",pointerEvents:"none"}}>
+            <div style={{fontSize:12,fontWeight:800,color:"var(--primary-light)",marginBottom:6}}>Sprint {tooltip.sprint.num} — {tooltip.sprint.goal.slice(0,30)}{tooltip.sprint.goal.length>30?"...":""}</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+              <div style={{fontSize:11,color:"#3b82f6"}}>📋 Planifiés<br/><strong style={{fontSize:16}}>{tooltip.sprint.plannedPoints}</strong> pts</div>
+              <div style={{fontSize:11,color:tooltip.sprint.completedPoints>=tooltip.sprint.plannedPoints?"#22c55e":"#f59e0b"}}>✅ Livrés<br/><strong style={{fontSize:16}}>{tooltip.sprint.completedPoints}</strong> pts</div>
+              <div style={{fontSize:11,color:"var(--text-3)"}}>📊 Stories<br/><strong style={{fontSize:14,color:"var(--text-1)"}}>{tooltip.sprint.stories.length}</strong></div>
+              <div style={{fontSize:11,color:"var(--text-3)"}}>✓ Terminées<br/><strong style={{fontSize:14,color:"#22c55e"}}>{tooltip.sprint.stories.filter(s=>s.status==="Terminé").length}</strong></div>
+              <div style={{fontSize:11,color:"var(--text-3)"}}>📅 Dates<br/><span style={{fontSize:10,color:"var(--text-3)"}}>{tooltip.sprint.startDate?.slice(5)} → {tooltip.sprint.endDate?.slice(5)}</span></div>
+              <div style={{fontSize:11,color:tooltip.sprint.completedPoints>=tooltip.sprint.plannedPoints?"#22c55e":"#f59e0b"}}>
+                🎯 Ratio<br/><strong style={{fontSize:14}}>{tooltip.sprint.plannedPoints>0?Math.round(tooltip.sprint.completedPoints/tooltip.sprint.plannedPoints*100):0}%</strong>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      <div style={{display:"flex",gap:16,marginTop:8,justifyContent:"center"}}>
+        <div style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:"var(--text-3)"}}>
+          <svg width="20" height="4"><line x1="0" y1="2" x2="20" y2="2" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4 2"/></svg> Planifiés
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:"var(--text-3)"}}>
+          <svg width="20" height="4"><line x1="0" y1="2" x2="20" y2="2" stroke="#22c55e" strokeWidth="2.5"/></svg> Livrés
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:"var(--text-3)"}}>
+          <svg width="20" height="4"><line x1="0" y1="2" x2="20" y2="2" stroke="#7B5EFF" strokeWidth="1.5" strokeDasharray="4 2"/></svg> Vélocité moy.
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Composant principal ───────────────────────────────────────────────────────
 export default function SprintPage() {
   const { id } = useParams<{id:string}>()
@@ -432,78 +542,11 @@ export default function SprintPage() {
         {activeTab==="velocity" && (
           <div>
             <div style={{fontSize:13,fontWeight:700,color:"var(--text-1)",marginBottom:14}}>📈 Vélocité & Burndown</div>
+            <VelocityChart sprints={sprints} avgVel={avgVel}/>
             {sprints.length===0 ? (
               <div style={{textAlign:"center",padding:40,color:"var(--text-3)"}}>Aucun sprint disponible</div>
             ) : (
               <div style={{display:"flex",flexDirection:"column",gap:16}}>
-                {/* Courbe vélocité SVG */}
-                <div style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:12,padding:"16px 20px"}}>
-                  <div style={{fontSize:12,fontWeight:700,color:"var(--text-2)",marginBottom:12}}>📈 Courbe de vélocité — Story Points par sprint</div>
-                  {sprints.length > 0 && (() => {
-                    const W=600, H=160, PAD=40
-                    const maxPts = Math.max(...sprints.flatMap(s=>[s.plannedPoints,s.completedPoints]),1)
-                    const xStep = (W-PAD*2)/Math.max(sprints.length-1,1)
-                    const yScale = (v:number) => H-PAD-(v/maxPts)*(H-PAD*1.5)
-                    const ptsPlan = sprints.map((sp,i)=>({x:PAD+i*xStep, y:yScale(sp.plannedPoints), v:sp.plannedPoints}))
-                    const ptsDone = sprints.map((sp,i)=>({x:PAD+i*xStep, y:yScale(sp.completedPoints), v:sp.completedPoints}))
-                    const polyPlan = ptsPlan.map(p=>`${p.x},${p.y}`).join(" ")
-                    const polyDone = ptsDone.map(p=>`${p.x},${p.y}`).join(" ")
-                    const areaDone = `${PAD},${H-PAD} ${ptsDone.map(p=>`${p.x},${p.y}`).join(" ")} ${PAD+( sprints.length-1)*xStep},${H-PAD}`
-                    const avgY = yScale(avgVel)
-                    return (
-                      <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",display:"block"}}>
-                        {/* Grille */}
-                        {[0,25,50,75,100].map(pct => {
-                          const y = yScale(maxPts*pct/100)
-                          return (
-                            <g key={pct}>
-                              <line x1={PAD} y1={y} x2={W-PAD} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth="1"/>
-                              <text x={PAD-5} y={y+4} textAnchor="end" fontSize="9" fill="#475569">{Math.round(maxPts*pct/100)}</text>
-                            </g>
-                          )
-                        })}
-                        {/* Axe X */}
-                        <line x1={PAD} y1={H-PAD} x2={W-PAD} y2={H-PAD} stroke="#334155" strokeWidth="1"/>
-                        {/* Labels sprints */}
-                        {sprints.map((sp,i) => (
-                          <text key={sp.id} x={PAD+i*xStep} y={H-PAD+14} textAnchor="middle" fontSize="10" fill="#64748b">S{sp.num}</text>
-                        ))}
-                        {/* Aire livrés */}
-                        <polygon points={areaDone} fill="rgba(34,197,94,0.08)"/>
-                        {/* Ligne moyenne vélocité */}
-                        <line x1={PAD} y1={avgY} x2={W-PAD} y2={avgY} stroke="rgba(123,94,255,0.4)" strokeWidth="1" strokeDasharray="5 3"/>
-                        <text x={W-PAD+4} y={avgY+4} fontSize="9" fill="#7B5EFF">moy. {avgVel}</text>
-                        {/* Courbe planifiés */}
-                        <polyline points={polyPlan} fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="5 3"/>
-                        {ptsPlan.map((p,i) => (
-                          <g key={i}>
-                            <circle cx={p.x} cy={p.y} r="4" fill="#3b82f6" stroke="#1e3a5f" strokeWidth="1.5"/>
-                            <text x={p.x} y={p.y-8} textAnchor="middle" fontSize="9" fill="#3b82f6" fontWeight="600">{p.v}</text>
-                          </g>
-                        ))}
-                        {/* Courbe livrés */}
-                        <polyline points={polyDone} fill="none" stroke="#22c55e" strokeWidth="2.5"/>
-                        {ptsDone.map((p,i) => (
-                          <g key={i}>
-                            <circle cx={p.x} cy={p.y} r="5" fill={sprints[i].completedPoints>=sprints[i].plannedPoints?"#22c55e":"#f59e0b"} stroke="#0f172a" strokeWidth="1.5"/>
-                            <text x={p.x} y={p.y-10} textAnchor="middle" fontSize="10" fill={sprints[i].completedPoints>=sprints[i].plannedPoints?"#22c55e":"#f59e0b"} fontWeight="700">{p.v}</text>
-                          </g>
-                        ))}
-                      </svg>
-                    )
-                  })()}
-                  <div style={{display:"flex",gap:16,marginTop:8,justifyContent:"center"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:"var(--text-3)"}}>
-                      <svg width="20" height="4"><line x1="0" y1="2" x2="20" y2="2" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4 2"/></svg> Planifiés
-                    </div>
-                    <div style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:"var(--text-3)"}}>
-                      <svg width="20" height="4"><line x1="0" y1="2" x2="20" y2="2" stroke="#22c55e" strokeWidth="2.5"/></svg> Livrés
-                    </div>
-                    <div style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:"var(--text-3)"}}>
-                      <svg width="20" height="4"><line x1="0" y1="2" x2="20" y2="2" stroke="#7B5EFF" strokeWidth="1" strokeDasharray="4 2"/></svg> Vélocité moy.
-                    </div>
-                  </div>
-                </div>
                 {/* Tableau vélocité */}
                 <div style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:12,overflow:"hidden"}}>
                   <table style={{width:"100%",borderCollapse:"collapse"}}>
