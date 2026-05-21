@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import BackButton from "@/components/ui/BackButton"
 import { Wand2, ChevronRight, Loader2, Zap, Info } from "lucide-react"
+import TutorialGuide from "@/components/ui/TutorialGuide"
 
 // ── Taxonomie complète ────────────────────────────────────────────────────────
 
@@ -214,6 +215,16 @@ export default function GuidePage() {
         <p style={{ fontSize:13, color:"var(--text-2)", margin:0 }}>Renseignez les informations et l'IA adaptera les outils PMO à votre méthode.</p>
       </div>
 
+      <TutorialGuide
+        onApplyExample={(ex) => setForm(f => ({...f,
+          name:ex.name, description:ex.description, client:ex.client,
+          budget:ex.budget, sector:ex.sector, environment:ex.environment,
+          team_size:ex.team_size, objectives:ex.objectives,
+          project_type:ex.project_type, methodology:ex.methodology,
+          test_approach:ex.test_approach
+        }))}
+        onClose={() => {}}
+      />
       <div style={{ display:"grid", gridTemplateColumns:"1fr 340px", gap:20 }}>
 
         {/* Formulaire gauche */}
