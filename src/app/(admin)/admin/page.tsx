@@ -15,35 +15,13 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const load = async () => {
-      const today   = new Date().toISOString().split("T")[0]
-      const weekAgo = new Date(Date.now() - 7*86400000).toISOString()
-
-      const [
-        { count: total }, { count: free }, { count: pro }, { count: team },
-        { count: starter }, { count: premium },
-        { count: projects }, { count: banned },
-        { count: todayCount }, { count: weekCount },
-      ] = await Promise.all([
-        supabase.from("profiles").select("*", { count:"exact", head:true }),
-        supabase.from("profiles").select("*", { count:"exact", head:true }).eq("plan","free"),
-        supabase.from("profiles").select("*", { count:"exact", head:true }).eq("plan","pro"),
-        supabase.from("profiles").select("*", { count:"exact", head:true }).eq("plan","team"),
-        supabase.from("profiles").select("*", { count:"exact", head:true }).eq("plan","starter"),
-        supabase.from("profiles").select("*", { count:"exact", head:true }).eq("plan","premium"),
-        supabase.from("projects").select("*",  { count:"exact", head:true }),
-        supabase.from("profiles").select("*", { count:"exact", head:true }).eq("is_banned",true),
-        supabase.from("profiles").select("*", { count:"exact", head:true }).gte("created_at",today),
-        supabase.from("profiles").select("*", { count:"exact", head:true }).gte("created_at",weekAgo),
-      ])
-
-      const { data: aiData } = await supabase.from("profiles").select("ai_calls_count")
-      const totalAI = aiData?.reduce((s,p) => s+(p.ai_calls_count??0),0) ?? 0
-
+      const res = await fetch("/api/admin/stats")
+      const d = await res.json()
       setStats({
-        totalUsers: total??0, freeUsers: free??0, proUsers: pro??0, teamUsers: team??0,
-        starterUsers: starter??0, premiumUsers: premium??0,
-        totalProjects: projects??0, totalAICalls: totalAI, bannedUsers: banned??0,
-        newUsersToday: todayCount??0, newUsersWeek: weekCount??0
+        totalUsers: d.total??0, freeUsers: d.free??0, proUsers: d.pro??0, teamUsers: 0,
+        starterUsers: d.starter??0, premiumUsers: d.premium??0,
+        totalProjects: d.projectsTotal??0, totalAICalls: d.aiTotal??0,
+        bannedUsers: d.banned??0, newUsersToday: d.newToday??0, newUsersWeek: d.newWeek??0
       })
       setLoading(false)
     }

@@ -37,11 +37,9 @@ export default function AdminSubscriptionsPage() {
 
   const loadSubs = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from("subscriptions")
-      .select("*, profiles(full_name, email)")
-      .order("created_at", { ascending: false })
-    setSubs((data ?? []) as Sub[])
+    const res = await fetch("/api/admin/subscriptions")
+    const d = await res.json()
+    setSubs((d.subscriptions ?? []) as Sub[])
     setLoading(false)
   }
 
