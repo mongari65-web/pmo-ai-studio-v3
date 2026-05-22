@@ -28,7 +28,7 @@ const emptyObj = ():Objective => ({ id:Date.now().toString(), title:"", descript
 export default function OKRPage() {
   const { id } = useParams<{ id:string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "okr")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "okr")
 
   const [objectives, setObjectives] = useState<Objective[]>([])
   const [showForm, setShowForm]     = useState(false)

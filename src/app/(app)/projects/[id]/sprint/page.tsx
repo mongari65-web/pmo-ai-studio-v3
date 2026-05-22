@@ -172,7 +172,7 @@ function VelocityChart({ sprints, avgVel }: { sprints: SprintReview[]; avgVel: n
 export default function SprintPage() {
   const { id } = useParams<{id:string}>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "sprint")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "sprint")
 
   const [activeTab, setActiveTab]     = useState("backlog")
   const [sprints, setSprints]         = useState<SprintReview[]>([])

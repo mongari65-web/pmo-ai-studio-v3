@@ -30,7 +30,7 @@ const SOURCES = [
 export default function IntegrationsPage() {
   const { id } = useParams<{ id:string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "integrations")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "integrations")
 
   const [activeSource, setActiveSource] = useState<string|null>(null)
   const [formData, setFormData]         = useState<Record<string,string>>({})

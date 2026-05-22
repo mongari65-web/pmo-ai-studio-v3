@@ -10,7 +10,7 @@ import { toast } from "sonner"
 export default function WidgetPage() {
   const { id } = useParams<{ id:string }>()
   const { project } = useProject(id)
-  const { data, history, loading, save, loadHistory } = useToolData(id, "widget")
+  const { data, history, loading, save, loadHistory, deleteHistory } = useToolData(id, "widget")
 
   const [copied, setCopied]   = useState<string|null>(null)
   const [preview, setPreview] = useState(false)

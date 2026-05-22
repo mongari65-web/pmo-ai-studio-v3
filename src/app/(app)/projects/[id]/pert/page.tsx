@@ -162,7 +162,7 @@ function Arrow({ from, to, critical, fastTrack }: any) {
 export default function PERTPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "pert")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "pert")
 
   const [tasks, setTasks]       = useState<PERTTask[]>([])
   const [tab, setTab]           = useState<"diagram"|"critical"|"tasks">("diagram")

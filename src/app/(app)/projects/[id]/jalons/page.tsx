@@ -24,7 +24,7 @@ const STATUS_OPTS = ["Atteint", "En cours", "À venir", "En retard", "Annulé"]
 export default function JalonsPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "jalons")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "jalons")
   const [items, setItems] = useState<Jalon[]>([])
   const [editId, setEditId] = useState<string | null>(null)
   const [editRow, setEditRow] = useState<Jalon | null>(null)

@@ -32,7 +32,7 @@ const empty = (): CommLine => ({
 export default function CommunicationPage() {
   const { id } = useParams<{ id:string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "communication")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "communication")
 
   const [items, setItems]     = useState<CommLine[]>([])
   const [newItem, setNewItem] = useState<CommLine>(empty())

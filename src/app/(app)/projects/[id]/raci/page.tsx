@@ -32,7 +32,7 @@ const empty = ():RACIRow => ({
 export default function RACIPage() {
   const { id } = useParams<{ id:string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "raci")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "raci")
 
   const [rows, setRows]       = useState<RACIRow[]>([])
   const [actors, setActors]   = useState<string[]>(["Chef de Projet","Sponsor","Équipe","Client","MOE"])

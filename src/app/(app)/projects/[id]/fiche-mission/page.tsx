@@ -44,7 +44,7 @@ const emptyFiche = (): FicheMission => ({
 export default function FicheMissionPage() {
   const { id } = useParams<{ id:string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "fiche-mission")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "fiche-mission")
 
   const [fiche, setFiche] = useState<FicheMission>(emptyFiche())
   const [preview, setPreview] = useState(false)

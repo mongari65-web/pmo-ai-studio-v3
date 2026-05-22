@@ -30,7 +30,7 @@ const CRIT_COLORS: Record<string,string> = { "Critique":"#ef4444","Haute":"#f59e
 export default function WorkPackagesPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "workpackages")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "workpackages")
   const [wps, setWps]           = useState<WP[]>([])
   const [activeTab, setActiveTab] = useState<"grid"|"fiche"|"table">("grid")
   const [ficheIdx, setFicheIdx] = useState(0)

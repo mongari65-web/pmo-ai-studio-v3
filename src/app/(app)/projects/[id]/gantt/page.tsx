@@ -28,7 +28,7 @@ function addDays(date: string, days: number) {
 export default function GanttPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "gantt")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "gantt")
   const [tasks, setTasks] = useState<GanttTask[]>([])
   const [viewMode, setViewMode] = useState<"visual"|"table">("visual")
   const [showAddForm, setShowAddForm] = useState(false)

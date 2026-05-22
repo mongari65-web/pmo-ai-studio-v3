@@ -161,7 +161,7 @@ function MindMapSVG({ data, svgRef }: { data: MindMapData; svgRef: React.RefObje
 export default function MindMapPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "mindmap")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "mindmap")
   const [mmData, setMmData] = useState<MindMapData | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
 

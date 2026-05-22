@@ -9,7 +9,7 @@ import { toast } from "sonner"
 export default function DocumentsPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "documents")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "documents")
   const [items, setItems] = useState<any[]>([])
 
   useEffect(() => {

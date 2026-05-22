@@ -48,7 +48,7 @@ function KPIBadge({ label, value, sub, color, good }: any) {
 export default function BudgetEVMPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "budget")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "budget")
   const [evm, setEvm] = useState<EVMData>({ tasks: [], currentPeriod: new Date().getMonth() })
   const [tab, setTab] = useState<"rapport"|"pv"|"ev"|"ac"|"courbe"|"guide">("rapport")
 

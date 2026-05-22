@@ -20,7 +20,7 @@ const QUAD = {
 export default function SWOTPage() {
   const { id } = useParams<{ id:string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "swot")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "swot")
 
   const [items, setItems]       = useState<SWOTItem[]>([])
   const [strategic, setStrategic] = useState<string[]>([])

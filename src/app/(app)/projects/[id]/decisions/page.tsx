@@ -36,7 +36,7 @@ const empty = (): Decision => ({
 export default function DecisionsPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "decisions")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "decisions")
 
   const [items, setItems] = useState<Decision[]>([])
   const [newItem, setNewItem] = useState<Decision>(empty())

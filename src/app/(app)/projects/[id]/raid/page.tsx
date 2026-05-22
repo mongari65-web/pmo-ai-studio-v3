@@ -46,7 +46,7 @@ const CATS = ["All","Risk","Action","Issue","Decision"] as const
 export default function RAIDPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "raid")
+  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "raid")
   const [items, setItems]     = useState<RAIDItem[]>([])
   const [filter, setFilter]   = useState("All")
   const [editId, setEditId]   = useState<string|null>(null)
