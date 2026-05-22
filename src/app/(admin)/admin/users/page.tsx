@@ -32,11 +32,9 @@ export default function AdminUsersPage() {
 
   const loadUsers = async () => {
     setLoading(true)
-    const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false })
-    const { data: projects } = await supabase.from("projects").select("user_id")
-    const projectCounts: Record<string, number> = {}
-    projects?.forEach(p => { projectCounts[p.user_id] = (projectCounts[p.user_id] ?? 0) + 1 })
-    setUsers((data ?? []).map(u => ({ ...u, project_count: projectCounts[u.id] ?? 0 })))
+    const res = await fetch("/api/admin/users")
+    const json = await res.json()
+    setUsers(json.users ?? [])
     setLoading(false)
   }
 
