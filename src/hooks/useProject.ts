@@ -81,6 +81,10 @@ export function useToolData(projectId: string, toolType: string) {
   const loadHistory = useCallback((entry: any) => {
     setData(entry.data)
   }, [])
-
-  return { data, setData, history, loading, setLoading, save, loadHistory }
+  const deleteHistory = useCallback(async (id: string) => {
+    const { error } = await supabase.from("tool_history").delete().eq("id", id)
+    if (error) console.error("[deleteHistory]", error.message)
+    else setHistory(prev => prev.filter(h => h.id !== id))
+  }, [])
+  return { data, setData, history, loading, setLoading, save, loadHistory, deleteHistory }
 }

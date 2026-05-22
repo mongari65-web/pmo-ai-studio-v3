@@ -12,6 +12,7 @@ interface ToolLayoutProps {
   subtitle?: string
   history: any[]
   onLoadHistory: (entry: any) => void
+  onDeleteHistory?: (id: string) => void
   onGenerate?: () => void
   generateLabel?: string
   generating?: boolean
@@ -31,7 +32,7 @@ interface ToolLayoutProps {
 }
 
 export default function ToolLayout({
-  title, icon, subtitle, history, onLoadHistory,
+  title, icon, subtitle, history, onLoadHistory, onDeleteHistory,
   onGenerate, generateLabel = "Générer IA", generating,
   onAdd, addLabel = "+ Ajouter",
   children, projectName,
@@ -40,6 +41,7 @@ export default function ToolLayout({
   gammaType, gammaData
 }: ToolLayoutProps) {
   const [histOpen, setHistOpen] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState<string|null>(null)
 
   const exportConfig = exportRows ? {
     rows: exportRows,
@@ -53,6 +55,33 @@ export default function ToolLayout({
   } : null
 
   return (
+    <>
+    {deleteConfirm && (
+      <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", zIndex:9999,
+        display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)",
+          borderRadius:"var(--r16)", padding:28, maxWidth:360, width:"90%" }}>
+          <p style={{ fontSize:16, fontWeight:700, color:"var(--text-1)", margin:"0 0 8px" }}>
+            Supprimer cette génération ?
+          </p>
+          <p style={{ fontSize:13, color:"var(--text-2)", margin:"0 0 20px" }}>
+            Cette action est irréversible.
+          </p>
+          <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
+            <button onClick={() => setDeleteConfirm(null)}
+              style={{ padding:"8px 16px", background:"var(--bg)", border:"1px solid var(--border)",
+                borderRadius:"var(--r8)", cursor:"pointer", color:"var(--text-2)", fontSize:13 }}>
+              Annuler
+            </button>
+            <button onClick={() => { onDeleteHistory?.(deleteConfirm); setDeleteConfirm(null) }}
+              style={{ padding:"8px 16px", background:"#ef4444", border:"none",
+                borderRadius:"var(--r8)", cursor:"pointer", color:"#fff", fontSize:13, fontWeight:600 }}>
+              Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     <div style={{ padding:"24px 28px", minHeight:"100%", background:"var(--bg)", position:"relative" }}>
 
       {/* Glow ambiance */}
@@ -115,23 +144,34 @@ export default function ToolLayout({
                     Aucune génération
                   </p>
                 ) : history.slice(0, 10).map((entry: any) => (
-                  <button key={entry.id}
-                    onClick={() => { onLoadHistory(entry); setHistOpen(false) }}
-                    style={{ display:"flex", flexDirection:"column", alignItems:"flex-start",
-                      width:"100%", padding:"8px 12px", background:"transparent",
-                      border:"none", borderRadius:"var(--r8)", cursor:"pointer",
-                      transition:"background 0.1s" }}
-                    onMouseEnter={e => (e.currentTarget as any).style.background = "var(--bg-glass)"}
-                    onMouseLeave={e => (e.currentTarget as any).style.background = "transparent"}>
-                    <span style={{ fontSize:12, color:"var(--text-1)", fontWeight:500 }}>
-                      {new Date(entry.created_at).toLocaleDateString("fr-FR", {
-                        day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"
-                      })}
-                    </span>
-                    {entry.label && (
-                      <span style={{ fontSize:11, color:"var(--text-3)" }}>{entry.label}</span>
+                  <div key={entry.id} style={{ display:"flex", alignItems:"center", gap:4, borderBottom:"1px solid var(--border)" }}>
+                    <button
+                      onClick={() => { onLoadHistory(entry); setHistOpen(false) }}
+                      style={{ display:"flex", flexDirection:"column", alignItems:"flex-start",
+                        flex:1, padding:"8px 12px", background:"transparent",
+                        border:"none", borderRadius:"var(--r8)", cursor:"pointer",
+                        transition:"background 0.1s" }}
+                      onMouseEnter={e => (e.currentTarget as any).style.background = "var(--bg-glass)"}
+                      onMouseLeave={e => (e.currentTarget as any).style.background = "transparent"}>
+                      <span style={{ fontSize:12, color:"var(--text-1)", fontWeight:500 }}>
+                        {new Date(entry.created_at).toLocaleDateString("fr-FR", {
+                          day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"
+                        })}
+                      </span>
+                      {entry.label && (
+                        <span style={{ fontSize:11, color:"var(--text-3)" }}>{entry.label}</span>
+                      )}
+                    </button>
+                    {onDeleteHistory && (
+                      <button onClick={() => setDeleteConfirm(entry.id)}
+                        style={{ padding:"4px 8px", background:"transparent", border:"none",
+                          cursor:"pointer", color:"var(--text-3)", borderRadius:4,
+                          fontSize:16, lineHeight:1 }}
+                        title="Supprimer">
+                        🗑
+                      </button>
                     )}
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
@@ -196,5 +236,8 @@ export default function ToolLayout({
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
       `}</style>
     </div>
+  )
+
+    </>
   )
 }

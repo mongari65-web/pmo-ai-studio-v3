@@ -27,7 +27,7 @@ const empty = (): WBSItem => ({
 export default function WBSPage() {
   const { id } = useParams<{ id: string }>()
   const { project } = useProject(id)
-  const { data, setData, history, loading, setLoading, save, loadHistory } = useToolData(id, "wbs")
+  const { data, setData, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "wbs")
   const [items, setItems] = useState<WBSItem[]>([])
   const [editId, setEditId] = useState<string | null>(null)
   const [editRow, setEditRow] = useState<WBSItem | null>(null)
@@ -88,7 +88,7 @@ export default function WBSPage() {
   return (
     <AppLayout>
       <ToolLayout title="WBS — Dictionnaire" icon="🗂️" subtitle="// STRUCTURE DE DÉCOUPAGE"
-        history={history} onLoadHistory={(e) => { loadHistory(e); if (e.data?.items) setItems(e.data.items) }}
+        history={history} onLoadHistory={(e) => { loadHistory(e); if (e.data?.items) setItems(e.data.items) }} onDeleteHistory={deleteHistory}
         onGenerate={generate} generateLabel="Générer WBS" generating={loading}
         onAdd={() => setAdding(true)} addLabel="+ Ajouter ligne"
         exportRows={toRows()} exportFilename={`WBS_${project?.name ?? ""}`}
