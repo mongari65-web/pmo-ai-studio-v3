@@ -140,41 +140,52 @@ export default function ExportMenu({ config }: ExportMenuProps) {
   ]
 
   return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card text-sm font-medium text-purple-400 hover:bg-accent transition-colors"
-      >
-        <Download size={14}/>
+    <div ref={ref} style={{ position:"relative" }}>
+      <button onClick={() => setOpen(o => !o)}
+        style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 12px",
+          background:"var(--bg-card)", border:"1px solid var(--border)",
+          borderRadius:"var(--r8)", fontSize:12, fontWeight:500,
+          color:"var(--primary-light)", cursor:"pointer" }}>
+        <Download size={13}/>
         Exporter
-        <ChevronDown size={12} className={`transition-transform ${open ? "rotate-180" : ""}`}/>
+        <ChevronDown size={11} style={{ transform: open ? "rotate(180deg)" : "none", transition:"transform 0.2s" }}/>
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-border rounded-xl shadow-2xl w-56 overflow-hidden">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Exporter</span>
-            <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
+        <div style={{ position:"absolute", right:0, top:"calc(100% + 6px)", zIndex:1000,
+          background:"var(--bg-card)", border:"1px solid var(--border)",
+          borderRadius:"var(--r10)", minWidth:200,
+          boxShadow:"0 8px 32px rgba(0,0,0,0.5)", overflow:"hidden" }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+            padding:"10px 14px", borderBottom:"1px solid var(--border)" }}>
+            <span style={{ fontSize:10, fontWeight:700, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:1 }}>Exporter</span>
+            <button onClick={() => setOpen(false)}
+              style={{ background:"none", border:"none", cursor:"pointer", color:"var(--text-3)", padding:2 }}>
               <X size={12}/>
             </button>
           </div>
 
           {ACTIONS.map(group => (
             <div key={group.group}>
-              <div className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/50">
+              <div style={{ padding:"6px 14px 4px", fontSize:10, fontWeight:700,
+                color:"var(--text-3)", textTransform:"uppercase", letterSpacing:1,
+                background:"var(--bg)" }}>
                 {group.group}
               </div>
               {group.items.map(item => (
-                <button
-                  key={item.key}
+                <button key={item.key}
                   onClick={() => run(item.key, item.fn)}
                   disabled={loading === item.key}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-accent border-b border-border/50 last:border-0 transition-colors disabled:opacity-50"
-                >
-                  <item.icon size={14} style={{ color: item.color }} className="flex-shrink-0"/>
-                  <span className="text-sm text-foreground">{item.label}</span>
+                  style={{ display:"flex", alignItems:"center", gap:10, width:"100%",
+                    padding:"8px 14px", background:"transparent", border:"none",
+                    borderBottom:"1px solid var(--border)", cursor:"pointer",
+                    opacity: loading === item.key ? 0.5 : 1, transition:"background 0.1s" }}
+                  onMouseEnter={e => (e.currentTarget as any).style.background = "var(--bg-glass)"}
+                  onMouseLeave={e => (e.currentTarget as any).style.background = "transparent"}>
+                  <item.icon size={14} style={{ color: item.color, flexShrink:0 }}/>
+                  <span style={{ fontSize:12, color:"var(--text-1)" }}>{item.label}</span>
                   {loading === item.key && (
-                    <span className="ml-auto text-[10px] text-muted-foreground animate-pulse">...</span>
+                    <span style={{ marginLeft:"auto", fontSize:10, color:"var(--text-3)" }}>...</span>
                   )}
                 </button>
               ))}
