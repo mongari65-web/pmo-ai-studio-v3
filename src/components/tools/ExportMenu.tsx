@@ -2,7 +2,7 @@
 // components/tools/ExportMenu.tsx — Menu export universel
 import { useState, useRef, useEffect } from "react"
 import {
-  Download, FileSpreadsheet, FileText, Presentation,
+  Download, FileSpreadsheet, FileText, MonitorPlay,
   Mail, HardDrive, Bookmark, Image, FileJson,
   Table, Printer, ChevronDown, X
 } from "lucide-react"
@@ -83,7 +83,7 @@ export default function ExportMenu({ config }: ExportMenuProps) {
           }
         },
         {
-          key: "pptx", icon: Presentation, label: "PowerPoint (.pptx)", color: "#f59e0b",
+          key: "pptx", icon: MonitorPlay, label: "PowerPoint (.pptx)", color: "#f59e0b",
           fn: async () => {
             const { exportPPTX } = await import("@/lib/exportAll")
             const slides = config.pptxSlides ?? [
