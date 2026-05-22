@@ -21,7 +21,19 @@ export default function RegisterPage() {
       options: { data: { full_name: name } }
     })
     if (error) { setError(error.message); setLoading(false) }
-    else setDone(true)
+    else {
+      // Backup — créer le profil si le trigger Supabase ne l'a pas fait
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await supabase.from("profiles").upsert({
+          id: user.id, email, full_name: name,
+          plan: "free", plan_id: "free",
+          subscription_status: "inactive",
+          ai_calls_count: 0, is_banned: false
+        }, { onConflict: "id", ignoreDuplicates: true })
+      }
+      setDone(true)
+    }
   }
 
   const inputStyle = { width:"100%", padding:"9px 12px", border:"1px solid var(--border)", borderRadius:"var(--r8)", fontSize:13, color:"var(--text-1)", background:"#fff", outline:"none", transition:"border-color 0.15s" }
