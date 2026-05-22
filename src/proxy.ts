@@ -42,7 +42,7 @@ export async function proxy(request: NextRequest) {
     return response
   }
   // Redirect to dashboard if already logged in
-  if (user && (path === "/auth/login" || path === "/auth/register")) {
+  if (user && (path === "/auth/login" || path === "/auth/register" || path === "/")) {
     const url = request.nextUrl.clone()
     url.pathname = "/dashboard"
     return NextResponse.redirect(url)
