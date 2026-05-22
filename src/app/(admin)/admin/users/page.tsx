@@ -36,29 +36,29 @@ export default function AdminUsersPage() {
     const { data: projects } = await supabase.from("projects").select("user_id")
     const projectCounts: Record<string, number> = {}
     projects?.forEach(p => { projectCounts[p.user_id] = (projectCounts[p.user_id] ?? 0) + 1 })
-    setUsers((data ?? []).map(u => ({ ...u, project_count: projectCounts[u.user_id] ?? 0 })))
+    setUsers((data ?? []).map(u => ({ ...u, project_count: projectCounts[u.id] ?? 0 })))
     setLoading(false)
   }
 
   const updatePlan = async (userId: string, plan: string) => {
     setActionUser(userId)
-    await supabase.from("profiles").update({ plan }).eq("user_id", userId)
-    setUsers(prev => prev.map(u => u.user_id === userId ? { ...u, plan } : u))
+    await supabase.from("profiles").update({ plan }).eq("id", userId)
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, plan } : u))
     toast.success("Plan mis à jour : " + plan)
     setActionUser(null)
   }
 
   const toggleBan = async (userId: string, banned: boolean) => {
     setActionUser(userId)
-    await supabase.from("profiles").update({ is_banned: !banned }).eq("user_id", userId)
-    setUsers(prev => prev.map(u => u.user_id === userId ? { ...u, is_banned: !banned } : u))
+    await supabase.from("profiles").update({ is_banned: !banned }).eq("id", userId)
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_banned: !banned } : u))
     toast.success(!banned ? "Compte banni" : "Compte réactivé")
     setActionUser(null)
   }
 
   const resetAI = async (userId: string) => {
-    await supabase.from("profiles").update({ ai_calls_count: 0 }).eq("user_id", userId)
-    setUsers(prev => prev.map(u => u.user_id === userId ? { ...u, ai_calls_count: 0 } : u))
+    await supabase.from("profiles").update({ ai_calls_count: 0 }).eq("id", userId)
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, ai_calls_count: 0 } : u))
     toast.success("Quota IA réinitialisé")
   }
 
