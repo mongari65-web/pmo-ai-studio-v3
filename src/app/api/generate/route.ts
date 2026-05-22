@@ -107,6 +107,15 @@ function buildPrompt(tool: string, name: string, desc: string, extra: any): stri
   const s = extra.startDate || extra.start_date || "2026-01-01"
   const e = extra.endDate || extra.end_date || "2026-06-30"
   const b = String(extra.budget || "100000")
+  // Calculer le mois courant relatif au projet
+  const today = new Date()
+  const startDateObj = new Date(s)
+  const todayMonth = today.getFullYear() * 12 + today.getMonth()
+  const startMonth = startDateObj.getFullYear() * 12 + startDateObj.getMonth()
+  const cp = Math.max(0, Math.min(11, todayMonth - startMonth))
+  const cpLabel = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"][cp]
+  const isFuture = startDateObj > today
+  const isNew = isFuture || cp === 0
 
   const prompts: Record<string, string> = {
 
@@ -152,18 +161,19 @@ function buildPrompt(tool: string, name: string, desc: string, extra: any): stri
 
     budget: "Génère un budget EVM pour ce projet." +
       " Nom: " + n + ". Description: " + d + ". Budget TOTAL: " + b + "€. Période: " + s + " → " + e + "." +
-      " Aujourd\'hui = Mai 2026 = index mois 4 (Jan=0, Fév=1, Mar=2, Avr=3, Mai=4)." +
+      " Aujourd\'hui = " + cpLabel + " 2026 = index mois " + cp + " (Jan=0, Fév=1, Mar=2, Avr=3, Mai=4, Jun=5...)." +
       " CONTRAINTES STRICTES:" +
       " - 6 tâches/phases spécifiques au projet, noms détaillés" +
       " - Somme de tous les BAC = exactement " + b + "€" +
-      " - currentPeriod = 4 (Mai 2026)" +
+      " - currentPeriod = " + cp + " (" + cpLabel + " 2026)" +
       " - Chaque tâche a pv[], ev[], ac[] = tableaux de 12 valeurs mensuelles (index 0=Jan à 11=Déc)" +
       " - pv[]: distribution réaliste en forme de S selon la phase du projet (montée progressive, plateau, descente)" +
-      " - Pour phases déjà démarrées (index 0 à 4): pv, ev, ac renseignés avec valeurs réalistes" +
-      " - Pour phases futures (index 5 à 11): pv progressif selon planning, ev=0, ac=0" +
-      " - Phases en retard: sum(ev[0..4]) < sum(pv[0..4]), ac légèrement > ev" +
+      " - Pour phases déjà démarrées (index 0 à " + cp + "): pv, ev, ac renseignés avec valeurs réalistes" +
+      " - Pour phases futures (index " + (cp+1) + " à 11): pv progressif selon planning, ev=0, ac=0" +
+      " - Phases en retard: sum(ev[0.." + cp + "]) < sum(pv[0.." + cp + "]), ac légèrement > ev" +
       " - Phases futures: ev[0..11]=0, ac[0..11]=0" +
       " - sum(pv[0..11]) pour chaque tâche doit être cohérent avec son BAC (pas x10)" +
+      (isFuture ? " - PROJET FUTUR: ev et ac = 0 sur tous les mois, pv commence à partir de l'index " + cp + "." : "") +
       " - CPI global réaliste entre 0.75 et 0.95 pour un projet en difficulté" +
       ' JSON: {"currentPeriod":4,"tasks":[{"id":"T1","wbs":"1.0","name":"[NOM PHASE DÉTAILLÉ]","phase":"[PHASE]","responsible":"[RÔLE]","bac":[MONTANT],"pv":[v0,v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11],"ev":[v0,v1,v2,v3,v4,0,0,0,0,0,0,0],"ac":[v0,v1,v2,v3,v4,0,0,0,0,0,0,0]}]}',
 
