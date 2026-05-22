@@ -29,7 +29,7 @@ export async function proxy(request: NextRequest) {
 
   // ── Redirect unauthenticated users ──────────────────────────
   const publicPaths = ["/", "/auth/login", "/auth/register", "/auth/callback"]
-  const isPublic = publicPaths.some(p => path === p) || path.startsWith("/api/") || path.startsWith("/embed/") || path.startsWith("/legal/") || path === "/changelog" || path === "/about" || path.startsWith("/blog")
+  const isPublic = publicPaths.some(p => path === p) || path.startsWith("/api/") || path.startsWith("/embed/") || path.startsWith("/legal/") || path === "/changelog" || path === "/about" || path.startsWith("/blog") || path.endsWith(".html") || path.startsWith("/landing")
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"
