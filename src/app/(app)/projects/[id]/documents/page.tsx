@@ -13,8 +13,11 @@ export default function DocumentsPage() {
   const [items, setItems] = useState<any[]>([])
 
   useEffect(() => {
-    const key = Object.keys(data ?? {})[0]
-    if (key && data?.[key]) setItems(data[key])
+    if (!data) return
+    // Format: { documents: [...] } ou { items: [...] } ou [...]
+    if (Array.isArray(data)) { setItems(data); return }
+    const key = Object.keys(data)[0]
+    if (key && Array.isArray(data[key])) setItems(data[key])
   }, [data])
 
   const generate = async () => {
