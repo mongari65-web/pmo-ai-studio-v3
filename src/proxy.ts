@@ -33,6 +33,18 @@ export async function proxy(request: NextRequest) {
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"
+    const response = NextResponse.redirect(url)
+    request.cookies.getAll().forEach(cookie => {
+      if (cookie.name.includes("supabase") || cookie.name.includes("sb-")) {
+        response.cookies.delete(cookie.name)
+      }
+    })
+    return response
+  }
+  // Redirect to dashboard if already logged in
+  if (user && (path === "/auth/login" || path === "/auth/register")) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/dashboard"
     return NextResponse.redirect(url)
   }
 
