@@ -14,7 +14,7 @@ export function NavButtons({ backHref, backLabel = "Retour", nextHref, nextLabel
   const btnBase: React.CSSProperties = {
     display:"inline-flex", alignItems:"center", gap:7,
     padding:"8px 16px",
-    borderRadius:24", fontSize:13, fontWeight:600,
+    borderRadius:"var(--r8)", fontSize:13, fontWeight:600,
     cursor:"pointer", transition:"all 0.15s",
     border:"1px solid var(--border)",
   }
