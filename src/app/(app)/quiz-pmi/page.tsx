@@ -1,4 +1,5 @@
 "use client"
+import BackButton from "@/components/ui/BackButton"
 import { useState, useEffect, useCallback } from "react"
 import AppLayout from "@/components/layout/AppLayout"
 import { createClient } from "@/lib/supabase/client"
@@ -111,6 +112,7 @@ export default function QuizPMIPage() {
     <AppLayout>
       <div style={{ padding:"20px 24px", background:"var(--bg)", minHeight:"100%", display:"flex", flexDirection:"column", gap:16 }}>
 
+        <BackButton href="/dashboard"/>
         {/* Header */}
         <div>
           <p style={{ fontSize:10, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:"1px", margin:"0 0 4px" }}>// QUIZ PMI</p>

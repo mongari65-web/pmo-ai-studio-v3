@@ -160,6 +160,7 @@ export default function PMPConseils() {
   return (
     <AppLayout>
       <div style={{ padding:"24px 28px", background:"var(--bg)", minHeight:"100%" }}>
+        <BackButton href="/dashboard"/>
 
         {/* Header */}
         <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:24 }}>

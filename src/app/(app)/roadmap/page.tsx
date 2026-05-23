@@ -1,4 +1,5 @@
 "use client"
+import BackButton from "@/components/ui/BackButton"
 import { useEffect, useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import AppLayout from "@/components/layout/AppLayout"
@@ -99,6 +100,7 @@ export default function RoadmapPage() {
     <AppLayout>
       <div style={{ padding:"20px 24px", background:"var(--bg)", minHeight:"100%", display:"flex", flexDirection:"column", gap:14 }}>
 
+        <BackButton href="/dashboard"/>
         {/* Header */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div>
