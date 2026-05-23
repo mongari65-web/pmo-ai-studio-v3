@@ -18,6 +18,10 @@ const SCENARIOS = [
       {id:"endDate",label:"Date de fin prévue",type:"date",placeholder:"",required:true,aide:"Doit être réaliste — la sous-estimation est la 1ère cause d'échec."},
       {id:"budget",label:"Budget alloué (EUR)",type:"number",placeholder:"Ex: 150000",required:true,aide:"Base du calcul EVM (Valeur Planifiée)."},
       {id:"methodology",label:"Méthodologie cible",type:"select",options:["PMBOK 7","PRINCE2®","Agile / Scrum","Waterfall","Hybride"],required:true,aide:"Détermine les outils prioritaires à générer."},
+      {id:"sector",label:"Secteur",type:"select",options:["IT / Digital","Finance / Banking","Santé / Médical","BTP / Construction","Industrie","Télécom","Retail","Autre"],required:true,aide:"Le secteur influence les contraintes réglementaires."},
+      {id:"client",label:"Nom du client",type:"text",placeholder:"Ex: BNP Paribas, SNCF...",required:false,aide:"Identifiez le commanditaire ou client final."},
+      {id:"environment",label:"Environnement technique",type:"select",options:["Cloud AWS/Azure/GCP","On-premise","Hybride","SaaS","Mobile","IoT / Embarqué","Mainframe","Autre"],required:false,aide:"Oriente les risques et compétences nécessaires."},
+      {id:"objectives",label:"Objectifs business",type:"textarea",placeholder:"Réduction coûts, conformité, digitalisation...",required:false,aide:"Les objectifs doivent être mesurables — ROI, délai, qualité."},
       {id:"teamSize",label:"Taille de l'équipe",type:"select",options:["1-3","4-8","9-15","16+"],required:false,aide:"Influence la complexité du RACI."},
     ]
   },
@@ -88,11 +92,16 @@ export default function GuidePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { toast.error("Non connecté"); return }
       const { data: proj, error } = await supabase.from("projects").insert({
-        user_id: user.id, name: form.name, description: form.description ?? form.scope ?? "",
-        start_date: form.startDate, end_date: form.endDate,
+        user_id: user.id,
+        name: form.name,
+        description: form.description ?? form.scope ?? "",
+        start_date: form.startDate,
+        end_date: form.endDate,
         budget: form.budget ? parseFloat(form.budget) : null,
-        methodology: form.methodology ?? scenario.id, status: "active",
-        metadata: { scenario: scenario.id, ...form }
+        methodology: form.methodology ?? scenario.id,
+        sector: form.sector ?? "",
+        client: form.client ?? "",
+        status: "active",
       }).select().single()
       if (error) throw error
       fetch('/api/email/new-project', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email: user.email, name: form.name, projectName: form.name, scenario: scenario.id }) }).catch(console.error)
