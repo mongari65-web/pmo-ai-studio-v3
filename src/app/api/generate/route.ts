@@ -121,21 +121,21 @@ function buildPrompt(tool: string, name: string, desc: string, extra: any): stri
 
     wbs: "Génère un WBS complet pour ce projet." +
       " Nom: " + n + ". Description: " + d + ". Budget total: " + b + "€. Période: " + s + " → " + e + "." +
-      " CONTRAINTES: 15 éléments minimum, 3 niveaux (level 1=Phase, 2=Livrable, 3=Tâche)." +
+      " CONTRAINTES: 10 éléments, 3 niveaux (level 1=Phase, 2=Livrable, 3=Tâche)." +
       " La somme des budgets des éléments level 1 = " + b + "€." +
       " Noms et livrables spécifiques au type de projet (pas génériques)." +
       ' JSON: {"items":[{"id":"1","code":"1.0","name":"[PHASE]","level":1,"description":"[DESC]","deliverable":"[LIVRABLE]","responsible":"[ROLE]","duration":"[X sem]","budget":"[MONTANT]","dependencies":""},{"id":"2","code":"1.1","name":"[NOM]","level":2,"description":"[DESC]","deliverable":"[LIVRABLE]","responsible":"[ROLE]","duration":"[X sem]","budget":"[MONTANT]","dependencies":"1.0"}]}',
 
     gantt: "Génère un planning Gantt pour ce projet." +
       " Nom: " + n + ". Description: " + d + ". Période: " + s + " → " + e + "." +
-      " CONTRAINTES: 15 tâches, dates réelles entre " + s + " et " + e + "." +
+      " CONTRAINTES: 10 tâches, dates réelles entre " + s + " et " + e + "." +
       " Avancement cohérent avec la date actuelle (mai 2026)." +
       " Dépendances logiques entre tâches. Chemin critique identifié." +
       ' JSON: {"tasks":[{"id":"T1","wbs":"1.0","name":"[NOM]","phase":"[PHASE]","start":"[DATE]","end":"[DATE]","duration":[JOURS],"responsible":"[ROLE]","progress":[0-100],"dependencies":"","critical":true}]}',
 
     raid: "Génère un registre RAID pour ce projet." +
       " Nom: " + n + ". Description: " + d + "." +
-      " CONTRAINTES: 12 éléments (5 Risk, 3 Action, 2 Issue, 2 Decision)." +
+      " CONTRAINTES: 8 éléments (3 Risk, 2 Action, 2 Issue, 1 Decision)." +
       " Risques spécifiques au secteur du projet." +
       " category DOIT être exactement: Risk, Action, Issue ou Decision." +
       " priority: Critique, Haute, Moyenne ou Faible." +

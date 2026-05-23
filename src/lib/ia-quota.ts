@@ -9,9 +9,9 @@ export const PLAN_LIMITS = {
 } as const
 
 export const TOOL_MODEL: Record<string, string> = {
-  wbs:          "claude-sonnet-4-6",
-  gantt:        "claude-sonnet-4-6",
-  raid:         "claude-sonnet-4-6",
+  wbs:          "claude-haiku-4-5-20251001",
+  gantt:        "claude-haiku-4-5-20251001",
+  raid:         "claude-haiku-4-5-20251001",
   jalons:       "claude-haiku-4-5-20251001",
   workpackages: "claude-sonnet-4-6",
   mindmap:      "claude-haiku-4-5-20251001",
