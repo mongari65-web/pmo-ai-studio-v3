@@ -95,6 +95,7 @@ export default function GuidePage() {
         metadata: { scenario: scenario.id, ...form }
       }).select().single()
       if (error) throw error
+      fetch('/api/email/new-project', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email: user.email, name: form.name, projectName: form.name, scenario: scenario.id }) }).catch(console.error)
       toast.success("Projet créé !")
       router.push("/projects/" + proj.id + "/wbs")
     } catch (e: any) { toast.error(e.message) }

@@ -32,6 +32,13 @@ export default function RegisterPage() {
           ai_calls_count: 0, is_banned: false
         }, { onConflict: "id", ignoreDuplicates: true })
       }
+      // Envoyer email de bienvenue
+      fetch('/api/email/welcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name })
+      }).catch(console.error)
+      fetch('/api/email/welcome', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, name }) }).catch(console.error)
       setDone(true)
     }
   }
