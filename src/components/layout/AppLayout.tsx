@@ -79,17 +79,30 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
             <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:8 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                {([
-                  ["Cycle V","#9B84FF"],["Waterfall","#5B8DD9"],["Agile","#22c55e"],
-                  ["Scrum","#f59e0b"],["Kanban","#ef4444"],["PRINCE2","#7B5EFF"]
-                ] as [string,string][]).map(([label,color]) => (
-                  <div key={label} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
-                    <div style={{ width:26, height:20, borderRadius:3, border:`1px solid ${color}66`, background:`${color}15`, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                      <span style={{ fontSize:7, color, fontWeight:700 }}>{label.slice(0,3).toUpperCase()}</span>
-                    </div>
-                    <span style={{ fontSize:8, color:"rgba(255,255,255,0.4)" }}>{label}</span>
-                  </div>
-                ))}
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                  <svg width="28" height="20" viewBox="0 0 28 20" fill="none"><path d="M2 3 L8 13 L14 17 L20 13 L26 3" stroke="#9B84FF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="14" cy="17" r="2" fill="#9B84FF"/><circle cx="2" cy="3" r="1.5" fill="#7B5EFF"/><circle cx="26" cy="3" r="1.5" fill="#7B5EFF"/></svg>
+                  <span style={{ fontSize:8, color:"rgba(255,255,255,0.45)" }}>Cycle V</span>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                  <svg width="28" height="20" viewBox="0 0 28 20" fill="none"><rect x="1" y="1" width="10" height="4" rx="1" fill="#5B8DD9" opacity="0.85"/><rect x="5" y="7" width="10" height="4" rx="1" fill="#5B8DD9" opacity="0.7"/><rect x="9" y="13" width="10" height="4" rx="1" fill="#5B8DD9" opacity="0.55"/></svg>
+                  <span style={{ fontSize:8, color:"rgba(255,255,255,0.45)" }}>Waterfall</span>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                  <svg width="28" height="20" viewBox="0 0 28 20" fill="none"><path d="M3 10 C3 5 9 1 14 1 C19 1 25 5 25 10 C25 15 19 19 14 19 C9 19 3 15 3 10" stroke="#22c55e" strokeWidth="1.5" fill="none"/><path d="M10 1.5 C7 5 7 15 10 18.5" stroke="#22c55e" strokeWidth="1" fill="none" opacity="0.5"/><path d="M3 10 L25 10" stroke="#22c55e" strokeWidth="1" opacity="0.4"/></svg>
+                  <span style={{ fontSize:8, color:"rgba(255,255,255,0.45)" }}>Agile</span>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                  <svg width="28" height="20" viewBox="0 0 28 20" fill="none"><path d="M3 18 C3 10 8 2 14 2 C20 2 25 10 25 18" stroke="#f59e0b" strokeWidth="1.5" fill="none" strokeLinecap="round"/><rect x="10" y="13" width="8" height="5" rx="1" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" strokeWidth="1"/><circle cx="14" cy="2" r="1.5" fill="#f59e0b"/></svg>
+                  <span style={{ fontSize:8, color:"rgba(255,255,255,0.45)" }}>Scrum</span>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                  <svg width="28" height="20" viewBox="0 0 28 20" fill="none"><rect x="1" y="1" width="7" height="18" rx="1.5" fill="rgba(239,68,68,0.15)" stroke="#ef4444" strokeWidth="1"/><rect x="10" y="1" width="7" height="13" rx="1.5" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" strokeWidth="1"/><rect x="19" y="1" width="7" height="9" rx="1.5" fill="rgba(34,197,94,0.15)" stroke="#22c55e" strokeWidth="1"/></svg>
+                  <span style={{ fontSize:8, color:"rgba(255,255,255,0.45)" }}>Kanban</span>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                  <svg width="28" height="20" viewBox="0 0 28 20" fill="none"><polygon points="14,1 27,7 27,15 14,19 1,15 1,7" fill="rgba(123,94,255,0.15)" stroke="#7B5EFF" strokeWidth="1.5"/><circle cx="14" cy="10" r="2.5" fill="#7B5EFF"/></svg>
+                  <span style={{ fontSize:8, color:"rgba(255,255,255,0.45)" }}>PRINCE2</span>
+                </div>
               </div>
               <div style={{ display:"flex", gap:6 }}>
               {SOCIALS.map(s => (

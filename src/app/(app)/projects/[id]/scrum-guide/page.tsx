@@ -1,4 +1,5 @@
 "use client"
+import AppLayout from "@/components/layout/AppLayout"
 import { useParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"

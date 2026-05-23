@@ -1,4 +1,5 @@
 "use client"
+import AppLayout from "@/components/layout/AppLayout"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -48,6 +49,7 @@ export default function ProjectsPage() {
   }
 
   return (
+    <AppLayout>
     <div style={{ padding: "24px 28px", background: "var(--bg)", minHeight: "100%" }}>
 
       {/* Header */}
@@ -239,5 +241,6 @@ export default function ProjectsPage() {
         </Link>
       </div>
     </div>
+    </AppLayout>
   )
 }
