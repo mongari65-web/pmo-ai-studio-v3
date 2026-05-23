@@ -39,17 +39,26 @@ export function NavButtons({ backHref, backLabel = "Retour", nextHref, nextLabel
 }
 
 // Backward compat
-export default function BackButton({ href, label = "← Retour" }: { href?: string; label?: string }) {
+export default function BackButton({ href, label = "Retour" }: { href?: string; label?: string }) {
   const router = useRouter()
   return (
     <button onClick={() => href ? router.push(href) : router.back()}
-      style={{ display:"inline-flex", alignItems:"center", gap:7, padding:"8px 16px",
-        background:"var(--bg-card)", border:"1px solid var(--border)",
-        borderRadius:"var(--r8)", fontSize:13, fontWeight:600,
-        color:"var(--text-1)", cursor:"pointer", marginBottom:20, transition:"all 0.15s" }}
-      onMouseEnter={e=>{ (e.currentTarget as any).style.borderColor="var(--primary)"; (e.currentTarget as any).style.color="var(--primary-light)" }}
-      onMouseLeave={e=>{ (e.currentTarget as any).style.borderColor="var(--border)"; (e.currentTarget as any).style.color="var(--text-1)" }}>
-      <ArrowLeft size={14}/> {label}
+      style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"10px 20px",
+        background:"var(--bg-card)", border:"1.5px solid var(--border)",
+        borderRadius:"var(--r8)", fontSize:14, fontWeight:600,
+        color:"var(--text-1)", cursor:"pointer", marginBottom:24, transition:"all 0.15s",
+        boxShadow:"0 2px 8px rgba(0,0,0,0.15)" }}
+      onMouseEnter={e=>{ 
+        (e.currentTarget as any).style.borderColor="var(--primary)"
+        ;(e.currentTarget as any).style.color="var(--primary-light)"
+        ;(e.currentTarget as any).style.transform="translateX(-2px)"
+      }}
+      onMouseLeave={e=>{ 
+        (e.currentTarget as any).style.borderColor="var(--border)"
+        ;(e.currentTarget as any).style.color="var(--text-1)"
+        ;(e.currentTarget as any).style.transform="none"
+      }}>
+      <ArrowLeft size={16}/> {label}
     </button>
   )
 }
