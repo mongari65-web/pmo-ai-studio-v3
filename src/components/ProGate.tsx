@@ -145,5 +145,6 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
           </Link>
         </div>
       </div>
+    </div>
   )
 }
