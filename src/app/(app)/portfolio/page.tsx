@@ -74,9 +74,32 @@ export default function PortfolioPage() {
       supabase.from("projects").select("*").order("updated_at", { ascending: false }),
       supabase.from("project_tools").select("project_id,tool_type,data"),
     ])
-    setProjects(ps ?? [])
-    setTools(ts ?? [])
+    const projectsList = ps ?? []
+    const toolsList = ts ?? []
+    setProjects(projectsList)
+    setTools(toolsList)
     setLoading(false)
+    // Envoyer alertes ROUGE
+    const { data: { user: u } } = await supabase.auth.getUser()
+    if (u) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://pmo-ai-studio-v3.vercel.app"
+      projectsList.forEach(p => {
+        const rag = computeRAG(p, toolsList)
+        if (rag.rag === "R") {
+          fetch('/api/email/alert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: u.email,
+              projectName: p.name,
+              alertType: "ROUGE",
+              message: rag.details.join(" | "),
+              actionLink: appUrl + "/projects/" + p.id + "/budget"
+            })
+          }).catch(console.error)
+        }
+      })
+    }
   }
 
   const projectsWithRAG = useMemo(() =>
