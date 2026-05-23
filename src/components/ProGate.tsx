@@ -29,11 +29,11 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
   }, [])
 
   if (loading) return (
-    <AppLayout>
+
       <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"60vh" }}>
         <div style={{ fontSize:13, color:"var(--text-3)" }}>Vérification de l'accès...</div>
       </div>
-    </AppLayout>
+
   )
 
   // Accès autorisé si Pro ou Team (Team inclut tout)
@@ -42,7 +42,7 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
 
   // Mur d'accès Pro
   return (
-    <AppLayout>
+
       <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"70vh", padding:24 }}>
         <div style={{ maxWidth:520, width:"100%", textAlign:"center" }}>
 
@@ -111,6 +111,6 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
           </Link>
         </div>
       </div>
-    </AppLayout>
+
   )
 }
