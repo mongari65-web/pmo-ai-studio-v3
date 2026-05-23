@@ -5,3 +5,7 @@ node_modules/
 *.log
 seed_evm.py
 inject_articles.py
+EOF
+*.bak
+seed_evm_v3.py
+.DS_Store
