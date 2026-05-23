@@ -141,7 +141,7 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
           </div>
 
           <Link href="/dashboard" style={{ fontSize:13, color:"var(--text-3)", textDecoration:"none" }}>
-            ← Retour au dashboard
+            Retour au dashboard
           </Link>
         </div>
       </div>
