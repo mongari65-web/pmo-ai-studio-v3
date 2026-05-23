@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
 import { Lock, Crown, Zap, ArrowRight } from "lucide-react"
 
@@ -30,21 +29,18 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
   }, [])
 
   if (loading) return (
-    <AppLayout>
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"60vh" }}>
-        <div style={{ fontSize:13, color:"var(--text-3)" }}>Vérification de l'accès...</div>
-      </div>
-    </AppLayout>
+    <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"60vh" }}>
+      <div style={{ fontSize:13, color:"var(--text-3)" }}>Vérification de l'accès...</div>
+    </div>
   )
 
   // Accès autorisé si Pro ou Team (Team inclut tout)
-  const hasAccess = plan === "pro" || plan === "team"
+  const hasAccess = plan === "pro" || plan === "team" || plan === "premium"
   if (hasAccess) return <>{children}</>
 
   // Mur d'accès Pro
   return (
-    <AppLayout>
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"70vh", padding:24 }}>
+    <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"70vh", padding:24 }}>
         <div style={{ maxWidth:520, width:"100%", textAlign:"center" }}>
 
           {/* Icône lock */}
@@ -61,7 +57,7 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
           </p>
 
           {/* Comparaison plans */}
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:24 }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:24 }}>
             {/* Plan Gratuit */}
             <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r12)", padding:20, textAlign:"left" }}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
@@ -84,6 +80,24 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
               </div>
             </div>
 
+            {/* Plan Starter */}
+            <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r12)", padding:16, textAlign:"left" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:8 }}>
+                <Zap size={16} style={{ color:"#60a5fa" }}/>
+                <span style={{ fontSize:13, fontWeight:700, color:"var(--text-1)" }}>Starter</span>
+              </div>
+              <p style={{ fontSize:20, fontWeight:700, color:"var(--text-1)", margin:"0 0 10px" }}>9€<span style={{ fontSize:12, fontWeight:400 }}>/mois</span></p>
+              {["3 projets","20 req/mois","WBS + RAID"].map(f => (
+                <div key={f} style={{ display:"flex", alignItems:"center", gap:5, marginBottom:4 }}>
+                  <span style={{ fontSize:11, color:"#60a5fa" }}>✓</span>
+                  <span style={{ fontSize:11, color:"var(--text-2)" }}>{f}</span>
+                </div>
+              ))}
+              <Link href="/pricing" style={{ display:"flex", alignItems:"center", justifyContent:"center", marginTop:12, padding:"7px 0", background:"rgba(96,165,250,0.15)", color:"#60a5fa", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, textDecoration:"none" }}>
+                Choisir Starter
+              </Link>
+            </div>
+
             {/* Plan Pro */}
             <div style={{ background:"var(--primary-bg)", border:"2px solid var(--primary)", borderRadius:"var(--r12)", padding:20, textAlign:"left", position:"relative" }}>
               <div style={{ position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)", background:"var(--primary)", color:"#fff", fontSize:10, fontWeight:700, padding:"2px 12px", borderRadius:20 }}>
@@ -93,7 +107,7 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
                 <Crown size={18} style={{ color:"var(--primary)" }}/>
                 <span style={{ fontSize:14, fontWeight:700, color:"var(--primary-t)" }}>Pro</span>
               </div>
-              <p style={{ fontSize:22, fontWeight:700, color:"var(--primary-t)", margin:"0 0 12px" }}>29€<span style={{ fontSize:13, fontWeight:400 }}>/mois</span></p>
+              <p style={{ fontSize:22, fontWeight:700, color:"var(--primary-t)", margin:"0 0 12px" }}>17€<span style={{ fontSize:13, fontWeight:400 }}>/mois</span></p>
               {["20 projets","150 générations IA/mois","Tous les outils PMO",featureLabel,"Export PDF/Word/PPTX"].map(f => (
                 <div key={f} style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
                   <span style={{ fontSize:12, color:"var(--primary)" }}>✓</span>
@@ -107,11 +121,29 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
             </div>
           </div>
 
+            {/* Plan Premium */}
+            <div style={{ background:"rgba(234,179,8,0.08)", border:"1px solid rgba(234,179,8,0.3)", borderRadius:"var(--r12)", padding:16, textAlign:"left" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:8 }}>
+                <Crown size={16} style={{ color:"#f59e0b" }}/>
+                <span style={{ fontSize:13, fontWeight:700, color:"#f59e0b" }}>Premium</span>
+              </div>
+              <p style={{ fontSize:20, fontWeight:700, color:"#f59e0b", margin:"0 0 10px" }}>23€<span style={{ fontSize:12, fontWeight:400 }}>/mois</span></p>
+              {["20 projets","300 req/mois","PMP 225Q"].map(f => (
+                <div key={f} style={{ display:"flex", alignItems:"center", gap:5, marginBottom:4 }}>
+                  <span style={{ fontSize:11, color:"#f59e0b" }}>✓</span>
+                  <span style={{ fontSize:11, color:"var(--text-2)" }}>{f}</span>
+                </div>
+              ))}
+              <Link href="/pricing" style={{ display:"flex", alignItems:"center", justifyContent:"center", marginTop:12, padding:"7px 0", background:"rgba(245,158,11,0.15)", color:"#f59e0b", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, textDecoration:"none" }}>
+                Choisir Premium
+              </Link>
+            </div>
+          </div>
+
           <Link href="/dashboard" style={{ fontSize:13, color:"var(--text-3)", textDecoration:"none" }}>
             ← Retour au dashboard
           </Link>
         </div>
       </div>
-    </AppLayout>
   )
 }
