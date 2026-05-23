@@ -1,6 +1,36 @@
 "use client"
+import React, { useState, useEffect } from "react"
 import { LogoIcon } from "@/components/ui/LogoSVG"
 import Sidebar from "@/components/layout/Sidebar"
+
+const INSPIRE = [
+  "Un bon CP anticipe, il ne subit pas.",
+  "Chaque jalon franchi est une victoire.",
+  "Le risque non identifie est le plus dangereux.",
+  "Un projet sans WBS est un voyage sans carte.",
+  "La communication represente 90% du travail d'un CP.",
+  "Mesurer pour piloter, piloter pour livrer.",
+  "Le CPI ne ment pas — agissez avant qu'il soit trop tard.",
+  "La valeur livree, pas les heures passees.",
+  "Le meilleur outil PMO est celui qu'on utilise vraiment.",
+]
+function InspirePhrase() {
+  const [idx, setIdx] = useState(0)
+  const [vis, setVis] = useState(true)
+  useEffect(() => {
+    const t = setInterval(() => {
+      setVis(false)
+      setTimeout(() => { setIdx(i => (i+1) % INSPIRE.length); setVis(true) }, 500)
+    }, 4000)
+    return () => clearInterval(t)
+  }, [])
+  return (
+    <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(255,255,255,0.06)", border:"0.5px solid rgba(255,255,255,0.12)", borderRadius:20, padding:"3px 12px" }}>
+      <span style={{ color:"#7B5EFF", fontSize:12 }}>✦</span>
+      <span style={{ fontSize:11, color:"rgba(255,255,255,0.7)", fontStyle:"italic", opacity:vis?1:0, transition:"opacity 0.5s" }}>{INSPIRE[idx]}</span>
+    </div>
+  )
+}
 
 const SOCIALS = [
   { label:"Email",    href:"mailto:contact@pmoai.studio",     svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>' },
@@ -37,15 +67,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <div style={{ display:"flex", alignItems:"center", gap:14 }}>
               <div style={{ width:46, height:46, flexShrink:0 }}><LogoIcon size={46}/></div>
               <div>
-                <div style={{ fontSize:19, fontWeight:700, color:"#fff", letterSpacing:"-0.3px", lineHeight:1.1 }}>PMO AI Studio</div>
-                <div style={{ fontSize:11, color:"rgba(255,255,255,0.78)", marginTop:4 }}>Le copilote IA des Chefs de Projet · PMBOK 7</div>
-                <div style={{ display:"inline-flex", alignItems:"center", gap:5, marginTop:6, background:"rgba(255,255,255,0.14)", border:"1px solid rgba(255,255,255,0.28)", borderRadius:20, padding:"2px 10px" }}>
-                  <div style={{ width:6, height:6, borderRadius:"50%", background:"#4ade80" }}/>
-                  <span style={{ fontSize:10, color:"rgba(255,255,255,0.95)", fontWeight:600, letterSpacing:"0.3px" }}>Claude AI · En ligne</span>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                  <div style={{ fontSize:20, fontWeight:700, color:"#fff" }}>PMO AI Studio</div>
+                  <div style={{ background:"rgba(123,94,255,0.25)", border:"1px solid rgba(123,94,255,0.5)", borderRadius:4, padding:"1px 7px", fontSize:10, color:"#B8A4FF" }}>PMBOK 7</div>
                 </div>
+                <div style={{ fontSize:15, fontWeight:500, color:"#E0DEFF", letterSpacing:"0.3px", marginBottom:6 }}>
+                  {"Pilotez"}<span style={{ color:"#7B5EFF" }}>.</span>{" Apprenez"}<span style={{ color:"#7B5EFF" }}>.</span>{" Excellez"}<span style={{ color:"#7B5EFF" }}>.</span>
+                </div>
+                <InspirePhrase/>
               </div>
             </div>
-            <div style={{ display:"flex", gap:6 }}>
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:8 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                {([
+                  ["Cycle V","#9B84FF"],["Waterfall","#5B8DD9"],["Agile","#22c55e"],
+                  ["Scrum","#f59e0b"],["Kanban","#ef4444"],["PRINCE2","#7B5EFF"]
+                ] as [string,string][]).map(([label,color]) => (
+                  <div key={label} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                    <div style={{ width:26, height:20, borderRadius:3, border:`1px solid ${color}66`, background:`${color}15`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <span style={{ fontSize:7, color, fontWeight:700 }}>{label.slice(0,3).toUpperCase()}</span>
+                    </div>
+                    <span style={{ fontSize:8, color:"rgba(255,255,255,0.4)" }}>{label}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display:"flex", gap:6 }}>
               {SOCIALS.map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" title={s.label}
                   style={{ width:34, height:34, borderRadius:8, background:"rgba(255,255,255,0.12)", border:"1px solid rgba(255,255,255,0.25)", display:"flex", alignItems:"center", justifyContent:"center", color:"rgba(255,255,255,0.85)", textDecoration:"none", transition:"all 0.15s" }}
@@ -54,6 +100,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <span dangerouslySetInnerHTML={{ __html: s.svg }}/>
                 </a>
               ))}
+              </div>
             </div>
           </div>
         </div>
