@@ -67,7 +67,7 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
               <p style={{ fontSize:22, fontWeight:700, color:"var(--text-1)", margin:"0 0 12px" }}>0€</p>
               {["1 projet","20 générations IA/mois","WBS, Gantt, RAID"].map(f => (
                 <div key={f} style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
-                  <span style={{ fontSize:12, color:"var(--text-3)" }}>✓</span>
+                  <span style={{ fontSize:12, color:"var(--text-3)" }}>v</span>
                   <span style={{ fontSize:12, color:"var(--text-2)" }}>{f}</span>
                 </div>
               ))}
@@ -89,7 +89,7 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
               <p style={{ fontSize:20, fontWeight:700, color:"var(--text-1)", margin:"0 0 10px" }}>9€<span style={{ fontSize:12, fontWeight:400 }}>/mois</span></p>
               {["3 projets","20 req/mois","WBS + RAID"].map(f => (
                 <div key={f} style={{ display:"flex", alignItems:"center", gap:5, marginBottom:4 }}>
-                  <span style={{ fontSize:11, color:"#60a5fa" }}>✓</span>
+                  <span style={{ fontSize:11, color:"#60a5fa" }}>v</span>
                   <span style={{ fontSize:11, color:"var(--text-2)" }}>{f}</span>
                 </div>
               ))}
@@ -110,7 +110,7 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
               <p style={{ fontSize:22, fontWeight:700, color:"var(--primary-t)", margin:"0 0 12px" }}>17€<span style={{ fontSize:13, fontWeight:400 }}>/mois</span></p>
               {["20 projets","150 générations IA/mois","Tous les outils PMO",featureLabel,"Export PDF/Word/PPTX"].map(f => (
                 <div key={f} style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
-                  <span style={{ fontSize:12, color:"var(--primary)" }}>✓</span>
+                  <span style={{ fontSize:12, color:"var(--primary)" }}>v</span>
                   <span style={{ fontSize:12, color:"var(--primary-t)", fontWeight: f===featureLabel?600:400 }}>{f}</span>
                 </div>
               ))}
@@ -130,7 +130,7 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
               <p style={{ fontSize:20, fontWeight:700, color:"#f59e0b", margin:"0 0 10px" }}>23€<span style={{ fontSize:12, fontWeight:400 }}>/mois</span></p>
               {["20 projets","300 req/mois","PMP 225Q"].map(f => (
                 <div key={f} style={{ display:"flex", alignItems:"center", gap:5, marginBottom:4 }}>
-                  <span style={{ fontSize:11, color:"#f59e0b" }}>✓</span>
+                  <span style={{ fontSize:11, color:"#f59e0b" }}>v</span>
                   <span style={{ fontSize:11, color:"var(--text-2)" }}>{f}</span>
                 </div>
               ))}
