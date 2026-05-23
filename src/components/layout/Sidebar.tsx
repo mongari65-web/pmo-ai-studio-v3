@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap, Package, Lock, Brain, Users, FileText, Briefcase, Building2, Settings2, CalendarRange, Target, Map, Zap, BookOpen } from "lucide-react"
+import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, ArrowLeft, GraduationCap, Package, Lock, Brain, Users, FileText, Briefcase, Building2, Settings2, CalendarRange, Target, Map, Zap, BookOpen } from "lucide-react"
 
 // Groupes sidebar avec séparateurs
 const NAV_GROUPS = [
@@ -100,6 +100,7 @@ export default function Sidebar() {
 
   const isActive = (href: string) => pathname===href||(href!=="/dashboard"&&pathname.startsWith(href+"/"))
   const logout = async () => { await supabase.auth.signOut(); router.push("/auth/login") }
+  const goBack = () => router.back()
 
   return (
     <aside style={{ width:col?60:220, flexShrink:0, background:"var(--sidebar)", borderRight:"1px solid var(--border)", display:"flex", flexDirection:"column", height:"100vh", position:"sticky", top:0, transition:"width 0.2s ease" }}>
@@ -150,6 +151,10 @@ export default function Sidebar() {
           <LI key={href} href={href} icon={icon} label={label} active={isActive(href)} collapsed={col}
             extra={badge && unread>0 && !col ? <span style={{ marginLeft:"auto", background:"var(--danger-b)", color:"#fff", borderRadius:10, fontSize:9, padding:"1px 5px", fontWeight:700 }}>{unread>9?"9+":unread}</span> : null}/>
         ))}
+        <button onClick={goBack} style={{ display:"flex", alignItems:"center", gap:10, padding:col?"9px 0":"8px 10px", justifyContent:col?"center":"flex-start", borderRadius:"var(--r8)", border:"1px solid var(--border)", background:"transparent", cursor:"pointer", fontSize:13, color:"var(--primary-light)", width:"100%", marginBottom:4 }} title="Page précédente">
+          <ArrowLeft size={16}/>
+          {!col && <span>Retour</span>}
+        </button>
         <button onClick={logout} style={{ display:"flex", alignItems:"center", gap:10, padding:col?"9px 0":"8px 10px", justifyContent:col?"center":"flex-start", borderRadius:"var(--r8)", border:"none", background:"transparent", cursor:"pointer", fontSize:13, color:"var(--danger)", width:"100%", marginTop:2, transition:"all 0.12s" }}
           title={col?"Déconnexion":""}
           onMouseEnter={e=>(e.currentTarget as any).style.background="var(--danger-bg)"}

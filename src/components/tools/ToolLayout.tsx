@@ -84,6 +84,7 @@ export default function ToolLayout({
       </div>
     )}
     <div style={{ padding:"24px 28px", minHeight:"100%", background:"var(--bg)", position:"relative" }}>
+      <BackButton/>
 
       {/* Glow ambiance */}
       <div style={{ position:"fixed", top:"15%", right:"25%", width:500, height:350,
@@ -95,7 +96,6 @@ export default function ToolLayout({
         flexWrap:"wrap", gap:12, marginBottom:20, position:"relative", zIndex:50 }}>
 
         {/* Titre */}
-        <BackButton/>
         <div>
           <p style={{ fontSize:10, fontWeight:600, color:"var(--text-3)",
             textTransform:"uppercase", letterSpacing:"1.5px", margin:"0 0 6px",
@@ -238,5 +238,8 @@ export default function ToolLayout({
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
       `}</style>
     </div>
+  )
+
+    </>
   )
 }
