@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model,
-        max_tokens: 4096,
+        max_tokens: tool in ["wbs","workpackages","raid","gantt","budget","sprint"] ? 8192 : 4096,
         system: "Tu es un expert PMO certifié PMP. Réponds UNIQUEMENT en JSON valide, sans markdown, sans backticks, sans commentaires. Génère des données réalistes et spécifiques au projet donné.",
         messages: [{ role: "user", content: prompt }]
       })
