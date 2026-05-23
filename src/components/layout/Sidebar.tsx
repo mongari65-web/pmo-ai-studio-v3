@@ -13,6 +13,7 @@ const NAV_GROUPS = [
     items: [
       { href:"/dashboard",    icon:LayoutDashboard, label:"Dashboard" },
       { href:"/projects",     icon:FolderKanban,    label:"Mes projets" },
+      { href:"/guide",        icon:Wand2,           label:"Guide CP",    hl:true },
     ]
   },
   {
@@ -27,7 +28,6 @@ const NAV_GROUPS = [
   {
     label: "Outils CP",
     items: [
-      { href:"/guide",        icon:Wand2,       label:"Guide CP",          hl:true },
       { href:"/documents-pmi",icon:FileText,    label:"Documents PMI",     hl:true },
       { href:"/propale",      icon:Briefcase,   label:"Propale / Contrat", hl:true },
       { href:"/templates",    icon:Package,     label:"Templates Pro",     pro:true },
