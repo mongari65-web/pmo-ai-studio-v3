@@ -45,7 +45,7 @@ export default function BackButton({ href, label = "Retour" }: { href?: string; 
     <button onClick={() => href ? router.push(href) : router.back()}
       style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"10px 20px",
         background:"#7B5EFF", border:"none",
-        borderRadius:24", fontSize:14, fontWeight:600,
+        borderRadius:24, fontSize:14, fontWeight:600,
         color:"#fff", cursor:"pointer", marginBottom:24, transition:"all 0.15s",
         boxShadow:"0 2px 8px rgba(0,0,0,0.15)" }}
       onMouseEnter={e=>{ 
