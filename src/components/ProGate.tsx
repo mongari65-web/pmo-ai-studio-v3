@@ -60,7 +60,7 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
           </p>
 
           {/* Comparaison plans */}
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:24 }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:24 }}>
             {/* Plan Gratuit */}
             <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r12)", padding:20, textAlign:"left" }}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
@@ -83,6 +83,22 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
               </div>
             </div>
 
+            {/* Plan Starter */}
+            <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:"var(--r12)", padding:16, textAlign:"left" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:8 }}>
+                <Zap size={16} style={{ color:"#60a5fa" }}/>
+                <span style={{ fontSize:13, fontWeight:700, color:"var(--text-1)" }}>Starter</span>
+              </div>
+              <p style={{ fontSize:20, fontWeight:700, color:"var(--text-1)", margin:"0 0 10px" }}>9<span style={{ fontSize:12 }}>/mois</span></p>
+              {["3 projets","20 req IA/mois","WBS + RAID + Gantt"].map(f => (
+                <div key={f} style={{ display:"flex", alignItems:"center", gap:5, marginBottom:4 }}>
+                  <span style={{ fontSize:11, color:"#60a5fa" }}>v</span>
+                  <span style={{ fontSize:11, color:"var(--text-2)" }}>{f}</span>
+                </div>
+              ))}
+              <a href="/pricing" style={{ display:"flex", alignItems:"center", justifyContent:"center", marginTop:12, padding:"7px 0", background:"rgba(96,165,250,0.15)", color:"#60a5fa", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, textDecoration:"none" }}>Choisir Starter</a>
+            </div>
+
             {/* Plan Pro */}
             <div style={{ background:"var(--primary-bg)", border:"2px solid var(--primary)", borderRadius:"var(--r12)", padding:20, textAlign:"left", position:"relative" }}>
               <div style={{ position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)", background:"var(--primary)", color:"#fff", fontSize:10, fontWeight:700, padding:"2px 12px", borderRadius:20 }}>
@@ -103,6 +119,22 @@ export default function ProGate({ feature, featureLabel, children, requiredPlan 
                 style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6, marginTop:14, padding:"9px 0", background:"var(--primary)", color:"#fff", borderRadius:"var(--r8)", fontSize:13, fontWeight:600, textDecoration:"none" }}>
                 Passer au Pro <ArrowRight size={14}/>
               </Link>
+            </div>
+
+            {/* Plan Premium */}
+            <div style={{ background:"rgba(234,179,8,0.08)", border:"1px solid rgba(234,179,8,0.35)", borderRadius:"var(--r12)", padding:16, textAlign:"left" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:8 }}>
+                <Crown size={16} style={{ color:"#f59e0b" }}/>
+                <span style={{ fontSize:13, fontWeight:700, color:"#f59e0b" }}>Premium</span>
+              </div>
+              <p style={{ fontSize:20, fontWeight:700, color:"#f59e0b", margin:"0 0 10px" }}>23<span style={{ fontSize:12 }}>/mois</span></p>
+              {["20 projets","300 req IA/mois","PMP 225 questions"].map(f => (
+                <div key={f} style={{ display:"flex", alignItems:"center", gap:5, marginBottom:4 }}>
+                  <span style={{ fontSize:11, color:"#f59e0b" }}>v</span>
+                  <span style={{ fontSize:11, color:"var(--text-2)" }}>{f}</span>
+                </div>
+              ))}
+              <a href="/pricing" style={{ display:"flex", alignItems:"center", justifyContent:"center", marginTop:12, padding:"7px 0", background:"rgba(245,158,11,0.15)", color:"#f59e0b", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, textDecoration:"none" }}>Choisir Premium</a>
             </div>
           </div>
 
