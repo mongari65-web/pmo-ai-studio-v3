@@ -13,7 +13,7 @@ export const TOOL_MODEL: Record<string, string> = {
   gantt:        "claude-haiku-4-5-20251001",
   raid:         "claude-haiku-4-5-20251001",
   jalons:       "claude-haiku-4-5-20251001",
-  workpackages: "claude-sonnet-4-6",
+  workpackages: "claude-haiku-4-5-20251001",
   mindmap:      "claude-haiku-4-5-20251001",
   budget:       "claude-sonnet-4-6",
   pert:         "claude-sonnet-4-6",

@@ -52,7 +52,9 @@ export default function WorkPackagesPage() {
       if (json.error) throw new Error(json.error)
       const newWps = json.data?.workpackages ?? []
       setWps(newWps); await save({ workpackages: newWps })
-      toast.success(newWps.length + " Work Packages générés")
+      toast.success(newWps.length + " Work Packages générés — clonez-les pour créer les suivants !")
+      // Message guidé
+      setTimeout(() => toast.info("💡 Conseil CP : Créez un WP par livrable de votre WBS. Utilisez Clone pour adapter chaque template.", { duration: 6000 }), 2000)
     } catch(e:any) { toast.error(e.message) }
     finally { setLoading(false) }
   }
@@ -74,6 +76,35 @@ export default function WorkPackagesPage() {
     await save({workpackages:updated}); toast.success("Work Package sauvegardé")
   }
 
+  const cloneWp = async (wp: WP) => {
+    const cloned: WP = { ...wp,
+      id: "WP" + Date.now(),
+      code: "WP" + (wps.length + 1).toString().padStart(3,"0"),
+      name: wp.name + " (copie)",
+      completion: 0, status: "Planifié"
+    }
+    const updated = [...wps, cloned]
+    setWps(updated); await save({ workpackages: updated })
+    toast.success("WP cloné — modifiez-le selon votre projet")
+  }
+  const addEmptyWp = async () => {
+    const empty: WP = {
+      id: "WP" + Date.now(),
+      code: "WP" + (wps.length + 1).toString().padStart(3,"0"),
+      name: "Nouveau Work Package",
+      phase: "Exécution", description: "", deliverables: "",
+      responsible: "", start: project?.start_date ?? "",
+      end: project?.end_date ?? "", duration: 0, budget: 0,
+      status: "Planifié", completion: 0, dependencies: "",
+      acceptance: "", activities: ["Activité 1","Activité 2","Activité 3"],
+      objective: ""
+    }
+    const updated = [...wps, empty]
+    setWps(updated); await save({ workpackages: updated })
+    setFicheIdx(updated.length - 1); setActiveTab("fiche")
+    setDraft(empty); setEditing(true)
+    toast.success("WP vierge créé — remplissez les détails")
+  }
   const wp = editing&&draft ? draft : (filtered[ficheIdx]??filtered[0])
   const pc = wp ? phaseColor(wp.phase) : "var(--primary)"
   const cfg = wp ? (STATUS_CFG[wp.status]??{color:"var(--text-3)",bg:"transparent"}) : {color:"var(--text-3)",bg:"transparent"}
@@ -320,6 +351,11 @@ export default function WorkPackagesPage() {
         history={history} onLoadHistory={(e)=>{loadHistory(e);if(e.data?.workpackages)setWps(e.data.workpackages)}}
         onGenerate={generate} generateLabel="Générer Work Packages" generating={loading}
         exportRows={toRows()} exportFilename={"WP_"+(project?.name??"")} projectName={project?.name}>
+        {/* Boutons actions */}
+        <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+          <button onClick={addEmptyWp} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(34,197,94,0.12)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, color:"#22c55e", cursor:"pointer" }}>+ Nouveau WP</button>
+          {wp && <button onClick={()=>cloneWp(wp)} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(123,94,255,0.12)", border:"1px solid rgba(123,94,255,0.3)", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, color:"#9B84FF", cursor:"pointer" }}>⧉ Cloner ce WP</button>}
+        </div>
 
         {wps.length===0 && !loading && (
           <div style={{ textAlign:"center",padding:"60px 20px" }}>

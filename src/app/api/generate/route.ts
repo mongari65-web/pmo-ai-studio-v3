@@ -151,7 +151,7 @@ function buildPrompt(tool: string, name: string, desc: string, extra: any): stri
     workpackages: "Génère des Work Packages détaillés pour ce projet." +
       " Nom: " + n + ". Description: " + d + ". Budget: " + b + "€. Période: " + s + " → " + e + "." +
       " CONTRAINTES STRICTES:" +
-      " - 7 Work Packages couvrant tout le cycle de vie" +
+      " - Autant de Work Packages que nécessaire selon le périmètre du projet" +
       " - Somme des budgets = exactement " + b + "€" +
       " - Dates entre " + s + " et " + e +
       " - Chaque WP contient activities[] avec 4-5 activités spécifiques" +
