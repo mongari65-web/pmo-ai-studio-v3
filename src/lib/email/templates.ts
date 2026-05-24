@@ -1,353 +1,327 @@
-// src/lib/email/templates.ts
-// Templates email PMO AI Studio — design pro avec logo
+import { EMAIL_CONFIG } from './config'
 
-const LOGO_SVG = `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="40" height="40" rx="10" fill="#1a1f3a"/>
-  <circle cx="20" cy="10" r="3.5" fill="#22c55e"/>
-  <circle cx="32" cy="18" r="3.5" fill="#f59e0b"/>
-  <circle cx="32" cy="30" r="3.5" fill="#ef4444"/>
-  <circle cx="20" cy="36" r="3.5" fill="#3b82f6"/>
-  <circle cx="8" cy="30" r="3.5" fill="#a855f7"/>
-  <circle cx="8" cy="18" r="3.5" fill="#06b6d4"/>
-  <circle cx="20" cy="20" r="5" fill="#312e81" stroke="#7B5EFF" stroke-width="1.5"/>
-  <text x="20" y="23" text-anchor="middle" fill="#B8A4FF" font-size="5" font-weight="bold" font-family="Arial">PMO</text>
-  <line x1="20" y1="13.5" x2="20" y2="15" stroke="#22c55e" stroke-width="1.2"/>
-  <line x1="28.5" y1="20.5" x2="25" y2="21.5" stroke="#f59e0b" stroke-width="1.2"/>
-  <line x1="28.5" y1="28" x2="25" y2="26" stroke="#ef4444" stroke-width="1.2"/>
-  <line x1="20" y1="31" x2="20" y2="26.5" stroke="#3b82f6" stroke-width="1.2"/>
-  <line x1="11.5" y1="28" x2="15" y2="26" stroke="#a855f7" stroke-width="1.2"/>
-  <line x1="11.5" y1="20.5" x2="15" y2="21.5" stroke="#06b6d4" stroke-width="1.2"/>
-</svg>`
+const baseStyle = `
+  font-family: 'Segoe UI', Arial, sans-serif;
+  max-width: 600px;
+  margin: 0 auto;
+  background: #ffffff;
+`
 
-const baseLayout = (content: string, preheader = "") => `
-<!DOCTYPE<!DOCTYPE<!DOCTYPE<!DOCTYPE<!DOCTYPE<!DOCTYPE<!DO-8<!DOCTYPE<!DOCTYPE<!DOCTYPE<!DOCTYPE<!DOCTYPE<!DOidth, initial-scale=1.0"/>
-<title>PMO AI Studio</title>
+const headerStyle = `
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  padding: 32px 40px;
+  text-align: center;
+  border-radius: 12px 12px 0 0;
+`
+
+const bodyStyle = `
+  padding: 32px 40px;
+  color: #1f2937;
+  line-height: 1.6;
+`
+
+const footerStyle = `
+  background: #f9fafb;
+  padding: 20px 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 12px;
+  border-radius: 0 0 12px 12px;
+  border-top: 1px solid #e5e7eb;
+`
+
+const btnStyle = `
+  display: inline-block;
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: #ffffff !important;
+  padding: 14px 32px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  margin: 16px 0;
+`
+
+function baseLayout(content: string, preheader = '') {
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${EMAIL_CONFIG.appName}</title>
+  ${preheader ? `<span style="display:none;max-height:0;overflow:hidden;">${preheader}</span>` : ''}
 </head>
-<body style="margin:0;padding:0;background:#0A0B14;font-family:'Inter',Arial,sans-serif;color:#F0F2FF;">
-${preheader ? `<div style="display:none;max-height:0;overflow:hidden;">${preheader}</div>` : ""}
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#0A0B14;padding:40px 20px;">
-  <tr><td align="center">
-    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-
-      <!-- HEADER -->
-      <tr><td style="background:linear-gradient(135deg,#0d1b2e,#1a2744);border-radius:16px 16px 0 0;padding:28px 32px;border-bottom:1px solid rgba(123,94,255,0.3);">
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="vertical-align:middle;">
-              ${LOGO_SVG}
-            </td>
-            <td style="vertical-align:middle;padding-left:12px;">
-              <div style="font-size:18px;font-weight:700;color:#F0F2FF;">PMO AI Studio</div>
-              <div style="font-size:11px;color:#7B5EFF;margin-top:2px;font-style:italic;">Pilotez. Apprenez. Excellez.</div>
-            </td>
-            <td align="right" style="vertical-align:middle;">
-              <span style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#22c55e;font-weight:600;">&#9679; En ligne</span>
-            </td>
-          </tr>
-        </table>
-      </td></tr>
-
-      <!-- CONTENT -->
-      <tr><td style="background:#0F1117;padding:32px;border-left:1px solid rgba(123,94,255,0.15);border-right:1px solid rgba(123,94,255,0.15);">
-        ${content}
-      </td></tr>
-
-      <!-- FOOTER -->
-      <tr><td style="background:#080A11;border-radius:0 0 16px 16px;padding:20px 32px;border-top:1px solid rgba(123,94,255,0.2);border:1px solid rgba(123,94,255,0.15);border-top:none;">
-        <p style="font-size:11px;color:#5A6080;margin:0 0 6px;text-align:center;">
-          PMO AI Studio &mdash; Touil Abdelhafid, Paris &mdash; 
-          <a href="https://pmo-ai-studio-v3.vercel.app" style="color:#7B5EFF;text-decoration:none;">pmo-ai-studio-v3.vercel.app</a>
-        </p>
-        <p style="font-size:10px;color:#3A4060;margin:0;text-align:center;">
-          PMP&reg; et PMBOK&reg; sont des marques d&eacute;pos&eacute;es du PMI. PMO AI Studio est ind&eacute;pendant du PMI.
-        </p>
-      </td></tr>
-
-    </table>
-  </td></tr>
-</table>
+<body style="margin:0;padding:20px;background:#f3f4f6;">
+  <div style="${baseStyle}">
+    <div style="${headerStyle}">
+      <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;letter-spacing:-0.5px;">
+        📊 ${EMAIL_CONFIG.appName}
+      </h1>
+      <p style="color:#bfdbfe;margin:6px 0 0;font-size:13px;">La plateforme PMO intelligente</p>
+    </div>
+    <div style="${bodyStyle}">${content}</div>
+    <div style="${footerStyle}">
+      <p style="margin:0 0 4px;">© ${new Date().getFullYear()} ${EMAIL_CONFIG.appName} — Tous droits réservés</p>
+      <p style="margin:0;">
+        <a href="${EMAIL_CONFIG.appUrl}" style="color:#3b82f6;text-decoration:none;">${EMAIL_CONFIG.appUrl}</a>
+      </p>
+    </div>
+  </div>
 </body>
 </html>`
-
-// ── 1. EMAIL BIENVENUE ────────────────────────────────────────────────────────
-export const welcomeEmail = (name: string) => baseLayout(`
-  <h1 style="font-size:22px;font-weight:800;color:#F0F2FF;margin:0 0 8px;">
-    Bienvenue, ${name} ! &#127881;
-  </h1>
-  <p style="font-size:14px;color:#B8BCDC;line-height:1.7;margin:0 0 24px;">
-    Votre compte PMO AI Studio est actif. Vous avez acc&egrave;s &agrave; votre copilote IA pour piloter, apprendre et exceller dans la gestion de projet.
-  </p>
-
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-    <tr>
-      <td style="background:rgba(123,94,255,0.08);border:1px solid rgba(123,94,255,0.2);border-radius:12px;padding:16px;">
-        <p style="font-size:13px;font-weight:700;color:#9B84FF;margin:0 0 10px;">&#128640; Pour bien d&eacute;marrer :</p>
-        <table cellpadding="0" cellspacing="0">
-          <tr><td style="padding:4px 0;font-size:13px;color:#B8BCDC;">&#10003;&nbsp; Cr&eacute;ez votre premier projet via le <strong>Guide CP</strong></td></tr>
-          <tr><td style="padding:4px 0;font-size:13px;color:#B8BCDC;">&#10003;&nbsp; G&eacute;n&eacute;rez votre WBS en moins de 30 secondes</td></tr>
-          <tr><td style="padding:4px 0;font-size:13px;color:#B8BCDC;">&#10003;&nbsp; Activez le suivi EVM pour piloter votre budget</td></tr>
-          <tr><td style="padding:4px 0;font-size:13px;color:#B8BCDC;">&#10003;&nbsp; Pr&eacute;parez votre PMP&reg; avec le simulateur 225 questions</td></tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center">
-        <a href="https://pmo-ai-studio-v3.vercel.app/guide" style="display:inline-block;background:#7B5EFF;color:#fff;font-size:14px;font-weight:700;padding:14px 32px;border-radius:24px;text-decoration:none;">
-          &#127775; Cr&eacute;er mon premier projet
-        </a>
-      </td>
-    </tr>
-  </table>
-`, "Bienvenue sur PMO AI Studio — votre copilote IA est prêt !")
-
-// ── 2. EMAIL INVITATION PROJET ────────────────────────────────────────────────
-export const inviteEmail = (inviter: string, projectName: string, role: string, inviteLink: string) => baseLayout(`
-  <h1 style="font-size:20px;font-weight:800;color:#F0F2FF;margin:0 0 8px;">
-    &#129309; Invitation &agrave; collaborer
-  </h1>
-  <p style="font-size:14px;color:#B8BCDC;line-height:1.7;margin:0 0 20px;">
-    <strong style="color:#F0F2FF;">${inviter}</strong> vous invite &agrave; rejoindre le projet 
-    <strong style="color:#9B84FF;">${projectName}</strong> en tant que <strong style="color:#22c55e;">${role}</strong>.
-  </p>
-
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-    <tr>
-      <td style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px;">
-        <p style="font-size:12px;color:#22c55e;font-weight:700;margin:0 0 6px;">PROJET</p>
-        <p style="font-size:16px;color:#F0F2FF;font-weight:700;margin:0 0 4px;">${projectName}</p>
-        <p style="font-size:12px;color:#B8BCDC;margin:0;">R&ocirc;le assign&eacute; : <strong>${role}</strong></p>
-      </td>
-    </tr>
-  </table>
-
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center">
-        <a href="${inviteLink}" style="display:inline-block;background:#7B5EFF;color:#fff;font-size:14px;font-weight:700;padding:14px 32px;border-radius:24px;text-decoration:none;">
-          &#128279; Acc&eacute;der au projet
-        </a>
-      </td>
-    </tr>
-  </table>
-  <p style="font-size:11px;color:#5A6080;text-align:center;margin-top:16px;">
-    Si vous n&apos;attendiez pas cette invitation, vous pouvez ignorer cet email.
-  </p>
-`, `Invitation : rejoignez ${projectName} sur PMO AI Studio`)
-
-// ── 3. EMAIL RÉSUMÉ HEBDO ────────────────────────────────────────────────────
-export const weeklyEmail = (projectName: string, score: number, avancement: number, cpi: number, spi: number, alerts: string[]) => {
-  const scoreColor = score >= 70 ? "#22c55e" : score >= 40 ? "#f59e0b" : "#ef4444"
-  const scoreLabel = score >= 70 ? "VERT" : score >= 40 ? "AMBRE" : "ROUGE"
-  const scoreBg = score >= 70 ? "rgba(34,197,94,0.08)" : score >= 40 ? "rgba(245,158,11,0.08)" : "rgba(239,68,68,0.08)"
-  const scoreBorder = score >= 70 ? "rgba(34,197,94,0.2)" : score >= 40 ? "rgba(245,158,11,0.2)" : "rgba(239,68,68,0.2)"
-
-  return baseLayout(`
-  <h1 style="font-size:20px;font-weight:800;color:#F0F2FF;margin:0 0 4px;">
-    &#128202; R&eacute;sum&eacute; hebdomadaire
-  </h1>
-  <p style="font-size:13px;color:#8B90B0;margin:0 0 20px;">${projectName}</p>
-
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
-    <tr>
-      <td style="background:${scoreBg};border:1px solid ${scoreBorder};border-radius:12px;padding:20px;text-align:center;">
-        <div style="font-size:32px;font-weight:800;color:${scoreColor};">${score}/100</div>
-        <div style="font-size:12px;color:${scoreColor};font-weight:700;margin-top:4px;">Statut ${scoreLabel}</div>
-      </td>
-    </tr>
-  </table>
-
-  <table width="100%" cellpadding="8" cellspacing="0" style="margin-bottom:20px;">
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-      <td style="font-size:13px;color:#8B90B0;">Avancement</td>
-      <td align="right" style="font-size:13px;color:#F0F2FF;font-weight:700;">${avancement}%</td>
-    </tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-      <td style="font-size:13px;color:#8B90B0;">CPI (Performance co&ucirc;t)</td>
-      <td align="right" style="font-size:13px;color:${cpi >= 1 ? "#22c55e" : "#ef4444"};font-weight:700;">${cpi}</td>
-    </tr>
-    <tr>
-      <td style="font-size:13px;color:#8B90B0;">SPI (Performance d&eacute;lai)</td>
-      <td align="right" style="font-size:13px;color:${spi >= 1 ? "#22c55e" : "#ef4444"};font-weight:700;">${spi}</td>
-    </tr>
-  </table>
-
-  ${alerts.length > 0 ? `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
-    <tr>
-      <td style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:14px;">
-        <p style="font-size:12px;color:#ef4444;font-weight:700;margin:0 0 8px;">&#9888; Points d&apos;attention</p>
-        ${alerts.map(a => `<p style="font-size:12px;color:#B8BCDC;margin:3px 0;">&#8226; ${a}</p>`).join("")}
-      </td>
-    </tr>
-  </table>` : ""}
-
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center">
-        <a href="https://pmo-ai-studio-v3.vercel.app/dashboard" style="display:inline-block;background:#7B5EFF;color:#fff;font-size:13px;font-weight:700;padding:12px 28px;border-radius:24px;text-decoration:none;">
-          &#128200; Voir le tableau de bord
-        </a>
-      </td>
-    </tr>
-  </table>
-`, `Résumé hebdo — ${projectName} — Score ${score}/100`)
 }
 
-// ── 4. EMAIL EXPORT DOCUMENT ─────────────────────────────────────────────────
-export const documentEmail = (name: string, docType: string, projectName: string, downloadLink: string) => baseLayout(`
-  <h1 style="font-size:20px;font-weight:800;color:#F0F2FF;margin:0 0 8px;">
-    &#128196; Document pr&ecirc;t &agrave; t&eacute;l&eacute;charger
-  </h1>
-  <p style="font-size:14px;color:#B8BCDC;line-height:1.7;margin:0 0 20px;">
-    Votre document <strong style="color:#9B84FF;">${docType}</strong> pour le projet 
-    <strong style="color:#F0F2FF;">${projectName}</strong> est pr&ecirc;t.
-  </p>
-
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-    <tr>
-      <td style="background:rgba(123,94,255,0.08);border:1px solid rgba(123,94,255,0.2);border-radius:12px;padding:16px;">
-        <table cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="font-size:32px;padding-right:16px;">&#128196;</td>
-            <td>
-              <p style="font-size:14px;font-weight:700;color:#F0F2FF;margin:0;">${docType}</p>
-              <p style="font-size:12px;color:#8B90B0;margin:4px 0 0;">${projectName}</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center">
-        <a href="${downloadLink}" style="display:inline-block;background:#7B5EFF;color:#fff;font-size:14px;font-weight:700;padding:14px 32px;border-radius:24px;text-decoration:none;">
-          &#11015; T&eacute;l&eacute;charger le document
-        </a>
-      </td>
-    </tr>
-  </table>
-`, `Votre ${docType} est prêt — ${projectName}`)
-
-// ── 5. EMAIL ALERTE PROJET ────────────────────────────────────────────────────
-export const alertEmail = (projectName: string, alertType: string, message: string, actionLink: string) => {
-  const isRed = alertType === "ROUGE" || alertType === "CRITIQUE"
-  const color = isRed ? "#ef4444" : "#f59e0b"
-  const bg = isRed ? "rgba(239,68,68,0.08)" : "rgba(245,158,11,0.08)"
-  const border = isRed ? "rgba(239,68,68,0.3)" : "rgba(245,158,11,0.3)"
-
-  return baseLayout(`
-  <h1 style="font-size:20px;font-weight:800;color:#F0F2FF;margin:0 0 8px;">
-    &#9888; Alerte projet — ${alertType}
-  </h1>
-  <p style="font-size:13px;color:#8B90B0;margin:0 0 20px;">${projectName}</p>
-
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-    <tr>
-      <td style="background:${bg};border:2px solid ${border};border-radius:12px;padding:20px;">
-        <p style="font-size:13px;font-weight:700;color:${color};margin:0 0 8px;">${alertType}</p>
-        <p style="font-size:13px;color:#B8BCDC;margin:0;line-height:1.6;">${message}</p>
-      </td>
-    </tr>
-  </table>
-
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center">
-        <a href="${actionLink}" style="display:inline-block;background:${color};color:#fff;font-size:14px;font-weight:700;padding:14px 32px;border-radius:24px;text-decoration:none;">
-          &#128269; Voir le projet
-        </a>
-      </td>
-    </tr>
-  </table>
-`, `Alerte ${alertType} — ${projectName}`)
-}
-
-// ── 6. EMAIL NOUVEAU PROJET ───────────────────────────────────────────────────
-export const newProjectEmail = (name: string, projectName: string, scenario: string) => {
-  const steps: Record<string, {icon:string, label:string, desc:string, tip:string}[]> = {
-    initiation: [
-      { icon:"📋", label:"1. WBS — Structure de découpage", desc:"Générez votre WBS en premier. C'est la colonne vertébrale du projet.", tip:"Conseil CP : Un WBS complet évite 80% des oublis de périmètre. Vérifiez que chaque livrable est mesurable." },
-      { icon:"📅", label:"2. Gantt — Planning", desc:"Créez le planning à partir du WBS. Chaque tâche WBS devient une ligne Gantt.", tip:"Conseil CP : Identifiez le chemin critique. Les tâches sans marge sont vos risques planning majeurs." },
-      { icon:"⚠️", label:"3. RAID — Risques et hypothèses", desc:"Documentez les risques dès le démarrage, pas en cours de route.", tip:"Conseil CP : Un risque identifié est à moitié géré. Évaluez probabilité × impact pour prioriser." },
-      { icon:"💰", label:"4. Budget EVM — Valeur planifiée", desc:"Saisissez le BAC et planifiez la courbe S de valeur planifiée.", tip:"Conseil CP : La courbe S doit être réaliste — évitez le hockey stick (tout à la fin)." },
-      { icon:"👥", label:"5. RACI — Responsabilités", desc:"Définissez qui fait quoi avant de commencer l'exécution.", tip:"Conseil CP : Chaque livrable doit avoir exactement 1 Accountable. Sinon, personne n'est vraiment responsable." },
-      { icon:"📦", label:"6. Work Packages — Lots de travaux", desc:"Décomposez le WBS en lots de travaux assignables et estimables.", tip:"Conseil CP : Un Work Package bien défini = une estimation fiable = un planning crédible." },
-    ],
-    reprise: [
-      { icon:"📊", label:"1. Budget EVM — État actuel", desc:"Commencez par l'EVM. Saisissez CPI et SPI actuels pour diagnostiquer.", tip:"Conseil CP : CPI < 1 = dépassement. SPI < 1 = retard. Ces deux indices résument l'état de santé." },
-      { icon:"⚠️", label:"2. RAID — Risques actifs", desc:"Mettez à jour le registre des risques avec les problèmes connus.", tip:"Conseil CP : En reprise, les risques sont souvent déjà des problèmes. Traitez-les en RAID comme Issues." },
-      { icon:"📋", label:"3. WBS — Révision périmètre", desc:"Vérifiez que le WBS correspond à la réalité actuelle du projet.", tip:"Conseil CP : Le scope creep est la 1ère cause de dépassement. Comparez WBS initial vs réel." },
-      { icon:"📅", label:"4. Gantt — Replanification", desc:"Mettez à jour le planning avec les dates réelles et les nouvelles estimations.", tip:"Conseil CP : Soyez honnête sur les délais. Un planning optimiste non tenu détruit la confiance." },
-    ],
-    sauvetage: [
-      { icon:"⚠️", label:"1. RAID — Problèmes critiques", desc:"Documentez TOUS les blocages. C'est la priorité absolue en mode crise.", tip:"Conseil CP : En crise, la transparence sauve les projets. Masquer les problèmes les aggrave." },
-      { icon:"📊", label:"2. Budget EVM — Diagnostic", desc:"Analysez l'EAC (coût à terminaison) et les scénarios de récupération.", tip:"Conseil CP : Présentez 3 scénarios au commanditaire : optimiste, réaliste, pessimiste." },
-      { icon:"📅", label:"3. Gantt — Plan de redressement", desc:"Créez un nouveau planning avec jalons de contrôle rapprochés.", tip:"Conseil CP : En mode sauvetage, les jalons de contrôle toutes les 2 semaines sont indispensables." },
-    ],
-    audit: [
-      { icon:"📋", label:"1. WBS — Périmètre audit", desc:"Structurez votre WBS d'audit avec les domaines à évaluer.", tip:"Conseil CP : Un WBS d'audit bien structuré garantit une couverture exhaustive du périmètre." },
-      { icon:"⚠️", label:"2. RAID — Constats et risques", desc:"Documentez les constats comme des risques ou problèmes dans le RAID.", tip:"Conseil CP : Chaque constat doit avoir une recommandation actionnable. Un constat sans action ne sert à rien." },
-      { icon:"📊", label:"3. Budget — Coût vs valeur", desc:"Analysez le rapport coût/valeur du projet audité.", tip:"Conseil CP : La question centrale est : le Business Case est-il toujours justifié ?" },
-    ],
+// ── 1. WELCOME ───────────────────────────────────────────────
+export function welcomeEmail(params: { name: string; email: string }) {
+  const content = `
+    <h2 style="color:#1e40af;margin:0 0 8px;">Bienvenue ${params.name} ! 🎉</h2>
+    <p style="margin:0 0 16px;color:#6b7280;font-size:14px;">Votre compte a été créé avec succès</p>
+    <p>Vous avez maintenant accès à <strong>PMO AI Studio</strong> — votre plateforme de gestion de projets alimentée par l'IA.</p>
+    <p>Avec votre compte <strong>Free</strong>, vous pouvez :</p>
+    <ul style="color:#374151;padding-left:20px;">
+      <li>Créer jusqu'à <strong>3 projets</strong></li>
+      <li>Utiliser les outils PMO (WBS, Gantt, RAID, PERT...)</li>
+      <li>Générer <strong>20 analyses IA</strong> par mois</li>
+      <li>Accéder au simulateur PMP (50 questions)</li>
+    </ul>
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${EMAIL_CONFIG.appUrl}/dashboard" style="${btnStyle}">
+        Accéder à mon tableau de bord →
+      </a>
+    </div>
+    <p style="font-size:13px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:16px;margin-top:24px;">
+      Besoin d'aide ? Répondez à cet email ou consultez notre 
+      <a href="${EMAIL_CONFIG.appUrl}/guide" style="color:#3b82f6;">guide de démarrage</a>.
+    </p>
+  `
+  return {
+    subject: `Bienvenue sur ${EMAIL_CONFIG.appName} ! 🚀`,
+    html: baseLayout(content, `Bienvenue ${params.name}, votre compte est prêt !`),
   }
+}
 
-  const scenarioSteps = steps[scenario] ?? steps.initiation
-  const stepsHtml = scenarioSteps.map(s => `
-    <tr>
-      <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-        <table cellpadding="0" cellspacing="0" width="100%">
-          <tr>
-            <td style="font-size:24px;padding-right:14px;vertical-align:top;width:36px;">${s.icon}</td>
-            <td>
-              <p style="font-size:13px;font-weight:700;color:#F0F2FF;margin:0 0 3px;">${s.label}</p>
-              <p style="font-size:12px;color:#B8BCDC;margin:0 0 6px;line-height:1.5;">${s.desc}</p>
-              <p style="font-size:11px;color:#7B5EFF;margin:0;font-style:italic;line-height:1.5;">&#128161; ${s.tip}</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  `).join("")
+// ── 2. PROJECT CREATED ───────────────────────────────────────
+export function projectCreatedEmail(params: {
+  name: string
+  projectName: string
+  projectId: string
+  description?: string
+}) {
+  const content = `
+    <h2 style="color:#1e40af;margin:0 0 8px;">Nouveau projet créé ! 📁</h2>
+    <p style="margin:0 0 20px;color:#6b7280;font-size:14px;">Votre projet est prêt à être géré</p>
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:16px 20px;margin:0 0 20px;">
+      <p style="margin:0 0 6px;font-size:13px;color:#0369a1;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Projet</p>
+      <p style="margin:0;font-size:20px;font-weight:700;color:#0c4a6e;">${params.projectName}</p>
+      ${params.description ? `<p style="margin:8px 0 0;font-size:13px;color:#374151;">${params.description}</p>` : ''}
+    </div>
+    <p>Commencez à structurer votre projet avec les outils PMO :</p>
+    <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+      <tr>
+        <td style="padding:8px;font-size:13px;">📋 <strong>WBS</strong> — Structure de découpage</td>
+        <td style="padding:8px;font-size:13px;">📅 <strong>Gantt</strong> — Planning visuel</td>
+      </tr>
+      <tr style="background:#f9fafb;">
+        <td style="padding:8px;font-size:13px;">⚠️ <strong>RAID</strong> — Risques & actions</td>
+        <td style="padding:8px;font-size:13px;">💰 <strong>EVM</strong> — Suivi budgétaire</td>
+      </tr>
+    </table>
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${EMAIL_CONFIG.appUrl}/projects/${params.projectId}" style="${btnStyle}">
+        Ouvrir le projet →
+      </a>
+    </div>
+  `
+  return {
+    subject: `Projet "${params.projectName}" créé avec succès ✅`,
+    html: baseLayout(content, `Votre projet ${params.projectName} est prêt !`),
+  }
+}
 
-  return baseLayout(`
-  <h1 style="font-size:20px;font-weight:800;color:#F0F2FF;margin:0 0 4px;">
-    &#127775; Nouveau projet cr&eacute;&eacute; !
-  </h1>
-  <p style="font-size:13px;color:#8B90B0;margin:0 0 20px;">${projectName}</p>
+// ── 3. UPGRADE PRO ───────────────────────────────────────────
+export function upgradeProEmail(params: {
+  name: string
+  plan: 'pro' | 'team'
+  amount: number
+  invoiceUrl?: string
+}) {
+  const planLabel = params.plan === 'team' ? 'Team' : 'Pro'
+  const content = `
+    <h2 style="color:#1e40af;margin:0 0 8px;">Bienvenue dans le plan ${planLabel} ! ⭐</h2>
+    <p style="margin:0 0 20px;color:#6b7280;font-size:14px;">Votre abonnement est actif</p>
+    <div style="background:linear-gradient(135deg,#1e40af,#3b82f6);border-radius:8px;padding:20px;color:#fff;margin:0 0 20px;text-align:center;">
+      <p style="margin:0 0 4px;font-size:13px;opacity:0.85;">Plan actif</p>
+      <p style="margin:0;font-size:28px;font-weight:700;">${planLabel}</p>
+      <p style="margin:6px 0 0;font-size:15px;opacity:0.9;">${params.amount}€/mois</p>
+    </div>
+    <p>Vous avez maintenant accès à <strong>toutes les fonctionnalités</strong> :</p>
+    <ul style="color:#374151;padding-left:20px;">
+      <li>Projets <strong>illimités</strong></li>
+      <li><strong>500 appels IA</strong>/mois (Sonnet premium)</li>
+      <li>Templates Excel Pro (EVM, Dashboard, RAID, WBS, RACI)</li>
+      <li>Simulateur PMP <strong>225 questions</strong> complètes</li>
+      ${params.plan === 'team' ? '<li>Collaboration équipe temps réel</li>' : ''}
+      <li>Export PDF professionnel illimité</li>
+    </ul>
+    ${params.invoiceUrl ? `
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${params.invoiceUrl}" style="${btnStyle}">
+        Télécharger ma facture →
+      </a>
+    </div>` : ''}
+    <p style="font-size:13px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:16px;">
+      Pour gérer votre abonnement : 
+      <a href="${EMAIL_CONFIG.appUrl}/billing" style="color:#3b82f6;">Mon espace facturation</a>
+    </p>
+  `
+  return {
+    subject: `🎉 Votre plan ${planLabel} est activé !`,
+    html: baseLayout(content, `Plan ${planLabel} actif — accès complet débloqué`),
+  }
+}
 
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
-    <tr>
-      <td style="background:rgba(123,94,255,0.08);border:1px solid rgba(123,94,255,0.2);border-radius:12px;padding:16px;">
-        <p style="font-size:13px;color:#9B84FF;font-weight:700;margin:0 0 4px;">Bonjour ${name},</p>
-        <p style="font-size:13px;color:#B8BCDC;margin:0;line-height:1.6;">
-          Votre projet <strong style="color:#F0F2FF;">${projectName}</strong> est cr&eacute;&eacute;. 
-          Voici le guide de g&eacute;n&eacute;ration des outils dans l&apos;ordre recommand&eacute; par les meilleures pratiques PMO.
-        </p>
-      </td>
-    </tr>
-  </table>
+// ── 4. RESET MOT DE PASSE ────────────────────────────────────
+export function passwordResetEmail(params: { name: string; resetUrl: string }) {
+  const content = `
+    <h2 style="color:#1e40af;margin:0 0 8px;">Réinitialisation de mot de passe 🔐</h2>
+    <p style="margin:0 0 20px;color:#6b7280;font-size:14px;">Une demande a été effectuée pour votre compte</p>
+    <p>Bonjour <strong>${params.name}</strong>,</p>
+    <p>Vous avez demandé la réinitialisation de votre mot de passe. Cliquez sur le bouton ci-dessous pour en choisir un nouveau :</p>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${params.resetUrl}" style="${btnStyle}">
+        Réinitialiser mon mot de passe →
+      </a>
+    </div>
+    <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;margin:20px 0;">
+      <p style="margin:0;font-size:13px;color:#92400e;">
+        ⚠️ Ce lien est valable <strong>1 heure</strong>. Si vous n'avez pas fait cette demande, ignorez cet email — votre compte reste sécurisé.
+      </p>
+    </div>
+    <p style="font-size:13px;color:#6b7280;">
+      Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br>
+      <span style="color:#3b82f6;word-break:break-all;">${params.resetUrl}</span>
+    </p>
+  `
+  return {
+    subject: `Réinitialisation de votre mot de passe ${EMAIL_CONFIG.appName}`,
+    html: baseLayout(content, 'Lien de réinitialisation de mot de passe'),
+  }
+}
 
-  <p style="font-size:12px;font-weight:700;color:#9B84FF;text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;">
-    Ordre de g&eacute;n&eacute;ration recommand&eacute;
-  </p>
+// ── 5. PROJECT SHARED ────────────────────────────────────────
+export function projectSharedEmail(params: {
+  recipientName: string
+  senderName: string
+  projectName: string
+  projectId: string
+  role: string
+}) {
+  const content = `
+    <h2 style="color:#1e40af;margin:0 0 8px;">Projet partagé avec vous 🤝</h2>
+    <p style="margin:0 0 20px;color:#6b7280;font-size:14px;">${params.senderName} vous invite à collaborer</p>
+    <p>Bonjour <strong>${params.recipientName}</strong>,</p>
+    <p><strong>${params.senderName}</strong> vous a donné accès au projet suivant :</p>
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:16px 20px;margin:16px 0;">
+      <p style="margin:0 0 4px;font-size:13px;color:#0369a1;">Projet</p>
+      <p style="margin:0;font-size:18px;font-weight:700;color:#0c4a6e;">${params.projectName}</p>
+      <p style="margin:6px 0 0;font-size:13px;color:#374151;">Rôle : <strong>${params.role}</strong></p>
+    </div>
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${EMAIL_CONFIG.appUrl}/projects/${params.projectId}" style="${btnStyle}">
+        Accéder au projet →
+      </a>
+    </div>
+  `
+  return {
+    subject: `${params.senderName} vous partage le projet "${params.projectName}"`,
+    html: baseLayout(content, `Invitation à collaborer sur ${params.projectName}`),
+  }
+}
 
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-    ${stepsHtml}
-  </table>
+// ── 6. ALERT EMAIL ───────────────────────────────────────────
+export function alertEmail(params: {
+  email?: string
+  projectName?: string
+  alertType?: string
+  message?: string
+  actionLink?: string
+}) {
+  const title  = params.alertType || 'Alerte projet'
+  const content = `
+    <h2 style="color:#dc2626;margin:0 0 8px;">⚠️ ${title}</h2>
+    ${params.projectName ? `<p style="color:#6b7280;font-size:14px;margin:0 0 16px;">Projet : <strong>${params.projectName}</strong></p>` : ''}
+    <p style="color:#374151;line-height:1.6;">${params.message || 'Une alerte a été déclenchée sur votre projet.'}</p>
+    ${params.actionLink ? `
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${params.actionLink}" style="display:inline-block;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;">
+        Voir l'alerte →
+      </a>
+    </div>` : ''}
+  `
+  return {
+    subject: `⚠️ Alerte : ${title}${params.projectName ? ` — ${params.projectName}` : ''}`,
+    html: `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:20px;background:#f3f4f6;font-family:Arial,sans-serif;">
+<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
+<div style="background:linear-gradient(135deg,#dc2626,#ef4444);padding:24px;text-align:center;">
+  <h1 style="color:#fff;margin:0;font-size:20px;">📊 ${EMAIL_CONFIG.appName}</h1>
+</div>
+<div style="padding:28px;">${content}</div>
+<div style="background:#f9fafb;padding:16px;text-align:center;font-size:12px;color:#6b7280;border-top:1px solid #e5e7eb;">
+  © ${new Date().getFullYear()} ${EMAIL_CONFIG.appName}
+</div>
+</div>
+</body></html>`,
+  }
+}
 
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center">
-        <a href="https://pmo-ai-studio-v3.vercel.app/projects" style="display:inline-block;background:#7B5EFF;color:#fff;font-size:14px;font-weight:700;padding:14px 32px;border-radius:24px;text-decoration:none;">
-          &#128640; D&eacute;marrer mon projet
-        </a>
-      </td>
-    </tr>
-  </table>
-`, `Projet créé : ${projectName} — Guide de démarrage PMO`)
+// ── 7. DOCUMENT EMAIL ────────────────────────────────────────
+export function documentEmail(params: {
+  email?: string
+  name?: string
+  docType?: string
+  projectName?: string
+  downloadLink?: string
+}) {
+  const content = `
+    <h2 style="color:#1e40af;margin:0 0 8px;">📄 Document disponible</h2>
+    ${params.name ? `<p>Bonjour <strong>${params.name}</strong>,</p>` : ''}
+    <p>Un document${params.docType ? ` <strong>${params.docType}</strong>` : ''} est disponible${params.projectName ? ` pour le projet <strong>${params.projectName}</strong>` : ''} :</p>
+    ${params.downloadLink ? `
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${params.downloadLink}" style="display:inline-block;background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;">
+        Télécharger le document →
+      </a>
+    </div>` : ''}
+  `
+  return {
+    subject: `📄 Document disponible${params.projectName ? ` — ${params.projectName}` : ''}`,
+    html: `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:20px;background:#f3f4f6;font-family:Arial,sans-serif;">
+<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
+<div style="background:linear-gradient(135deg,#1e40af,#3b82f6);padding:24px;text-align:center;">
+  <h1 style="color:#fff;margin:0;font-size:20px;">📊 ${EMAIL_CONFIG.appName}</h1>
+</div>
+<div style="padding:28px;">${content}</div>
+<div style="background:#f9fafb;padding:16px;text-align:center;font-size:12px;color:#6b7280;border-top:1px solid #e5e7eb;">
+  © ${new Date().getFullYear()} ${EMAIL_CONFIG.appName}
+</div>
+</div>
+</body></html>`,
+  }
+}
+
+// ── 8. NEW PROJECT EMAIL (alias) ─────────────────────────────
+export function newProjectEmail(params: {
+  email?: string
+  name?: string
+  projectName?: string
+  scenario?: string
+}) {
+  return projectCreatedEmail({
+    name:        params.name || 'Utilisateur',
+    projectName: params.projectName || 'Nouveau projet',
+    projectId:   '',
+    description: params.scenario,
+  })
 }

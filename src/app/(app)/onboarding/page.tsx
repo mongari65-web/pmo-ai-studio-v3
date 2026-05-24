@@ -65,6 +65,22 @@ export default function OnboardingPage() {
     setGenerating(true)
     try {
       const projId = await createProject()
+      // ── Email notification création projet (Sprint 5) ──────
+      if (projId) {
+        try {
+          await fetch('/api/email/project-created', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              projectId: projId,
+              projectName: project.name || 'Mon premier projet',
+              description: project.description,
+            }),
+          })
+        } catch {
+          // Email non bloquant — le projet est créé même si l'email échoue
+        }
+      }
       if (!projId) return
       setCreatedId(projId)
 
