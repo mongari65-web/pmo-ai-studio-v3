@@ -133,7 +133,10 @@ export default function WorkPackagesPage() {
                 </div>
                 <div style={{ fontSize:12, fontWeight:700, color:"#fff", lineHeight:1.3 }}>{wp.name}</div>
               </div>
-              <span style={{ fontSize:10, padding:"2px 7px", borderRadius:8, background:"rgba(0,0,0,0.2)", color:"#fff", fontWeight:600, whiteSpace:"nowrap", flexShrink:0 }}>{wp.phase}</span>
+              <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+                <span style={{ fontSize:10, padding:"2px 7px", borderRadius:8, background:"rgba(0,0,0,0.2)", color:"#fff", fontWeight:600, whiteSpace:"nowrap" }}>{wp.phase}</span>
+                <button onClick={e=>{e.stopPropagation();deleteWp(wp.id)}} title={"Supprimer " + wp.name} style={{ background:"rgba(239,68,68,0.3)", border:"none", borderRadius:6, cursor:"pointer", color:"#fff", fontSize:12, padding:"2px 5px", lineHeight:1 }}>🗑</button>
+              </div>
             </div>
 
             {/* Barre progression */}
