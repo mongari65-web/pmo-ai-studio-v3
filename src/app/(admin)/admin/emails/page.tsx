@@ -23,13 +23,23 @@ interface EmailStat {
   last_sent: string
 }
 
-const TYPE_META: Record<string, { label: string; emoji: string; cls: string }> = {
-  welcome:         { label: 'Bienvenue',      emoji: '👋', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
-  project_created: { label: 'Nouveau projet', emoji: '📁', cls: 'bg-green-50 text-green-700 border-green-200' },
-  upgrade_pro:     { label: 'Upgrade Pro',    emoji: '⭐', cls: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
-  password_reset:  { label: 'Reset MDP',      emoji: '🔐', cls: 'bg-orange-50 text-orange-700 border-orange-200' },
-  project_shared:  { label: 'Partage projet', emoji: '🤝', cls: 'bg-purple-50 text-purple-700 border-purple-200' },
+const TYPE_META: Record<string, { label: string; color: string; bg: string; border: string }> = {
+  welcome:         { label: 'Bienvenue',       color: '#3b82f6', bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.3)'  },
+  project_created: { label: 'Nouveau projet',  color: '#22c55e', bg: 'rgba(34,197,94,0.12)',   border: 'rgba(34,197,94,0.3)'   },
+  upgrade_pro:     { label: 'Upgrade Pro',     color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.3)'  },
+  password_reset:  { label: 'Reset MDP',       color: '#f97316', bg: 'rgba(249,115,22,0.12)',  border: 'rgba(249,115,22,0.3)'  },
+  project_shared:  { label: 'Partage projet',  color: '#a855f7', bg: 'rgba(168,85,247,0.12)',  border: 'rgba(168,85,247,0.3)'  },
+  alert:           { label: 'Alerte',          color: '#ef4444', bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.3)'   },
+  document:        { label: 'Document',        color: '#06b6d4', bg: 'rgba(6,182,212,0.12)',   border: 'rgba(6,182,212,0.3)'   },
 }
+
+const EMAIL_TYPES = [
+  { value: 'welcome',         label: 'Bienvenue' },
+  { value: 'project_created', label: 'Nouveau projet' },
+  { value: 'upgrade_pro',     label: 'Upgrade Pro' },
+  { value: 'password_reset',  label: 'Reset mot de passe' },
+  { value: 'project_shared',  label: 'Partage projet' },
+]
 
 export default function AdminEmailsPage() {
   const [supabase]  = useState(() => createClient())
@@ -83,131 +93,175 @@ export default function AdminEmailsPage() {
   const totalFail = logs.filter(l => l.status === 'failed').length
   const rate      = totalSent > 0 ? Math.round(totalOk * 100 / totalSent) : 0
 
+  const card = (style?: React.CSSProperties): React.CSSProperties => ({
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border)',
+    borderRadius: 12,
+    padding: 20,
+    ...style,
+  })
+
+  const kpis = [
+    { label: 'Total envoyés', value: totalSent,  color: '#3b82f6', bg: 'rgba(59,130,246,0.12)',  icon: '📤' },
+    { label: 'Succès',        value: totalOk,    color: '#22c55e', bg: 'rgba(34,197,94,0.12)',   icon: '✅' },
+    { label: 'Échecs',        value: totalFail,  color: '#ef4444', bg: 'rgba(239,68,68,0.12)',   icon: '❌' },
+    { label: 'Taux succès',   value: rate + '%', color: '#a855f7', bg: 'rgba(168,85,247,0.12)',  icon: '📊' },
+  ]
+
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 1100 }}>
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">📧 Notifications Email</h1>
-          <p className="text-sm text-gray-500 mt-1">Suivi Resend — 100 derniers logs</p>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-1)', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+            📧 Notifications Email
+          </h1>
+          <p style={{ fontSize: 12, color: 'var(--text-3)', margin: '4px 0 0' }}>
+            Suivi Resend — historique des 100 derniers envois
+          </p>
         </div>
-        <button onClick={loadData}
-          className="px-4 py-2 text-sm bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <button
+          onClick={loadData}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-2)', cursor: 'pointer' }}
+        >
           🔄 Actualiser
         </button>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Total envoyés', value: totalSent,       icon: '📤', border: 'border-l-blue-400' },
-          { label: 'Succès',        value: totalOk,         icon: '✅', border: 'border-l-green-400' },
-          { label: 'Échecs',        value: totalFail,       icon: '❌', border: 'border-l-red-400' },
-          { label: 'Taux succès',   value: `${rate}%`,      icon: '📊', border: 'border-l-purple-400' },
-        ].map(k => (
-          <div key={k.label} className={`bg-white rounded-xl border border-gray-100 border-l-4 ${k.border} p-4 shadow-sm`}>
-            <div className="text-2xl mb-1">{k.icon}</div>
-            <div className="text-2xl font-bold text-gray-900">{k.value}</div>
-            <div className="text-xs text-gray-500 mt-1">{k.label}</div>
+      {/* KPI Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        {kpis.map(k => (
+          <div key={k.label} style={{ ...card(), borderLeft: `3px solid ${k.color}`, display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 10, background: k.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+              {k.icon}
+            </div>
+            <div>
+              <p style={{ fontSize: 11, color: 'var(--text-3)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k.label}</p>
+              <p style={{ fontSize: 26, fontWeight: 800, color: k.color, margin: '2px 0 0', lineHeight: 1 }}>{k.value}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Stats par type */}
-      {stats.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">Statistiques par type (7 jours)</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-xs text-gray-400 border-b">
-                  <th className="text-left pb-2">Type</th>
-                  <th className="text-right pb-2">Total</th>
-                  <th className="text-right pb-2">Succès</th>
-                  <th className="text-right pb-2">Échecs</th>
-                  <th className="text-right pb-2">Taux</th>
-                  <th className="text-right pb-2">Dernier envoi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.map(s => {
-                  const m = TYPE_META[s.email_type] ?? { label: s.email_type, emoji: '📧', cls: 'bg-gray-50 text-gray-600 border-gray-200' }
-                  const r = Number(s.success_rate)
-                  return (
-                    <tr key={s.email_type} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="py-2">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border font-medium ${m.cls}`}>
-                          {m.emoji} {m.label}
-                        </span>
-                      </td>
-                      <td className="text-right py-2 font-medium">{s.total_sent}</td>
-                      <td className="text-right py-2 text-green-600">{s.success}</td>
-                      <td className="text-right py-2 text-red-500">{s.failed}</td>
-                      <td className={`text-right py-2 font-semibold ${r >= 95 ? 'text-green-600' : r >= 80 ? 'text-yellow-600' : 'text-red-600'}`}>
-                        {s.success_rate}%
-                      </td>
-                      <td className="text-right py-2 text-xs text-gray-400">
-                        {new Date(s.last_sent).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {/* Stats par type + Panneau test côte à côte */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16 }}>
 
-      {/* Panneau test */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-        <h2 className="text-sm font-semibold text-gray-700 mb-4">🧪 Envoyer un email de test</h2>
-        <div className="flex gap-3 items-end flex-wrap">
+        {/* Stats par type */}
+        <div style={card()}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-1)', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            📈 Statistiques par type
+            <span style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 400 }}>(7 derniers jours)</span>
+          </p>
+          {stats.length === 0 ? (
+            <p style={{ fontSize: 12, color: 'var(--text-3)', textAlign: 'center', padding: '20px 0' }}>
+              Aucune donnée — envoyez un test pour commencer
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {stats.map(s => {
+                const m  = TYPE_META[s.email_type] ?? { label: s.email_type, color: '#64748b', bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.3)' }
+                const r  = Number(s.success_rate)
+                const rateColor = r >= 95 ? '#22c55e' : r >= 80 ? '#f59e0b' : '#ef4444'
+                return (
+                  <div key={s.email_type} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 20, background: m.bg, color: m.color, border: `1px solid ${m.border}`, minWidth: 110, textAlign: 'center', flexShrink: 0 }}>
+                      {m.label}
+                    </span>
+                    <div style={{ flex: 1, height: 6, background: 'var(--border)', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ width: `${r}%`, height: '100%', background: rateColor, borderRadius: 3, transition: 'width 0.5s ease' }} />
+                    </div>
+                    <span style={{ fontSize: 12, color: rateColor, fontWeight: 700, minWidth: 36, textAlign: 'right' }}>{r}%</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-3)', minWidth: 50, textAlign: 'right' }}>{s.total_sent} envois</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Panneau test */}
+        <div style={card({ display: 'flex', flexDirection: 'column', gap: 14 })}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-1)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+            🧪 Envoyer un email de test
+          </p>
+
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Type</label>
-            <select value={testType} onChange={e => setTestType(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
-              <option value="welcome">👋 Bienvenue</option>
-              <option value="project_created">📁 Nouveau projet</option>
-              <option value="upgrade_pro">⭐ Upgrade Pro</option>
-              <option value="password_reset">🔐 Reset mot de passe</option>
-              <option value="project_shared">🤝 Partage projet</option>
+            <label style={{ fontSize: 11, color: 'var(--text-3)', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Type</label>
+            <select
+              value={testType}
+              onChange={e => setTestType(e.target.value)}
+              style={{ width: '100%', padding: '8px 10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-1)', cursor: 'pointer' }}
+            >
+              {EMAIL_TYPES.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
             </select>
           </div>
-          <div className="flex-1 min-w-[220px]">
-            <label className="text-xs text-gray-500 block mb-1">Destinataire</label>
-            <input value={testTo} onChange={e => setTestTo(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-              placeholder="email@exemple.com" />
+
+          <div>
+            <label style={{ fontSize: 11, color: 'var(--text-3)', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Destinataire</label>
+            <input
+              value={testTo}
+              onChange={e => setTestTo(e.target.value)}
+              style={{ width: '100%', padding: '8px 10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-1)', boxSizing: 'border-box' }}
+              placeholder="email@exemple.com"
+            />
           </div>
-          <button onClick={sendTest} disabled={sending || !testTo}
-            className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
-            {sending ? '⏳ Envoi...' : '📤 Envoyer test'}
+
+          <button
+            onClick={sendTest}
+            disabled={sending || !testTo}
+            style={{
+              padding: '10px 0', borderRadius: 8, border: 'none', cursor: sending ? 'wait' : 'pointer',
+              background: sending ? 'var(--border)' : 'linear-gradient(135deg, #1e40af, #3b82f6)',
+              color: '#fff', fontWeight: 700, fontSize: 13,
+              opacity: !testTo ? 0.5 : 1,
+              transition: 'opacity 0.2s',
+            }}
+          >
+            {sending ? '⏳ Envoi en cours...' : '📤 Envoyer le test'}
           </button>
-        </div>
-        {testResult && (
-          <div className={`mt-3 p-3 rounded-lg text-sm ${
-            testResult.success
-              ? 'bg-green-50 text-green-700 border border-green-200'
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}>
-            {testResult.success
-              ? `✅ Email envoyé ! ID Resend : ${testResult.messageId}`
-              : `❌ Erreur : ${testResult.error}`}
+
+          {testResult && (
+            <div style={{
+              padding: '10px 14px', borderRadius: 8, fontSize: 12,
+              background: testResult.success ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+              border: `1px solid ${testResult.success ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+              color: testResult.success ? '#22c55e' : '#ef4444',
+            }}>
+              {testResult.success
+                ? `✅ Envoyé ! ID : ${testResult.messageId}`
+                : `❌ ${testResult.error}`}
+            </div>
+          )}
+
+          <div style={{ marginTop: 'auto', padding: '12px', background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)' }}>
+            <p style={{ fontSize: 10, color: 'var(--text-3)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Statut Resend</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px #22c55e' }} />
+              <span style={{ fontSize: 12, color: 'var(--text-1)', fontWeight: 600 }}>Connecté</span>
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Logs */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-gray-700">Historique des envois</h2>
-          <div className="flex gap-2">
+      {/* Historique logs */}
+      <div style={card()}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-1)', margin: 0 }}>Historique des envois</p>
+          <div style={{ display: 'flex', gap: 6 }}>
             {(['all', 'sent', 'failed'] as const).map(f => (
-              <button key={f} onClick={() => setFilter(f)}
-                className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                  filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}>
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                style={{
+                  padding: '5px 12px', borderRadius: 20, fontSize: 11, border: 'none', cursor: 'pointer', fontWeight: 600,
+                  background: filter === f ? '#3b82f6' : 'var(--bg)',
+                  color: filter === f ? '#fff' : 'var(--text-2)',
+                  outline: filter === f ? 'none' : '1px solid var(--border)',
+                }}
+              >
                 {f === 'all' ? 'Tous' : f === 'sent' ? '✅ Succès' : '❌ Échecs'}
               </button>
             ))}
@@ -215,50 +269,48 @@ export default function AdminEmailsPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-10 text-gray-400 text-sm">Chargement...</div>
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-3)', fontSize: 13 }}>
+            Chargement...
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-10 text-gray-400 text-sm">
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-3)', fontSize: 13 }}>
             {filter === 'all'
-              ? "Aucun log — exécutez d'abord la migration SQL dans Supabase"
-              : 'Aucun résultat pour ce filtre'}
+              ? "Aucun log — envoyez un email de test pour commencer"
+              : "Aucun résultat pour ce filtre"}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
-                <tr className="text-xs text-gray-400 border-b">
-                  <th className="text-left pb-2">Type</th>
-                  <th className="text-left pb-2">Destinataire</th>
-                  <th className="text-left pb-2">Sujet</th>
-                  <th className="text-center pb-2">Statut</th>
-                  <th className="text-right pb-2">Date</th>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                  {['Type', 'Destinataire', 'Sujet', 'Statut', 'Date'].map((h, i) => (
+                    <th key={h} style={{ padding: '8px 10px', textAlign: i >= 3 ? 'center' : 'left', color: 'var(--text-3)', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(log => {
-                  const m = TYPE_META[log.email_type] ?? { label: log.email_type, emoji: '📧', cls: 'bg-gray-50 text-gray-600 border-gray-200' }
+                {filtered.map((log, i) => {
+                  const m = TYPE_META[log.email_type] ?? { label: log.email_type, color: '#64748b', bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.3)' }
                   return (
-                    <tr key={log.id} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="py-2">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border ${m.cls}`}>
-                          {m.emoji} {m.label}
+                    <tr key={log.id} style={{ borderBottom: '1px solid var(--border)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                      <td style={{ padding: '10px' }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: m.bg, color: m.color, border: `1px solid ${m.border}`, whiteSpace: 'nowrap' }}>
+                          {m.label}
                         </span>
                       </td>
-                      <td className="py-2 text-gray-600 truncate max-w-[160px]" title={log.recipient}>
+                      <td style={{ padding: '10px', color: 'var(--text-2)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.recipient}>
                         {log.recipient}
                       </td>
-                      <td className="py-2 text-gray-500 truncate max-w-[200px]">
+                      <td style={{ padding: '10px', color: 'var(--text-3)', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {log.subject.replace('[TEST] ', '')}
                       </td>
-                      <td className="py-2 text-center">
+                      <td style={{ padding: '10px', textAlign: 'center' }}>
                         {log.status === 'sent'
-                          ? <span className="text-green-600">✅</span>
-                          : <span className="text-red-500" title={log.error_message ?? ''}>❌</span>}
+                          ? <span style={{ color: '#22c55e', fontWeight: 700 }}>✓ Envoyé</span>
+                          : <span style={{ color: '#ef4444', fontWeight: 700 }} title={log.error_message ?? ''}>✗ Échec</span>}
                       </td>
-                      <td className="py-2 text-right text-xs text-gray-400">
-                        {new Date(log.sent_at).toLocaleDateString('fr-FR', {
-                          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-                        })}
+                      <td style={{ padding: '10px', textAlign: 'center', color: 'var(--text-3)', whiteSpace: 'nowrap' }}>
+                        {new Date(log.sent_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                       </td>
                     </tr>
                   )
