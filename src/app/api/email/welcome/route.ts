@@ -1,40 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { sendEmail, logEmailEvent } from '@/lib/email/send'
-import { welcomeEmail } from '@/lib/email/templates'
+import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
+import { sendEmail, logEmailEvent } from "@/lib/email/send"
+import { welcomeEmail } from "@/lib/email/templates"
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient()
-    const body = await req.json()
-    const { userId, email, name } = body
-
-    if (!userId || !email) {
-      return NextResponse.json({ error: 'userId et email requis' }, { status: 400 })
+    const supabase = await createClient()
+    const body = await req.json() as { userId: string; email: string; name?: string }
+    if (!body.userId || !body.email) {
+      return NextResponse.json({ error: "userId et email requis" }, { status: 400 })
     }
 
-    const template = welcomeEmail({ name: name || email.split('@')[0], email })
-
-    const result = await sendEmail({
-      to: email,
-      subject: template.subject,
-      html: template.html,
-      tags: [{ name: 'type', value: 'welcome' }],
-    })
+    const template = welcomeEmail({ name: body.name || body.email.split("@")[0], email: body.email })
+    const result   = await sendEmail({ to: body.email, subject: template.subject, html: template.html, tags: [{ name: "type", value: "welcome" }] })
 
     await logEmailEvent(supabase, {
-      userId,
-      type: 'welcome',
-      to: email,
-      subject: template.subject,
-      success: result.success,
-      messageId: result.messageId,
-      error: result.error,
+      userId: body.userId, type: "welcome", to: body.email,
+      subject: template.subject, success: result.success,
+      messageId: result.messageId, error: result.error,
     })
 
     return NextResponse.json({ success: result.success })
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Erreur serveur'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Erreur" }, { status: 500 })
   }
 }
