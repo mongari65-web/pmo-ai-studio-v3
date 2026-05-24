@@ -325,3 +325,217 @@ export function newProjectEmail(params: {
     description: params.scenario,
   })
 }
+
+// ── BROADCAST TEMPLATES ──────────────────────────────────────
+
+// 9. NOUVELLE FONCTIONNALITÉ
+export function newFeatureEmail(params: {
+  name?: string
+  featureTitle: string
+  featureDescription: string
+  featureUrl?: string
+  plan?: string
+}) {
+  const name = params.name || 'Cher utilisateur'
+  const content = `
+    <h2 style="color:#1e40af;margin:0 0 6px;">🚀 Nouvelle fonctionnalité disponible !</h2>
+    <p style="color:#6b7280;font-size:14px;margin:0 0 20px;">Découvrez ce qui vient d'être ajouté à votre espace</p>
+    <p>Bonjour <strong>${name}</strong>,</p>
+    <p>Une nouvelle fonctionnalité vient d'être déployée sur <strong>PMO AI Studio</strong> :</p>
+    <div style="background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(168,85,247,0.08));border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:20px 24px;margin:20px 0;">
+      <h3 style="color:#1e40af;margin:0 0 8px;font-size:18px;">✨ ${params.featureTitle}</h3>
+      <p style="color:#374151;margin:0;line-height:1.7;">${params.featureDescription}</p>
+    </div>
+    ${params.plan ? `<p style="font-size:13px;color:#6b7280;">Disponible sur votre plan <strong>${params.plan}</strong></p>` : ''}
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${params.featureUrl || EMAIL_CONFIG.appUrl + '/dashboard'}"
+        style="display:inline-block;background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;">
+        Découvrir maintenant →
+      </a>
+    </div>
+  `
+  return {
+    subject: `🚀 Nouveau : ${params.featureTitle}`,
+    html: baseLayout(content, `Nouvelle fonctionnalité : ${params.featureTitle}`),
+  }
+}
+
+// 10. UPSELL FREE → PRO
+export function upsellProEmail(params: { name?: string; currentPlan?: string }) {
+  const name = params.name || 'Cher utilisateur'
+  const content = `
+    <h2 style="color:#7B5EFF;margin:0 0 6px;">⚡ Passez au niveau supérieur</h2>
+    <p style="color:#6b7280;font-size:14px;margin:0 0 20px;">Débloquez tout le potentiel de PMO AI Studio</p>
+    <p>Bonjour <strong>${name}</strong>,</p>
+    <p>Vous utilisez actuellement le plan <strong>${params.currentPlan || 'Gratuit'}</strong>. Voici ce que vous manquez :</p>
+    <div style="display:grid;gap:10px;margin:20px 0;">
+      ${[
+        ['10 projets en parallèle', 'vs 1 projet gratuit'],
+        ['200 requêtes IA/mois avec Claude Sonnet', 'vs 5 requêtes Haiku'],
+        ['Tous les outils PMO (10+)', 'WBS, Gantt, RAID, PERT, EVM...'],
+        ['Export Excel, PDF, Word', 'vs PDF uniquement'],
+        ['Templates sectoriels', 'IT, Construction, Finance...'],
+      ].map(([feat, detail]) => `
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(123,94,255,0.06);border:1px solid rgba(123,94,255,0.15);border-radius:8px;">
+          <span style="color:#7B5EFF;font-size:18px;flex-shrink:0;">✓</span>
+          <div>
+            <p style="margin:0;font-weight:600;color:#1f2937;font-size:14px;">${feat}</p>
+            <p style="margin:2px 0 0;font-size:12px;color:#6b7280;">${detail}</p>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div style="background:linear-gradient(135deg,#7B5EFF,#3b82f6);border-radius:12px;padding:20px;text-align:center;margin:24px 0;">
+      <p style="color:#fff;margin:0 0 4px;font-size:13px;opacity:0.9;">Plan Pro</p>
+      <p style="color:#fff;margin:0;font-size:32px;font-weight:800;">17€<span style="font-size:16px;opacity:0.8;">/mois</span></p>
+      <a href="${EMAIL_CONFIG.appUrl}/pricing"
+        style="display:inline-block;background:#fff;color:#7B5EFF;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;margin-top:14px;">
+        Passer au Pro →
+      </a>
+    </div>
+    <p style="font-size:12px;color:#9ca3af;text-align:center;">Annulation à tout moment · 7 jours d'essai gratuit</p>
+  `
+  return {
+    subject: `⚡ ${name}, débloquez 10x plus de puissance PMO`,
+    html: baseLayout(content, 'Passez au plan Pro — 7 jours gratuits'),
+  }
+}
+
+// 11. RÉPONSE FEEDBACK
+export function feedbackResponseEmail(params: {
+  name?: string
+  originalFeedback: string
+  response: string
+  senderName?: string
+}) {
+  const name = params.name || 'Cher utilisateur'
+  const content = `
+    <h2 style="color:#1e40af;margin:0 0 6px;">💬 Réponse à votre feedback</h2>
+    <p style="color:#6b7280;font-size:14px;margin:0 0 20px;">L'équipe PMO AI Studio vous répond</p>
+    <p>Bonjour <strong>${name}</strong>,</p>
+    <p>Merci pour votre retour ! Voici notre réponse :</p>
+    <div style="background:#f9fafb;border-left:3px solid #d1d5db;border-radius:0 8px 8px 0;padding:14px 16px;margin:16px 0;">
+      <p style="font-size:11px;color:#9ca3af;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em;">Votre feedback</p>
+      <p style="color:#6b7280;font-size:13px;margin:0;font-style:italic;">"${params.originalFeedback}"</p>
+    </div>
+    <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:16px;margin:16px 0;">
+      <p style="font-size:11px;color:#16a34a;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;">Notre réponse</p>
+      <p style="color:#374151;margin:0;line-height:1.7;">${params.response}</p>
+      ${params.senderName ? `<p style="margin:12px 0 0;font-size:13px;color:#6b7280;">— <strong>${params.senderName}</strong>, équipe PMO AI Studio</p>` : ''}
+    </div>
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${EMAIL_CONFIG.appUrl}/dashboard"
+        style="display:inline-block;background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;">
+        Retourner sur l'app →
+      </a>
+    </div>
+  `
+  return {
+    subject: `💬 Réponse à votre feedback — PMO AI Studio`,
+    html: baseLayout(content, 'Réponse à votre feedback'),
+  }
+}
+
+// 12. RÉPONSE RÉCLAMATION
+export function complaintResponseEmail(params: {
+  name?: string
+  complaintSubject: string
+  response: string
+  resolution?: string
+  senderName?: string
+}) {
+  const name = params.name || 'Cher utilisateur'
+  const content = `
+    <h2 style="color:#dc2626;margin:0 0 6px;">🔧 Traitement de votre réclamation</h2>
+    <p style="color:#6b7280;font-size:14px;margin:0 0 20px;">Nous prenons votre retour très au sérieux</p>
+    <p>Bonjour <strong>${name}</strong>,</p>
+    <p>Nous avons bien reçu votre réclamation concernant : <strong>${params.complaintSubject}</strong></p>
+    <div style="background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.15);border-radius:8px;padding:16px;margin:16px 0;">
+      <p style="font-size:11px;color:#dc2626;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;">Notre réponse</p>
+      <p style="color:#374151;margin:0;line-height:1.7;">${params.response}</p>
+    </div>
+    ${params.resolution ? `
+    <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:16px;margin:16px 0;">
+      <p style="font-size:11px;color:#16a34a;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;">✅ Résolution</p>
+      <p style="color:#374151;margin:0;line-height:1.7;">${params.resolution}</p>
+    </div>` : ''}
+    ${params.senderName ? `<p style="font-size:13px;color:#6b7280;">— <strong>${params.senderName}</strong>, équipe PMO AI Studio</p>` : ''}
+    <div style="text-align:center;margin:24px 0;">
+      <a href="mailto:support@pmoai.studio"
+        style="display:inline-block;background:#f3f4f6;color:#374151;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;border:1px solid #e5e7eb;">
+        Répondre à ce message
+      </a>
+    </div>
+  `
+  return {
+    subject: `🔧 Réclamation traitée — ${params.complaintSubject}`,
+    html: baseLayout(content, 'Traitement de votre réclamation'),
+  }
+}
+
+// 13. DIGEST HEBDOMADAIRE
+export function weeklyDigestEmail(params: {
+  name?: string
+  projectCount: number
+  aiCallsUsed: number
+  aiCallsLimit: number
+  topProject?: string
+  tips?: string[]
+  plan?: string
+}) {
+  const name = params.name || 'Cher utilisateur'
+  const usagePercent = Math.round(params.aiCallsUsed / params.aiCallsLimit * 100)
+  const usageColor = usagePercent > 80 ? '#ef4444' : usagePercent > 60 ? '#f59e0b' : '#22c55e'
+  const content = `
+    <h2 style="color:#1e40af;margin:0 0 6px;">📊 Votre résumé de la semaine</h2>
+    <p style="color:#6b7280;font-size:14px;margin:0 0 20px;">${new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })}</p>
+    <p>Bonjour <strong>${name}</strong>, voici votre activité PMO cette semaine :</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0;">
+      <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:16px;text-align:center;">
+        <p style="font-size:32px;font-weight:800;color:#3b82f6;margin:0;">${params.projectCount}</p>
+        <p style="font-size:12px;color:#6b7280;margin:4px 0 0;">Projets actifs</p>
+      </div>
+      <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:16px;text-align:center;">
+        <p style="font-size:32px;font-weight:800;color:#a855f7;margin:0;">${params.aiCallsUsed}</p>
+        <p style="font-size:12px;color:#6b7280;margin:4px 0 0;">Requêtes IA utilisées</p>
+      </div>
+    </div>
+    <div style="margin:16px 0;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:12px;color:#6b7280;">Quota IA mensuel</span>
+        <span style="font-size:12px;font-weight:700;color:${usageColor};">${params.aiCallsUsed}/${params.aiCallsLimit} (${usagePercent}%)</span>
+      </div>
+      <div style="height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;">
+        <div style="width:${usagePercent}%;height:100%;background:${usageColor};border-radius:4px;"></div>
+      </div>
+    </div>
+    ${params.topProject ? `
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;margin:16px 0;">
+      <p style="font-size:11px;color:#9ca3af;margin:0 0 4px;text-transform:uppercase;">Projet le plus actif</p>
+      <p style="font-weight:700;color:#1f2937;margin:0;">📁 ${params.topProject}</p>
+    </div>` : ''}
+    ${params.tips && params.tips.length > 0 ? `
+    <div style="margin:20px 0;">
+      <p style="font-weight:700;color:#1f2937;margin:0 0 10px;">💡 Conseils de la semaine</p>
+      ${params.tips.map(tip => `
+        <div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid #f3f4f6;">
+          <span style="color:#3b82f6;flex-shrink:0;">→</span>
+          <p style="margin:0;font-size:13px;color:#374151;">${tip}</p>
+        </div>`).join('')}
+    </div>` : ''}
+    ${usagePercent > 80 ? `
+    <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:14px;margin:16px 0;text-align:center;">
+      <p style="margin:0 0 8px;font-size:13px;color:#dc2626;">⚠️ Vous approchez de votre limite IA mensuelle</p>
+      <a href="${EMAIL_CONFIG.appUrl}/pricing" style="display:inline-block;background:#dc2626;color:#fff;padding:8px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">Augmenter mon quota</a>
+    </div>` : ''}
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${EMAIL_CONFIG.appUrl}/dashboard"
+        style="display:inline-block;background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;">
+        Accéder à mon dashboard →
+      </a>
+    </div>
+  `
+  return {
+    subject: `📊 Votre résumé PMO — semaine du ${new Date().toLocaleDateString('fr-FR')}`,
+    html: baseLayout(content, 'Résumé hebdomadaire PMO'),
+  }
+}
