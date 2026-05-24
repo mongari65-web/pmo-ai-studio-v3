@@ -14,7 +14,7 @@ interface WP {
   start: string; end: string; duration: number; budget: number
   status: string; completion: number; dependencies: string; acceptance: string
   objective?: string; activities?: string[]; contributors?: Contributor[]
-  lead_profile?: string; lead_etp?: string
+  lead_profile?: string; lead_etp?: string; color?: string
 }
 
 const STATUS_CFG: Record<string, { color: string; bg: string }> = {
@@ -106,14 +106,14 @@ export default function WorkPackagesPage() {
     toast.success("WP vierge créé — remplissez les détails")
   }
   const wp = editing&&draft ? draft : (filtered[ficheIdx]??filtered[0])
-  const pc = wp ? phaseColor(wp.phase) : "var(--primary)"
+  const pc = wp ? (wp.color ?? phaseColor(wp.phase)) : "var(--primary)"
   const cfg = wp ? (STATUS_CFG[wp.status]??{color:"var(--text-3)",bg:"transparent"}) : {color:"var(--text-3)",bg:"transparent"}
 
   // ── Vue Mini-Cartes ─────────────────────────────────────────────
   const GridView = () => (
     <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
       {filtered.map((wp,i) => {
-        const pc = phaseColor(wp.phase)
+        const pc = wp.color ?? phaseColor(wp.phase)
         const cfg = STATUS_CFG[wp.status] ?? {color:"var(--text-3)",bg:"transparent"}
         const activities = wp.activities && wp.activities.length>0 ? wp.activities : []
         return (
@@ -253,8 +253,15 @@ export default function WorkPackagesPage() {
               </div>
             </div>
             <div style={{ display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5 }}>
-              {editing ? <input value={draft?.phase} onChange={e=>setDraftField("phase",e.target.value)} style={{ fontSize:11,background:"rgba(0,0,0,0.2)",border:"1px solid rgba(255,255,255,0.3)",borderRadius:5,color:"#fff",padding:"3px 8px" }}/> : <span style={{ background:"rgba(0,0,0,0.2)",borderRadius:6,padding:"3px 10px",fontSize:11,color:"#fff",fontWeight:600 }}>Phase : {wp.phase}</span>}
-              {editing ? <select value={draft?.status} onChange={e=>setDraftField("status",e.target.value)} style={{ fontSize:11,borderRadius:5,padding:"2px 6px",border:"1px solid var(--border)" }}>{["Planifié","En cours","Terminé","En retard","À démarrer"].map(s=><option key={s}>{s}</option>)}</select> : <span style={{ fontSize:11,padding:"2px 8px",borderRadius:6,background:cfg.bg,color:cfg.color,fontWeight:600,border:"1px solid "+cfg.color+"44" }}>{wp.status}</span>}
+              {editing ? <select value={draft?.phase} onChange={e=>setDraftField("phase",e.target.value)} style={{ fontSize:11,background:"rgba(0,0,0,0.3)",border:"1px solid rgba(255,255,255,0.3)",borderRadius:5,color:"#fff",padding:"3px 8px" }}>{["Initialisation","Planification","Exécution","Tests","Validation","Recette","Déploiement","Revue","Rétrospective","Clôture"].map(p=><option key={p} value={p}>{p}</option>)}</select> : <span style={{ background:"rgba(0,0,0,0.2)",borderRadius:6,padding:"3px 10px",fontSize:11,color:"#fff",fontWeight:600 }}>Phase : {wp.phase}</span>}
+              {editing && <div style={{ display:"flex", alignItems:"center", gap:4, flexWrap:"wrap", marginBottom:4 }}>
+                  <span style={{ fontSize:10, color:"rgba(255,255,255,0.6)" }}>Couleur :</span>
+                  {["#6366f1","#7c3aed","#059669","#d97706","#dc2626","#0891b2","#db2777","#f97316","#14b8a6","#64748b"].map(col => (
+                    <button key={col} onClick={()=>setDraftField("color",col)}
+                      style={{ width:18,height:18,borderRadius:"50%",background:col,border:draft?.color===col?"2px solid #fff":"2px solid transparent",cursor:"pointer",flexShrink:0,padding:0 }}/>
+                  ))}
+                </div>}
+                {editing ? <select value={draft?.status} onChange={e=>setDraftField("status",e.target.value)} style={{ fontSize:11,borderRadius:5,padding:"2px 6px",border:"1px solid var(--border)" }}>{["Planifié","En cours","Terminé","En retard","À démarrer"].map(s=><option key={s}>{s}</option>)}</select> : <span style={{ fontSize:11,padding:"2px 8px",borderRadius:6,background:cfg.bg,color:cfg.color,fontWeight:600,border:"1px solid "+cfg.color+"44" }}>{wp.status}</span>}
             </div>
           </div>
 
