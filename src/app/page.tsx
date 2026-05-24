@@ -187,178 +187,72 @@ export default function LandingPage() {
       </section>
 
 
-      {/* ── MOCKUPS OUTILS ── */}
+
+      {/* ── SCREENSHOTS RÉELS ── */}
       <section style={{ padding: '80px 5%', background: '#f8fafc' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 56 }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: '#7B5EFF', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Aperçu des outils</p>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 60 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#7B5EFF', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Aperçu de l&apos;application</p>
             <h2 style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 800, margin: '0 0 14px', letterSpacing: '-0.5px' }}>
-              Des interfaces pensées pour les pros
+              Des outils pro, conçus pour votre réalité terrain
             </h2>
             <p style={{ fontSize: 16, color: '#64748b', maxWidth: 500, margin: '0 auto' }}>
-              Chaque outil est conçu pour votre réalité terrain, pas pour une démo.
+              Chaque fonctionnalité est pensée pour les vrais projets d&apos;entreprise.
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
-
-            {/* Mockup EVM */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }}>
-              <div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 6, padding: '4px 12px', fontSize: 12, color: '#1d4ed8', fontWeight: 600, marginBottom: 16 }}>💰 Earned Value Management</div>
-                <h3 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 12px', color: '#1e293b' }}>Pilotez votre budget en temps réel</h3>
-                <p style={{ fontSize: 15, color: '#64748b', lineHeight: 1.7, margin: '0 0 20px' }}>
-                  CPI, SPI, EAC calculés automatiquement. Détectez les dérives budgétaires avant qu&apos;il ne soit trop tard.
-                </p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {['Courbes S prévisionnel vs réel', 'Alertes dérive automatiques', 'Export Excel pro'].map(f => (
-                    <li key={f} style={{ display: 'flex', gap: 8, fontSize: 14, color: '#374151' }}>
-                      <span style={{ color: '#7B5EFF', fontWeight: 700 }}>✓</span>{f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              {/* EVM Mockup */}
-              <div style={{ background: '#0f172a', borderRadius: 16, padding: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>📊 EVM Dashboard</span>
-                  <span style={{ fontSize: 11, color: '#22c55e', background: 'rgba(34,197,94,0.15)', padding: '2px 8px', borderRadius: 4 }}>Semaine 24</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}>
-                  {[
-                    { label: 'CPI', value: '0.94', color: '#f59e0b', sub: 'Coût' },
-                    { label: 'SPI', value: '1.02', color: '#22c55e', sub: 'Planning' },
-                    { label: 'EAC', value: '245k€', color: '#3b82f6', sub: 'Prévision' },
-                  ].map(k => (
-                    <div key={k.label} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: '10px 8px', textAlign: 'center' }}>
-                      <p style={{ fontSize: 10, color: '#94a3b8', margin: '0 0 4px' }}>{k.label}</p>
-                      <p style={{ fontSize: 18, fontWeight: 800, color: k.color, margin: 0 }}>{k.value}</p>
-                      <p style={{ fontSize: 9, color: '#64748b', margin: '2px 0 0' }}>{k.sub}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* Mini bar chart */}
-                <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: 12 }}>
-                  <p style={{ fontSize: 10, color: '#94a3b8', margin: '0 0 8px' }}>Courbe S — Avancement</p>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 50 }}>
-                    {[30,45,52,61,68,75,82,88,92,94].map((v, i) => (
-                      <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        <div style={{ height: `${v/2}px`, background: i < 7 ? '#7B5EFF' : 'rgba(123,94,255,0.3)', borderRadius: '2px 2px 0 0' }}/>
-                        <div style={{ height: `${[28,42,49,58,65,71,78,84,89,94][i]/2}px`, background: i < 7 ? '#22c55e' : 'rgba(34,197,94,0.3)', borderRadius: '2px 2px 0 0' }}/>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
-                    <span style={{ fontSize: 9, color: '#7B5EFF' }}>■ Budget</span>
-                    <span style={{ fontSize: 9, color: '#22c55e' }}>■ Réel</span>
-                  </div>
-                </div>
-              </div>
+          {/* EVM pleine largeur */}
+          <div style={{ marginBottom: 40 }}>
+            <div style={{ marginBottom: 14 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, padding: '4px 14px', borderRadius: 20, background: 'rgba(59,130,246,0.1)', color: '#1d4ed8', border: '1px solid rgba(59,130,246,0.2)' }}>
+                💰 Earned Value Management — Courbe S temps réel
+              </span>
             </div>
-
-            {/* Mockup RAID */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }}>
-              {/* RAID Mockup */}
-              <div style={{ background: '#0f172a', borderRadius: 16, padding: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>⚠️ RAID Log</span>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    {[['R','#ef4444'],['A','#f59e0b'],['I','#3b82f6'],['D','#22c55e']].map(([l,c]) => (
-                      <span key={l as string} style={{ fontSize: 10, fontWeight: 700, color: c as string, background: `${c as string}22`, padding: '2px 6px', borderRadius: 4 }}>{l}</span>
-                    ))}
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {[
-                    { type: 'R', label: 'Indispo serveur prod', prio: 'Élevé', status: 'Ouvert', color: '#ef4444' },
-                    { type: 'A', label: 'Validation MOA batch', prio: 'Moyen', status: 'En cours', color: '#f59e0b' },
-                    { type: 'I', label: 'Retard livraison API', prio: 'Élevé', status: 'Ouvert', color: '#3b82f6' },
-                    { type: 'D', label: 'Architecture micro-svcs', prio: 'Faible', status: 'Clos', color: '#22c55e' },
-                  ].map((r, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: 8, borderLeft: `3px solid ${r.color}` }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: r.color, width: 14 }}>{r.type}</span>
-                      <span style={{ fontSize: 11, color: '#e2e8f0', flex: 1 }}>{r.label}</span>
-                      <span style={{ fontSize: 9, color: r.color, background: `${r.color}22`, padding: '2px 6px', borderRadius: 4, whiteSpace: 'nowrap' }}>{r.prio}</span>
-                      <span style={{ fontSize: 9, color: '#64748b', whiteSpace: 'nowrap' }}>{r.status}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: 6, padding: '4px 12px', fontSize: 12, color: '#92400e', fontWeight: 600, marginBottom: 16 }}>⚠️ RAID Management</div>
-                <h3 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 12px', color: '#1e293b' }}>Gérez risques et actions en un clic</h3>
-                <p style={{ fontSize: 15, color: '#64748b', lineHeight: 1.7, margin: '0 0 20px' }}>
-                  Risques, Actions, Issues, Décisions — tout centralisé. Filtrez, priorisez, assignez et suivez en temps réel.
-                </p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {['Matrice probabilité × impact', 'Alertes automatiques par email', 'Export rapport RAID PDF'].map(f => (
-                    <li key={f} style={{ display: 'flex', gap: 8, fontSize: 14, color: '#374151' }}>
-                      <span style={{ color: '#f59e0b', fontWeight: 700 }}>✓</span>{f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.18)', border: '1px solid #e2e8f0' }}>
+              <img src="/screenshots/dashboard-evm.png" alt="Dashboard EVM PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 520, objectFit: 'cover', objectPosition: 'top' }} />
             </div>
-
-            {/* Mockup WBS + PERT côte à côte */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-              {/* WBS */}
-              <div style={{ background: '#0f172a', borderRadius: 16, padding: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-                <div style={{ marginBottom: 14 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>🗂️ WBS — Migration Cloud</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <div style={{ padding: '8px 10px', background: 'rgba(123,94,255,0.2)', borderRadius: 6, fontSize: 12, fontWeight: 700, color: '#a78bfa' }}>
-                    1.0 Migration Cloud Azure
-                  </div>
-                  {[
-                    { label: '1.1 Infrastructure', indent: 16, color: '#60a5fa' },
-                    { label: '1.1.1 Réseau VPN', indent: 32, color: '#94a3b8' },
-                    { label: '1.1.2 Stockage', indent: 32, color: '#94a3b8' },
-                    { label: '1.2 Applications', indent: 16, color: '#60a5fa' },
-                    { label: '1.2.1 Migration BDD', indent: 32, color: '#94a3b8' },
-                    { label: '1.3 Tests & Recette', indent: 16, color: '#60a5fa' },
-                  ].map((item, i) => (
-                    <div key={i} style={{ paddingLeft: item.indent, padding: `6px 10px 6px ${item.indent}px`, fontSize: 11, color: item.color, borderLeft: `2px solid ${item.color}22`, marginLeft: item.indent/2 }}>
-                      {item.label}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {/* PERT */}
-              <div style={{ background: '#0f172a', borderRadius: 16, padding: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-                <div style={{ marginBottom: 14 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>📅 PERT — Estimation délais</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px 80px', gap: 4, fontSize: 9, color: '#64748b', padding: '4px 8px' }}>
-                    <span>Tâche</span><span style={{ textAlign: 'center' }}>O</span><span style={{ textAlign: 'center' }}>M</span><span style={{ textAlign: 'center' }}>P</span>
-                  </div>
-                  {[
-                    { task: 'Analyse besoins', o: 3, m: 5, p: 10, color: '#22c55e' },
-                    { task: 'Conception archi', o: 5, m: 8, p: 15, color: '#3b82f6' },
-                    { task: 'Développement', o: 10, m: 15, p: 25, color: '#7B5EFF' },
-                    { task: 'Tests recette', o: 3, m: 5, p: 8, color: '#f59e0b' },
-                  ].map((r, i) => {
-                    const te = Math.round((r.o + 4*r.m + r.p) / 6)
-                    return (
-                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px 80px', gap: 4, padding: '6px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: 6, alignItems: 'center', borderLeft: `3px solid ${r.color}` }}>
-                        <span style={{ fontSize: 11, color: '#e2e8f0' }}>{r.task}</span>
-                        <span style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>{r.o}j</span>
-                        <span style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>{r.m}j</span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: r.color, textAlign: 'center' }}>{te}j</span>
-                      </div>
-                    )
-                  })}
-                  <div style={{ padding: '8px', background: 'rgba(123,94,255,0.1)', borderRadius: 6, textAlign: 'center' }}>
-                    <span style={{ fontSize: 11, color: '#a78bfa' }}>⏱ Durée estimée totale : </span>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: '#7B5EFF' }}>33 jours</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+            <p style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', marginTop: 12 }}>CPI · SPI · EAC · Courbe S PV vs EV vs AC · Indicateurs période</p>
           </div>
+
+          {/* WP + Gantt 2 colonnes */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 40 }}>
+            <div>
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, padding: '4px 14px', borderRadius: 20, background: 'rgba(123,94,255,0.1)', color: '#7B5EFF', border: '1px solid rgba(123,94,255,0.2)' }}>
+                  📦 Work Packages
+                </span>
+              </div>
+              <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', border: '1px solid #e2e8f0' }}>
+                <img src="/screenshots/workpackages.png" alt="Work Packages PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 380, objectFit: 'cover', objectPosition: 'top' }} />
+              </div>
+              <p style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>Cards WP colorées · Budget · Responsables · Livrables</p>
+            </div>
+            <div>
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, padding: '4px 14px', borderRadius: 20, background: 'rgba(34,197,94,0.1)', color: '#15803d', border: '1px solid rgba(34,197,94,0.2)' }}>
+                  📅 Planning Gantt
+                </span>
+              </div>
+              <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', border: '1px solid #e2e8f0' }}>
+                <img src="/screenshots/gantt.png" alt="Gantt PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 380, objectFit: 'cover', objectPosition: 'top' }} />
+              </div>
+              <p style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>Gantt visuel · Chemin critique · % avancement · Phases</p>
+            </div>
+          </div>
+
+          {/* RAID pleine largeur */}
+          <div>
+            <div style={{ marginBottom: 14 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, padding: '4px 14px', borderRadius: 20, background: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}>
+                ⚠️ RAID Register — Risques · Actions · Issues · Décisions
+              </span>
+            </div>
+            <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.18)', border: '1px solid #e2e8f0' }}>
+              <img src="/screenshots/raid.png" alt="RAID Register PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 500, objectFit: 'cover', objectPosition: 'top' }} />
+            </div>
+            <p style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', marginTop: 12 }}>Filtres RAID · Priorités critiques · Plans de mitigation · Responsables</p>
+          </div>
+
         </div>
       </section>
 
