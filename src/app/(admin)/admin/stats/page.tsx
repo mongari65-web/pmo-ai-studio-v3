@@ -1,139 +1,139 @@
-"use client"
-import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts"
+'use client'
+
+import { useEffect, useState, useCallback } from 'react'
+
+interface StatsData {
+  total: number
+  free: number
+  starter: number
+  pro: number
+  premium: number
+  banned: number
+  newToday: number
+  newWeek: number
+  aiTotal: number
+  projectsTotal: number
+  conversionRate: number
+}
 
 export default function AdminStatsPage() {
-  const [data, setData] = useState<any>({ planDist:[], signupsByDay:[], topProjects:[] })
+  const [stats, setStats]   = useState<StatsData | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
 
-  useEffect(() => {
-    const load = async () => {
-      const { data: profiles } = await supabase.from("profiles").select("plan, created_at, ai_calls_count")
-      const { data: projects } = await supabase.from("projects").select("name, completion, user_id, created_at")
-
-      // Répartition plans
-      const planCounts = { free:0, pro:0, team:0 }
-      profiles?.forEach(p => { planCounts[p.plan as keyof typeof planCounts] = (planCounts[p.plan as keyof typeof planCounts]??0)+1 })
-      const planDist = [
-        { name:"Gratuit", value:planCounts.free, fill:"#64748b" },
-        { name:"Pro",     value:planCounts.pro,  fill:"#2563eb" },
-        { name:"Équipe",  value:planCounts.team, fill:"#7c3aed" },
-      ]
-
-      // Inscriptions 7 derniers jours
-      const days: Record<string, number> = {}
-      for (let i=6; i>=0; i--) {
-        const d = new Date(Date.now() - i*86400000).toISOString().split("T")[0]
-        days[d] = 0
-      }
-      profiles?.forEach(p => {
-        const d = p.created_at?.split("T")[0]
-        if (d && d in days) days[d]++
-      })
-      const signupsByDay = Object.entries(days).map(([date, count]) => ({
-        date: new Date(date).toLocaleDateString("fr-FR", { day:"2-digit", month:"short" }),
-        Inscriptions: count
-      }))
-
-      // IA calls par plan
-      const aiByPlan = [
-        { name:"Gratuit", calls: profiles?.filter(p=>p.plan==="free").reduce((s,p)=>s+(p.ai_calls_count??0),0)??0 },
-        { name:"Pro",     calls: profiles?.filter(p=>p.plan==="pro").reduce((s,p)=>s+(p.ai_calls_count??0),0)??0 },
-        { name:"Équipe",  calls: profiles?.filter(p=>p.plan==="team").reduce((s,p)=>s+(p.ai_calls_count??0),0)??0 },
-      ]
-
-      setData({ planDist, signupsByDay, aiByPlan })
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res  = await fetch('/api/admin/stats')
+      const data = await res.json() as StatsData
+      setStats(data)
+    } finally {
       setLoading(false)
     }
-    load()
   }, [])
 
+  useEffect(() => { load() }, [load])
+
+  const card = (extra?: React.CSSProperties): React.CSSProperties => ({
+    background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: 20, ...extra,
+  })
+
+  const V = (v: number | string | undefined) => loading ? '...' : (v ?? 0)
+
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Statistiques</h1>
-        <p className="text-muted-foreground text-sm mt-0.5">Métriques d'utilisation en temps réel</p>
+    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 1100 }}>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-1)', margin: 0 }}>📊 Statistiques & Trafic</h1>
+          <p style={{ fontSize: 12, color: 'var(--text-3)', margin: '4px 0 0' }}>Métriques utilisateurs + Vercel Analytics</p>
+        </div>
+        <button onClick={load} style={{ padding: '8px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-2)', cursor: 'pointer' }}>🔄 Actualiser</button>
       </div>
 
-      {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Chargement...</div>
-      ) : (
-        <div className="grid grid-cols-2 gap-5">
-          {/* Inscriptions 7j */}
-          <div className="bg-card border border-border rounded-xl p-5">
-            <p className="text-sm font-semibold text-foreground mb-4">📈 Inscriptions — 7 derniers jours</p>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={data.signupsByDay}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b"/>
-                <XAxis dataKey="date" tick={{ fill:"#64748b", fontSize:10 }}/>
-                <YAxis tick={{ fill:"#64748b", fontSize:10 }} allowDecimals={false}/>
-                <Tooltip contentStyle={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:8 }}/>
-                <Line type="monotone" dataKey="Inscriptions" stroke="#2563eb" strokeWidth={2} dot={{ r:4, fill:"#2563eb" }}/>
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Plans */}
-          <div className="bg-card border border-border rounded-xl p-5">
-            <p className="text-sm font-semibold text-foreground mb-4">🍩 Répartition plans</p>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={data.planDist} barSize={48}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b"/>
-                <XAxis dataKey="name" tick={{ fill:"#64748b", fontSize:11 }}/>
-                <YAxis tick={{ fill:"#64748b", fontSize:10 }} allowDecimals={false}/>
-                <Tooltip contentStyle={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:8 }}/>
-                <Bar dataKey="value" name="Utilisateurs" radius={[4,4,0,0]}>
-                  {data.planDist.map((d: any, i: number) => (
-                    <rect key={i} fill={d.fill}/>
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Appels IA */}
-          <div className="bg-card border border-border rounded-xl p-5">
-            <p className="text-sm font-semibold text-foreground mb-4">⚡ Appels IA par plan</p>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={data.aiByPlan} barSize={48}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b"/>
-                <XAxis dataKey="name" tick={{ fill:"#64748b", fontSize:11 }}/>
-                <YAxis tick={{ fill:"#64748b", fontSize:10 }}/>
-                <Tooltip contentStyle={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:8 }}/>
-                <Bar dataKey="calls" name="Appels IA" fill="#f59e0b" radius={[4,4,0,0]}/>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Revenus estimés */}
-          <div className="bg-card border border-border rounded-xl p-5">
-            <p className="text-sm font-semibold text-foreground mb-4">💰 Revenus estimés (MRR)</p>
-            <div className="space-y-4 mt-6">
-              {[
-                { label:"Plan Pro", count:data.planDist.find((p:any)=>p.name==="Pro")?.value??0, price:29, color:"#2563eb" },
-                { label:"Plan Équipe", count:data.planDist.find((p:any)=>p.name==="Équipe")?.value??0, price:79, color:"#7c3aed" },
-              ].map(p => (
-                <div key={p.label} className="flex items-center justify-between p-3 rounded-lg" style={{ background:p.color+"11", border:`1px solid ${p.color}33` }}>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{p.label}</p>
-                    <p className="text-xs text-muted-foreground">{p.count} × {p.price}€</p>
-                  </div>
-                  <p className="text-xl font-bold" style={{ color:p.color }}>{(p.count * p.price).toLocaleString("fr-FR")}€</p>
-                </div>
-              ))}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10 border border-green-500/30">
-                <p className="text-sm font-bold text-foreground">MRR Total</p>
-                <p className="text-xl font-bold text-green-400">
-                  {((data.planDist.find((p:any)=>p.name==="Pro")?.value??0)*29 +
-                    (data.planDist.find((p:any)=>p.name==="Équipe")?.value??0)*79).toLocaleString("fr-FR")}€
-                </p>
-              </div>
+      {/* KPIs utilisateurs */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
+        {[
+          { label: 'Nouveaux aujourd\'hui', value: V(stats?.newToday), color: '#22c55e', bl: '#22c55e', icon: '🆕' },
+          { label: 'Nouveaux cette semaine', value: V(stats?.newWeek), color: '#3b82f6', bl: '#3b82f6', icon: '📅' },
+          { label: 'Taux conversion', value: `${V(stats?.conversionRate)}%`, color: '#7B5EFF', bl: '#7B5EFF', icon: '🎯' },
+          { label: 'Appels IA total', value: V(stats?.aiTotal), color: '#f59e0b', bl: '#f59e0b', icon: '🤖' },
+        ].map(k => (
+          <div key={k.label} style={{ ...card(), borderLeft: `3px solid ${k.bl}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 8, background: `${k.bl}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{k.icon}</div>
+            <div>
+              <p style={{ fontSize: 10, color: 'var(--text-3)', margin: 0, textTransform: 'uppercase' }}>{k.label}</p>
+              <p style={{ fontSize: 22, fontWeight: 800, color: k.color, margin: '2px 0 0', lineHeight: 1 }}>{k.value}</p>
             </div>
           </div>
+        ))}
+      </div>
+
+      {/* Répartition plans */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={card()}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-1)', margin: '0 0 14px' }}>📊 Répartition utilisateurs</p>
+          {[
+            { label: 'Gratuit',  value: stats?.free ?? 0,    color: '#64748b', total: stats?.total ?? 1 },
+            { label: 'Starter',  value: stats?.starter ?? 0, color: '#36B37E', total: stats?.total ?? 1 },
+            { label: 'Pro',      value: stats?.pro ?? 0,     color: '#7B5EFF', total: stats?.total ?? 1 },
+            { label: 'Premium',  value: stats?.premium ?? 0, color: '#FF8C00', total: stats?.total ?? 1 },
+          ].map(r => {
+            const pct = Math.round((r.value / r.total) * 100)
+            return (
+              <div key={r.label} style={{ marginBottom: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-2)', fontWeight: 600 }}>{r.label}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-3)' }}>{r.value} ({pct}%)</span>
+                </div>
+                <div style={{ height: 6, background: 'var(--border)', borderRadius: 3 }}>
+                  <div style={{ width: `${pct}%`, height: '100%', background: r.color, borderRadius: 3, transition: 'width 0.5s' }} />
+                </div>
+              </div>
+            )
+          })}
         </div>
-      )}
+
+        <div style={card()}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-1)', margin: '0 0 14px' }}>🌐 Vercel Analytics</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ padding: '14px', background: 'var(--bg)', borderRadius: 10, border: '1px solid var(--border)', textAlign: 'center' }}>
+              <p style={{ fontSize: 12, color: 'var(--text-3)', margin: '0 0 8px' }}>Accéder au dashboard Analytics complet</p>
+              <a href="https://vercel.com/mongari65s-projects/pmo-ai-studio-v3/analytics" target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-block', padding: '10px 20px', background: 'linear-gradient(135deg,#000,#333)', color: '#fff', borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                ▲ Ouvrir Vercel Analytics →
+              </a>
+            </div>
+            {[
+              { label: 'Vues/page temps réel', value: 'Vercel Analytics', icon: '👁️' },
+              { label: 'Core Web Vitals', value: 'LCP, FID, CLS', icon: '⚡' },
+              { label: 'Géolocalisation', value: 'Pays + Ville', icon: '🌍' },
+              { label: 'Appareils', value: 'Mobile vs Desktop', icon: '📱' },
+            ].map(r => (
+              <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-2)' }}>{r.icon} {r.label}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 600 }}>{r.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Projets + IA */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+        {[
+          { label: 'Projets créés total', value: V(stats?.projectsTotal), color: '#3b82f6', icon: '📁' },
+          { label: 'Utilisateurs bannis', value: V(stats?.banned), color: '#ef4444', icon: '🚫' },
+          { label: 'Total utilisateurs', value: V(stats?.total), color: '#7B5EFF', icon: '👥' },
+        ].map(k => (
+          <div key={k.label} style={{ ...card(), display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: `${k.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{k.icon}</div>
+            <div>
+              <p style={{ fontSize: 10, color: 'var(--text-3)', margin: 0, textTransform: 'uppercase' }}>{k.label}</p>
+              <p style={{ fontSize: 24, fontWeight: 800, color: k.color, margin: '2px 0 0', lineHeight: 1 }}>{k.value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

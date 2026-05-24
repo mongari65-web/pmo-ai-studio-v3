@@ -1,159 +1,201 @@
-"use client"
-import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts"
+'use client'
 
-const PLAN_AMOUNTS: Record<string, number> = { starter: 9, pro: 17, premium: 23 }
+import { useEffect, useState, useCallback } from 'react'
+
+interface MRRData {
+  mrr: number
+  arr: number
+  totalActive: number
+  trialing: number
+  pastDue: number
+  canceled: number
+  churnRate: number
+  ltv: number
+  planCounts: { starter: number; pro: number; premium: number }
+  recentPayments: Array<{ id: string; amount: number; currency: string; created: number }>
+  failedPayments: number
+  error?: string
+}
+
+interface SubData {
+  mrr: number
+  total: number
+  active: number
+  trial: number
+  pastDue: number
+  subscriptions: Array<{
+    id: string; full_name: string; email: string; plan: string
+    amount: number; subscription_status: string; plan_started_at: string
+    current_period_end: string; stripe_subscription_id: string
+  }>
+}
+
+const PLAN_CFG: Record<string, { color: string; bg: string; border: string }> = {
+  starter: { color: '#36B37E', bg: 'rgba(54,179,126,0.12)',  border: 'rgba(54,179,126,0.3)' },
+  pro:     { color: '#7B5EFF', bg: 'rgba(123,94,255,0.12)', border: 'rgba(123,94,255,0.3)' },
+  premium: { color: '#FF8C00', bg: 'rgba(255,140,0,0.12)',   border: 'rgba(255,140,0,0.3)' },
+}
 
 export default function AdminRevenuePage() {
-  const [data, setData]   = useState<any>(null)
+  const [mrr, setMrr]     = useState<MRRData | null>(null)
+  const [sub, setSub]     = useState<SubData | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const [source, setSource]   = useState<'stripe' | 'supabase'>('supabase')
 
-  useEffect(() => {
-    const load = async () => {
-      const { data: subs }     = await supabase.from("subscriptions").select("plan, status, created_at, current_period_end, cancel_at_period_end")
-      const { data: profiles } = await supabase.from("profiles").select("plan, created_at")
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [mrrRes, subRes] = await Promise.all([
+        fetch('/api/admin/mrr'),
+        fetch('/api/admin/subscriptions'),
+      ])
+      const mrrData = await mrrRes.json() as MRRData
+      const subData = await subRes.json() as SubData
 
-      const active   = subs?.filter(s => s.status === "active") ?? []
-      const trialing = subs?.filter(s => s.status === "trialing") ?? []
-      const canceled = subs?.filter(s => s.status === "canceled") ?? []
+      if (mrrData.error) setSource('supabase')
+      else setSource('stripe')
 
-      const mrr = active.reduce((sum, s) => sum + (PLAN_AMOUNTS[s.plan] ?? 0), 0)
-      const arr = mrr * 12
-      const churnRate = subs && subs.length > 0 ? Math.round(canceled.length / subs.length * 100) : 0
-      const ltv = mrr > 0 && churnRate > 0 ? Math.round(mrr / (churnRate / 100)) : 0
-
-      // Répartition plans (actifs)
-      const planDist = [
-        { name: "Starter", value: active.filter(s=>s.plan==="starter").length, color: "#36B37E" },
-        { name: "Pro",     value: active.filter(s=>s.plan==="pro").length,     color: "#7B5EFF" },
-        { name: "Premium", value: active.filter(s=>s.plan==="premium").length, color: "#FF8C00" },
-      ]
-
-      // Revenue par plan
-      const revByPlan = [
-        { plan: "Starter", mrr: active.filter(s=>s.plan==="starter").length * 9,  users: active.filter(s=>s.plan==="starter").length },
-        { plan: "Pro",     mrr: active.filter(s=>s.plan==="pro").length * 17,      users: active.filter(s=>s.plan==="pro").length },
-        { plan: "Premium", mrr: active.filter(s=>s.plan==="premium").length * 23,  users: active.filter(s=>s.plan==="premium").length },
-      ]
-
-      // Inscriptions 30 derniers jours
-      const days: Record<string, number> = {}
-      for (let i = 29; i >= 0; i--) {
-        const d = new Date(Date.now() - i*86400000).toISOString().split("T")[0]
-        days[d] = 0
-      }
-      profiles?.forEach(p => {
-        const d = p.created_at?.split("T")[0]
-        if (d && d in days) days[d]++
-      })
-      const signups = Object.entries(days).map(([date, count]) => ({
-        date: new Date(date).toLocaleDateString("fr-FR", { day:"2-digit", month:"short" }),
-        Inscriptions: count
-      }))
-
-      setData({ mrr, arr, churnRate, ltv, planDist, revByPlan, signups, totalActive: active.length, totalTrialing: trialing.length, totalCanceled: canceled.length })
+      setMrr(mrrData)
+      setSub(subData)
+    } finally {
       setLoading(false)
     }
-    load()
   }, [])
 
-  if (loading) return <div style={{ padding:40, textAlign:"center", color:"var(--text-3)" }}>Chargement...</div>
+  useEffect(() => { load() }, [load])
+
+  const card = (extra?: React.CSSProperties): React.CSSProperties => ({
+    background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: 20, ...extra,
+  })
+
+  const displayMrr = source === 'stripe' ? (mrr?.mrr ?? 0) : (sub?.mrr ?? 0)
+  const displayArr = source === 'stripe' ? (mrr?.arr ?? 0) : displayMrr * 12
+  const displayActive = source === 'stripe' ? (mrr?.totalActive ?? 0) : (sub?.active ?? 0)
+
+  const kpis = [
+    { label: 'MRR',          value: `${displayMrr}€`,                  color: '#22c55e', bg: 'rgba(34,197,94,0.12)',   bl: '#22c55e', icon: '💰', sub: source === 'stripe' ? 'Stripe réel' : 'Estimé' },
+    { label: 'ARR',          value: `${displayArr}€`,                  color: '#3b82f6', bg: 'rgba(59,130,246,0.12)',  bl: '#3b82f6', icon: '📈', sub: 'Projection annuelle' },
+    { label: 'Abonnés actifs', value: displayActive,                   color: '#7B5EFF', bg: 'rgba(123,94,255,0.12)', bl: '#7B5EFF', icon: '👥', sub: `${mrr?.trialing ?? 0} en essai` },
+    { label: 'Churn',        value: `${mrr?.churnRate ?? 0}%`,         color: '#ef4444', bg: 'rgba(239,68,68,0.12)',   bl: '#ef4444', icon: '📉', sub: `${mrr?.canceled ?? 0} annulés/30j` },
+    { label: 'LTV estimé',   value: `${mrr?.ltv ?? 0}€`,              color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  bl: '#f59e0b', icon: '🏆', sub: 'Valeur client vie' },
+    { label: 'Échecs paiement', value: mrr?.failedPayments ?? 0,      color: '#ef4444', bg: 'rgba(239,68,68,0.12)',   bl: '#ef4444', icon: '⚠️', sub: 'Relances nécessaires' },
+  ]
 
   return (
-    <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
-      <div>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-1)", margin: 0 }}>📊 Revenue & Métriques</h1>
-        <p style={{ fontSize: 13, color: "var(--text-3)", margin: "4px 0 0" }}>MRR, ARR, Churn Rate, LTV</p>
-      </div>
+    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 1200 }}>
 
-      {/* KPIs principaux */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
-        {[
-          { label: "MRR",        value: (data.mrr).toLocaleString("fr-FR") + "€", sub: "Revenu mensuel récurrent", color: "#7B5EFF", bg: "rgba(123,94,255,0.08)" },
-          { label: "ARR",        value: (data.arr).toLocaleString("fr-FR") + "€", sub: "Revenu annuel récurrent",  color: "#36B37E", bg: "rgba(54,179,126,0.08)" },
-          { label: "Churn Rate", value: data.churnRate + "%",                      sub: "Taux d'annulation",        color: data.churnRate > 5 ? "#ef4444" : "#f59e0b", bg: "rgba(239,68,68,0.08)" },
-          { label: "LTV estimé", value: data.ltv > 0 ? data.ltv + "€" : "—",      sub: "Valeur vie client",        color: "#FF8C00", bg: "rgba(255,140,0,0.08)" },
-        ].map(k => (
-          <div key={k.label} style={{ background: k.bg, border: "1px solid "+k.color+"30", borderRadius: 12, padding: "16px 18px" }}>
-            <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>{k.label}</div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: k.color, lineHeight: 1 }}>{k.value}</div>
-            <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 4 }}>{k.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Stats secondaires */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
-        {[
-          { label: "Abonnés actifs",  value: data.totalActive,   color: "#22c55e" },
-          { label: "En essai",        value: data.totalTrialing, color: "#f59e0b" },
-          { label: "Annulés total",   value: data.totalCanceled, color: "#ef4444" },
-        ].map(k => (
-          <div key={k.label} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, padding: "12px 16px", textAlign: "center" }}>
-            <div style={{ fontSize: 24, fontWeight: 800, color: k.color }}>{k.value}</div>
-            <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 2 }}>{k.label}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        {/* Revenue par plan */}
-        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 12, padding: "16px 20px" }}>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)", margin: "0 0 16px" }}>💰 MRR par plan</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={data.revByPlan}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
-              <XAxis dataKey="plan" tick={{ fontSize: 11, fill: "var(--text-3)" }}/>
-              <YAxis tick={{ fontSize: 11, fill: "var(--text-3)" }}/>
-              <Tooltip formatter={(v: any) => v + "€"} contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}/>
-              <Bar dataKey="mrr" name="MRR" radius={[6,6,0,0]}>
-                {data.revByPlan.map((_: any, i: number) => (
-                  <Cell key={i} fill={["#36B37E","#7B5EFF","#FF8C00"][i]}/>
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-1)', margin: 0 }}>💰 Revenue & MRR</h1>
+          <p style={{ fontSize: 12, color: 'var(--text-3)', margin: '4px 0 0' }}>
+            Source : {source === 'stripe' ? '✅ Stripe API (temps réel)' : '⚠️ Estimé depuis Supabase (configurer STRIPE_SECRET_KEY)'}
+          </p>
         </div>
+        <button onClick={load} style={{ padding: '8px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-2)', cursor: 'pointer' }}>
+          🔄 Actualiser
+        </button>
+      </div>
+
+      {/* KPI Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+        {kpis.map(k => (
+          <div key={k.label} style={{ ...card(), borderLeft: `3px solid ${k.bl}`, display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 10, background: k.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{k.icon}</div>
+            <div>
+              <p style={{ fontSize: 10, color: 'var(--text-3)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k.label}</p>
+              <p style={{ fontSize: 24, fontWeight: 800, color: k.color, margin: '2px 0 0', lineHeight: 1 }}>{loading ? '...' : k.value}</p>
+              <p style={{ fontSize: 10, color: 'var(--text-3)', margin: '2px 0 0' }}>{k.sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Répartition plans + Derniers paiements */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
 
         {/* Répartition plans */}
-        <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 12, padding: "16px 20px" }}>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)", margin: "0 0 16px" }}>🥧 Répartition abonnés</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie data={data.planDist} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({name, value}) => value > 0 ? name+": "+value : ""}>
-                {data.planDist.map((entry: any, i: number) => (
-                  <Cell key={i} fill={entry.color}/>
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}/>
-            </PieChart>
-          </ResponsiveContainer>
-          <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 8 }}>
-            {data.planDist.map((p: any) => (
-              <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "var(--text-2)" }}>
-                <div style={{ width: 10, height: 10, borderRadius: 2, background: p.color }}/>
-                {p.name} ({p.value})
-              </div>
-            ))}
+        <div style={card()}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-1)', margin: '0 0 16px' }}>📊 Répartition par plan</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {(['starter','pro','premium'] as const).map(plan => {
+              const count  = source === 'stripe'
+                ? (mrr?.planCounts?.[plan] ?? 0)
+                : (sub?.subscriptions?.filter(s => s.plan === plan).length ?? 0)
+              const total  = displayActive || 1
+              const pct    = Math.round(count / total * 100)
+              const cfg    = PLAN_CFG[plan]
+              const amount = plan === 'starter' ? 9 : plan === 'pro' ? 17 : 23
+              return (
+                <div key={plan}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 20, background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
+                      {plan.charAt(0).toUpperCase() + plan.slice(1)}
+                    </span>
+                    <span style={{ fontSize: 12, color: 'var(--text-2)' }}>{count} · {count * amount}€/mois</span>
+                  </div>
+                  <div style={{ height: 6, background: 'var(--border)', borderRadius: 3 }}>
+                    <div style={{ width: `${pct}%`, height: '100%', background: cfg.color, borderRadius: 3, transition: 'width 0.5s' }} />
+                  </div>
+                </div>
+              )
+            })}
           </div>
+          <div style={{ marginTop: 16, padding: '12px', background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)', textAlign: 'center' }}>
+            <p style={{ fontSize: 11, color: 'var(--text-3)', margin: '0 0 2px' }}>Revenue mensuel total</p>
+            <p style={{ fontSize: 28, fontWeight: 800, color: '#22c55e', margin: 0 }}>{displayMrr}€</p>
+          </div>
+        </div>
+
+        {/* Derniers paiements */}
+        <div style={card()}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-1)', margin: '0 0 16px' }}>💳 Derniers paiements</p>
+          {loading ? (
+            <p style={{ fontSize: 12, color: 'var(--text-3)', textAlign: 'center', padding: '20px 0' }}>Chargement...</p>
+          ) : source === 'stripe' && mrr?.recentPayments && mrr.recentPayments.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {mrr.recentPayments.slice(0, 6).map(p => (
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                  <div>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-1)', margin: 0 }}>{p.amount}€</p>
+                    <p style={{ fontSize: 10, color: 'var(--text-3)', margin: '2px 0 0' }}>
+                      {new Date(p.created * 1000).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 600 }}>✓ Payé</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {(sub?.subscriptions ?? []).slice(0, 6).map(s => (
+                <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                  <div>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-1)', margin: 0 }}>{s.full_name || s.email}</p>
+                    <p style={{ fontSize: 10, color: 'var(--text-3)', margin: '2px 0 0' }}>{s.plan} · {s.amount}€/mois</p>
+                  </div>
+                  <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: 'rgba(34,197,94,0.1)', color: '#22c55e', fontWeight: 600 }}>
+                    {s.subscription_status}
+                  </span>
+                </div>
+              ))}
+              {(sub?.subscriptions ?? []).length === 0 && (
+                <p style={{ fontSize: 12, color: 'var(--text-3)', textAlign: 'center', padding: '20px 0' }}>Aucun abonné payant</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Inscriptions 30 jours */}
-      <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 12, padding: "16px 20px" }}>
-        <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)", margin: "0 0 16px" }}>📈 Inscriptions — 30 derniers jours</h3>
-        <ResponsiveContainer width="100%" height={160}>
-          <LineChart data={data.signups}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
-            <XAxis dataKey="date" tick={{ fontSize: 9, fill: "var(--text-3)" }} interval={4}/>
-            <YAxis tick={{ fontSize: 11, fill: "var(--text-3)" }} allowDecimals={false}/>
-            <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}/>
-            <Line type="monotone" dataKey="Inscriptions" stroke="#7B5EFF" strokeWidth={2} dot={false}/>
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {/* Alertes */}
+      {(mrr?.pastDue ?? 0) > 0 && (
+        <div style={{ padding: '14px 18px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 20 }}>⚠️</span>
+          <div>
+            <p style={{ margin: 0, fontWeight: 700, color: '#ef4444', fontSize: 13 }}>{mrr?.pastDue} paiement(s) en retard</p>
+            <p style={{ margin: '2px 0 0', fontSize: 11, color: 'var(--text-3)' }}>Vérifier dans le dashboard Stripe → Subscriptions → Past due</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
