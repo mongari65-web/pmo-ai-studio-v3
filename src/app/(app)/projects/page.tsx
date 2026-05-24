@@ -19,6 +19,25 @@ export default function ProjectsPage() {
   const [search, setSearch]     = useState("")
   const [filter, setFilter]     = useState("all")
   const supabase = createClient()
+  const deleteProject = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!confirm("Supprimer ce projet ? Cette action est irréversible.")) return
+    await supabase.from("projects").delete().eq("id", id)
+    setProjects(prev => prev.filter(p => p.id !== id))
+    toast.success("Projet supprimé")
+  }
+  const archiveProject = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    await supabase.from("projects").update({ status: "archived" }).eq("id", id)
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: "archived" } : p))
+    toast.success("Projet archivé")
+  }
+  const unarchiveProject = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    await supabase.from("projects").update({ status: "active" }).eq("id", id)
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: "active" } : p))
+    toast.success("Projet réactivé")
+  }
   const router   = useRouter()
 
   useEffect(() => {
@@ -187,6 +206,27 @@ export default function ProjectsPage() {
                       style={{ padding: "5px 7px", background: "var(--bg)", border: "1px solid var(--border)",
                         borderRadius: 6, cursor: "pointer", color: "var(--text-3)" }}>
                       <Settings size={12}/>
+                    </button>
+                    {p.status !== "archived" ? (
+                      <button onClick={e => archiveProject(p.id, e)}
+                        title="Archiver"
+                        style={{ padding: "5px 7px", background: "var(--bg)", border: "1px solid var(--border)",
+                          borderRadius: 6, cursor: "pointer", color: "#f59e0b", fontSize: 11 }}>
+                        📦
+                      </button>
+                    ) : (
+                      <button onClick={e => unarchiveProject(p.id, e)}
+                        title="Réactiver"
+                        style={{ padding: "5px 7px", background: "var(--bg)", border: "1px solid var(--border)",
+                          borderRadius: 6, cursor: "pointer", color: "#22c55e", fontSize: 11 }}>
+                        ♻️
+                      </button>
+                    )}
+                    <button onClick={e => deleteProject(p.id, e)}
+                      title="Supprimer"
+                      style={{ padding: "5px 7px", background: "var(--bg)", border: "1px solid rgba(239,68,68,0.3)",
+                        borderRadius: 6, cursor: "pointer", color: "#ef4444", fontSize: 11 }}>
+                      🗑
                     </button>
                     <button onClick={e => { e.stopPropagation(); router.push(`/projects/${p.id}`) }}
                       style={{ padding: "5px 10px", background: "var(--primary-bg)", border: "1px solid rgba(123,94,255,0.3)",

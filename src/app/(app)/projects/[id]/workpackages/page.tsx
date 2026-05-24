@@ -76,6 +76,12 @@ export default function WorkPackagesPage() {
     await save({workpackages:updated}); toast.success("Work Package sauvegardé")
   }
 
+  const deleteWp = async (wpId: string) => {
+    if (!confirm("Supprimer ce Work Package ?")) return
+    const updated = wps.filter(w => w.id !== wpId)
+    setWps(updated); await save({ workpackages: updated })
+    toast.success("Work Package supprimé")
+  }
   const cloneWp = async (wp: WP) => {
     const cloned: WP = { ...wp,
       id: "WP" + Date.now(),
@@ -362,6 +368,7 @@ export default function WorkPackagesPage() {
         <div style={{ display:"flex", gap:8, marginBottom:16 }}>
           <button onClick={addEmptyWp} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(34,197,94,0.12)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, color:"#22c55e", cursor:"pointer" }}>+ Nouveau WP</button>
           {wp && <button onClick={()=>cloneWp(wp)} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(123,94,255,0.12)", border:"1px solid rgba(123,94,255,0.3)", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, color:"#9B84FF", cursor:"pointer" }}>⧉ Cloner ce WP</button>}
+          {wp && <button onClick={()=>deleteWp(wp.id)} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(239,68,68,0.12)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, color:"#ef4444", cursor:"pointer" }}>🗑 Supprimer</button>}
         </div>
 
         {wps.length===0 && !loading && (
