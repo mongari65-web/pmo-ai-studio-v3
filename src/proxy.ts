@@ -12,36 +12,17 @@ export async function proxy(request: NextRequest) {
   const isAdminRoute = pathname.startsWith('/admin')
   const isApiRoute = pathname.startsWith('/api')
 
-  if (!isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute) {
-    try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      const res = await fetch(
-        `${supabaseUrl}/rest/v1/app_config?key=eq.maintenance_mode&select=value`,
-        { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
-          next: { revalidate: 30 } }
-      )
-      const rows = await res.json() as Array<{ value: string }>
-      const maintenanceMode = ['true', true].includes((rows?.[0]?.value as any))
-      if (maintenanceMode) {
-        return NextResponse.redirect(new URL('/maintenance', request.url))
-      }
-    } catch { /* Si erreur Supabase, ne pas bloquer */ }
+  // Maintenance : lire depuis cookie (posé par /api/admin/maintenance)
+  // ou depuis env var MAINTENANCE_MODE comme fallback
+  const maintenanceCookie = request.cookies.get('maintenance_mode')?.value
+  const maintenanceEnv = process.env.MAINTENANCE_MODE === 'true'
+  const maintenanceActive = maintenanceCookie === 'true' || maintenanceEnv
+
+  if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute) {
+    return NextResponse.redirect(new URL('/maintenance', request.url))
   }
-  if (isMaintenancePage) {
-    try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      const res = await fetch(
-        `${supabaseUrl}/rest/v1/app_config?key=eq.maintenance_mode&select=value`,
-        { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
-      )
-      const rows = await res.json() as Array<{ value: string }>
-      const maintenanceMode = ['true', true].includes((rows?.[0]?.value as any))
-      if (!maintenanceMode) {
-        return NextResponse.redirect(new URL('/', request.url))
-      }
-    } catch { /* Si erreur, laisser passer */ }
+  if (!maintenanceActive && isMaintenancePage) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
   // ─────────────────────────────────────────────────────────
 
@@ -95,12 +76,19 @@ export async function proxy(request: NextRequest) {
       url.pathname = "/auth/login"
       return NextResponse.redirect(url)
     }
+    // Vérifier admin_users OU profiles.is_admin
     const { data: adminUser } = await supabase
       .from("admin_users")
       .select("role")
       .eq("user_id", user.id)
       .single()
-    if (!adminUser) {
+    const { data: profileAdmin } = await supabase
+      .from("profiles")
+      .select("is_admin, plan")
+      .eq("id", user.id)
+      .single()
+    const isAdminUser = !!adminUser || profileAdmin?.is_admin === true || ['premium','pro'].includes(profileAdmin?.plan ?? '')
+    if (!isAdminUser) {
       const url = request.nextUrl.clone()
       url.pathname = "/dashboard"
       url.searchParams.set("error", "unauthorized")
