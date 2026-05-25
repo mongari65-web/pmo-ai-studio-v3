@@ -12,17 +12,11 @@ export async function proxy(request: NextRequest) {
   const isAdminRoute = pathname.startsWith('/admin')
   const isApiRoute = pathname.startsWith('/api')
 
-  // Maintenance : lire depuis cookie (posé par /api/admin/maintenance)
-  // ou depuis env var MAINTENANCE_MODE comme fallback
-  const maintenanceCookie = request.cookies.get('maintenance_mode')?.value
-  const maintenanceEnv = process.env.MAINTENANCE_MODE === 'true'
-  const maintenanceActive = maintenanceCookie === 'true' || maintenanceEnv
-
+  // Maintenance : MAINTENANCE_MODE=true dans Vercel env vars
+  const maintenanceActive = process.env.MAINTENANCE_MODE === 'true'
   if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute) {
     return NextResponse.redirect(new URL('/maintenance', request.url))
   }
-  // Ne pas rediriger depuis /maintenance si maintenance désactivée
-  // L'utilisateur peut quitter manuellement
   // ─────────────────────────────────────────────────────────
 
   let supabaseResponse = NextResponse.next({ request })
