@@ -214,12 +214,14 @@ export default function LandingPage() {
           <p style={{ fontSize: 16, color: '#64748b', margin: '0 0 48px' }}>Qu&apos;importe votre secteur ou votre niveau d&apos;expérience.</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             {[
-              { icon: '🏦', role: 'Banque & Finance', desc: 'BNP, Société Générale, AXA' },
+              { icon: '🏦', role: 'Banque & Finance',    desc: 'BNP, Société Générale, AXA' },
               { icon: '⚡', role: 'Énergie & Industrie', desc: 'EDF, Total, CEA, Airbus' },
-              { icon: '🚆', role: 'Transport & Infra', desc: 'SNCF, RATP, Vinci' },
-              { icon: '💻', role: 'IT & Tech', desc: 'ESN, startups, éditeurs' },
-              { icon: '🏥', role: 'Santé & Pharma', desc: 'Hôpitaux, labos, medtech' },
+              { icon: '🚆', role: 'Transport & Infra',   desc: 'SNCF, RATP, Vinci, Bouygues' },
+              { icon: '💻', role: 'IT & Tech',           desc: 'ESN, startups, éditeurs SaaS' },
+              { icon: '🏥', role: 'Santé & Pharma',      desc: 'Hôpitaux, labos, medtech' },
               { icon: '🎓', role: 'Formation & Coaching', desc: 'Montée en compétence équipes' },
+              { icon: '🏗️', role: 'Construction & BTP',  desc: 'Vinci, Bouygues, Eiffage' },
+              { icon: '🌍', role: 'International & ONG', desc: 'Projets multi-pays, ONU, ONG' },
             ].map(p => (
               <div key={p.role} style={{ padding: '20px', background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', textAlign: 'center' }}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>{p.icon}</div>
@@ -359,7 +361,7 @@ export default function LandingPage() {
               <a href="/pricing" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 22px', background: 'linear-gradient(135deg,#7B5EFF,#3b82f6)', color: '#fff', borderRadius: 8, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>⭐ Obtenir le plan Pro →</a>
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             {[
               { icon: '📊', name: 'Dashboard EVM', format: 'Excel', color: '#22c55e', bg: '#f0fdf4', border: '#bbf7d0', desc: 'Courbes S, CPI, SPI, EAC automatisés' },
               { icon: '🗂️', name: 'WBS Template',  format: 'Excel', color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', desc: 'Structure de découpage du travail' },
