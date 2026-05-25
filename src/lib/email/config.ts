@@ -1,5 +1,5 @@
 export const EMAIL_CONFIG = {
-  from:    'PMO AI Studio <onboarding@resend.dev>',
+  from:    process.env.EMAIL_FROM || 'PMO AI Studio <noreply@contact.pmoai.studio>',
   replyTo: 'support@pmoai.studio',
   appName: 'PMO AI Studio',
   appUrl:  process.env.NEXT_PUBLIC_APP_URL || 'https://www.pmoai.studio',
