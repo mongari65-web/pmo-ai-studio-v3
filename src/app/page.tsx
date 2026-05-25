@@ -344,19 +344,19 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
             <div>
               <p style={{ fontSize: 13, fontWeight: 700, color: '#FF8C00', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 10px' }}>Templates Pro</p>
-              <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 36px)', fontWeight: 800, margin: '0 0 10px', letterSpacing: '-0.5px', color: '#1e293b' }}>Des modèles prêts à l&apos;emploi</h2>
+              <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 36px)', fontWeight: 800, margin: '0 0 10px', letterSpacing: '-0.5px', color: '#1e293b' }}>Pack Templates Pro — Téléchargeables</h2>
               <p style={{ fontSize: 15, color: '#64748b', margin: 0 }}>Téléchargez et adaptez nos modèles Excel et PDF professionnels pour vos projets.</p>
             </div>
-            <a href="/templates" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 8, fontSize: 14, fontWeight: 600, background: '#fff7ed', color: '#c2410c', textDecoration: 'none', border: '1px solid #fed7aa', whiteSpace: 'nowrap' }}>
-              Voir tous les templates →
+            <a href="/pricing" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 8, fontSize: 14, fontWeight: 600, background: 'linear-gradient(135deg,#7B5EFF,#3b82f6)', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              ⭐ Accéder avec un plan Pro →
             </a>
           </div>
           <div style={{ marginBottom: 28, borderRadius: 20, overflow: 'hidden', boxShadow: '0 25px 70px rgba(0,0,0,0.14)', border: '1px solid #e2e8f0', position: 'relative' }}>
             <img src="/screenshots/Pack-Templates.png" alt="Pack Templates Pro PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 420, objectFit: 'cover', objectPosition: 'top' }} />
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(15,23,42,0.9), transparent)', padding: '48px 32px 24px' }}>
-              <p style={{ color: '#fff', fontWeight: 800, fontSize: 20, margin: '0 0 8px' }}>Pack Templates Pro — Téléchargement immédiat</p>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, margin: '0 0 16px' }}>EVM · Gantt · RAID · RACI · WBS · Charte de projet</p>
-              <a href="/templates" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 22px', background: '#fff', color: '#1e293b', borderRadius: 8, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>⬇ Accéder aux templates →</a>
+              <p style={{ color: '#fff', fontWeight: 800, fontSize: 20, margin: '0 0 8px' }}>Pack Templates Pro — Téléchargeables</p>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, margin: '0 0 16px' }}>Inclus dans les plans Pro et Premium · Accès immédiat depuis votre espace</p>
+              <a href="/pricing" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 22px', background: 'linear-gradient(135deg,#7B5EFF,#3b82f6)', color: '#fff', borderRadius: 8, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>⭐ Obtenir le plan Pro →</a>
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
@@ -373,7 +373,7 @@ export default function LandingPage() {
                 </div>
                 <p style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', margin: '0 0 4px' }}>{t.name}</p>
                 <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 14px', lineHeight: 1.5 }}>{t.desc}</p>
-                <a href="/templates" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: t.color, textDecoration: 'none' }}>⬇ Télécharger</a>
+                <a href="/pricing" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: t.color, textDecoration: 'none' }}>⭐ Inclus en Pro →</a>
               </div>
             ))}
           </div>
