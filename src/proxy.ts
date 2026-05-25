@@ -22,7 +22,7 @@ export async function proxy(request: NextRequest) {
           next: { revalidate: 30 } }
       )
       const rows = await res.json() as Array<{ value: string }>
-      const maintenanceMode = rows?.[0]?.value === 'true'
+      const maintenanceMode = ['true', true].includes((rows?.[0]?.value as any))
       if (maintenanceMode) {
         return NextResponse.redirect(new URL('/maintenance', request.url))
       }
@@ -37,7 +37,7 @@ export async function proxy(request: NextRequest) {
         { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
       )
       const rows = await res.json() as Array<{ value: string }>
-      const maintenanceMode = rows?.[0]?.value === 'true'
+      const maintenanceMode = ['true', true].includes((rows?.[0]?.value as any))
       if (!maintenanceMode) {
         return NextResponse.redirect(new URL('/', request.url))
       }
