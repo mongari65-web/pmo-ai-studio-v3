@@ -1,11 +1,9 @@
-// ── Email Config ─────────────────────────────────────────────
 export const EMAIL_CONFIG = {
-  from:    process.env.EMAIL_FROM || 'PMO AI Studio <onboarding@resend.dev>',
-  replyTo: process.env.EMAIL_REPLY_TO || 'support@pmo-ai-studio.com',
+  from:    'PMO AI Studio <onboarding@resend.dev>',
+  replyTo: 'support@pmoai.studio',
   appName: 'PMO AI Studio',
-  appUrl:  process.env.NEXT_PUBLIC_APP_URL || 'https://pmo-ai-studio.vercel.app',
+  appUrl:  process.env.NEXT_PUBLIC_APP_URL || 'https://www.pmoai.studio',
 }
-
 export type EmailType =
   | 'welcome'
   | 'project_created'

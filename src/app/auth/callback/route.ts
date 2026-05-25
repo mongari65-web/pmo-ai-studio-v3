@@ -24,9 +24,30 @@ export async function GET(request: NextRequest) {
         },
       }
     )
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) return NextResponse.redirect(`${origin}${next}`)
-  }
 
+    const { error, data } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (!error && data?.user) {
+      const user = data.user
+      const isNew = !user.last_sign_in_at ||
+        (new Date().getTime() - new Date(user.created_at).getTime()) < 30000
+
+      if (isNew) {
+        try {
+          const name = user.user_metadata?.full_name ||
+                       user.user_metadata?.name ||
+                       user.email?.split("@")[0] || "Utilisateur"
+          await fetch(`${origin}/api/email/welcome`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: user.id, email: user.email, name }),
+          })
+        } catch (e) {
+          console.error("[Auth Callback] Welcome email failed:", e)
+        }
+      }
+      return NextResponse.redirect(`${origin}${next}`)
+    }
+  }
   return NextResponse.redirect(`${origin}/auth/login?error=callback`)
 }

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const roleLabel = role === "editor" ? "Éditeur" : "Lecteur"
 
     const { error } = await resend.emails.send({
-      from: "PMO AI Studio <onboarding@resend.dev>",
+      from: process.env.RESEND_FROM || "PMO AI Studio <noreply@pmoai.studio>",
       to: email,
       subject: "Invitation : rejoignez " + projectName + " sur PMO AI Studio",
       html: "<p>" + senderName + " vous invite sur le projet <b>" + projectName + "</b> en tant que <b>" + roleLabel + "</b>.</p><p><a href='" + inviteLink + "'>Accéder au projet</a></p>",

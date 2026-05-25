@@ -142,7 +142,7 @@ export function projectCreatedEmail(params: {
 export function upgradeProEmail(params: {
   name: string
   plan: 'pro' | 'team'
-  amount: number
+  amount?: number
   invoiceUrl?: string
 }) {
   const planLabel = params.plan === 'team' ? 'Team' : 'Pro'
@@ -152,7 +152,7 @@ export function upgradeProEmail(params: {
     <div style="background:linear-gradient(135deg,#1e40af,#3b82f6);border-radius:8px;padding:20px;color:#fff;margin:0 0 20px;text-align:center;">
       <p style="margin:0 0 4px;font-size:13px;opacity:0.85;">Plan actif</p>
       <p style="margin:0;font-size:28px;font-weight:700;">${planLabel}</p>
-      <p style="margin:6px 0 0;font-size:15px;opacity:0.9;">${params.amount}€/mois</p>
+      <p style="margin:6px 0 0;font-size:15px;opacity:0.9;">${params.amount ?? 29}€/mois</p>
     </div>
     <p>Vous avez maintenant accès à <strong>toutes les fonctionnalités</strong> :</p>
     <ul style="color:#374151;padding-left:20px;">

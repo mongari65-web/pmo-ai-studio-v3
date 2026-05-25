@@ -14,10 +14,38 @@ const PLAN_FROM_PRICE: Record<string, string> = {
   [process.env.STRIPE_PRICE_PREMIUM_YEARLY  ?? ""]: "premium",
 }
 
+const AMOUNT_FROM_PRICE: Record<string, number> = {
+  [process.env.STRIPE_PRICE_STARTER_MONTHLY ?? ""]: 9,
+  [process.env.STRIPE_PRICE_STARTER_YEARLY  ?? ""]: 7,
+  [process.env.STRIPE_PRICE_PRO_MONTHLY     ?? ""]: 29,
+  [process.env.STRIPE_PRICE_PRO_YEARLY      ?? ""]: 23,
+  [process.env.STRIPE_PRICE_PREMIUM_MONTHLY ?? ""]: 59,
+  [process.env.STRIPE_PRICE_PREMIUM_YEARLY  ?? ""]: 47,
+}
+
+async function sendUpgradeEmail(appUrl: string, userId: string, email: string, name: string, plan: string, priceId: string) {
+  try {
+    await fetch(`${appUrl}/api/email/upgrade-pro`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        email,
+        name,
+        plan,
+        amount: AMOUNT_FROM_PRICE[priceId] ?? 29,
+      }),
+    })
+  } catch (e) {
+    console.error("[Webhook] upgrade email failed:", e)
+  }
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.text()
   const sig  = req.headers.get("stripe-signature") ?? ""
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET ?? ""
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.pmoai.studio"
 
   let event: Stripe.Event
   try {
@@ -54,13 +82,14 @@ export async function POST(req: NextRequest) {
 
         const sub = await stripe.subscriptions.retrieve(session.subscription as string)
         const priceId = sub.items.data[0]?.price.id ?? ""
+        const finalPlan = PLAN_FROM_PRICE[priceId] ?? plan
 
         await supabase.from("subscriptions").upsert({
           user_id: userId,
           stripe_subscription_id: sub.id,
           stripe_customer_id: sub.customer as string,
           stripe_price_id: priceId,
-          plan: PLAN_FROM_PRICE[priceId] ?? plan,
+          plan: finalPlan,
           status: sub.status,
           current_period_start: new Date((sub as any).current_period_start * 1000).toISOString(),
           current_period_end:   new Date((sub as any).current_period_end   * 1000).toISOString(),
@@ -68,6 +97,18 @@ export async function POST(req: NextRequest) {
             ? new Date((sub as any).trial_end * 1000).toISOString() : null,
           updated_at: new Date().toISOString(),
         }, { onConflict: "stripe_subscription_id" })
+
+        // ── Email upgrade ──────────────────────────────────────
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name, email_notifications")
+          .eq("id", userId).single()
+        const { data: authUser } = await supabase.auth.admin.getUserById(userId)
+        const email = authUser?.user?.email
+        if (email && (profile as any)?.email_notifications !== false) {
+          const name = (profile as any)?.full_name || email.split("@")[0]
+          await sendUpgradeEmail(appUrl, userId, email, name, finalPlan, priceId)
+        }
         break
       }
 
