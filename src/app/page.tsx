@@ -238,20 +238,46 @@ export default function LandingPage() {
 
 
       {/* ── DÉMO LIVE ── */}
-      <section style={{ padding: '60px 5%', background: 'linear-gradient(135deg,#0f172a,#1e293b)', textAlign: 'center' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: '#7B5EFF', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Projet de démonstration</p>
-          <h2 style={{ fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 800, color: '#f1f5f9', margin: '0 0 14px', letterSpacing: '-0.5px' }}>
-            Explorez un vrai projet géré avec PMO AI Studio
-          </h2>
-          <p style={{ fontSize: 16, color: '#94a3b8', margin: '0 0 32px', lineHeight: 1.7 }}>
-            Migration Azure d&apos;une banque régionale — 850k€ · 18 mois · 12 ressources.<br/>
-            Gantt, EVM, RAID, WBS, RACI, Ressources — en lecture seule, sans connexion.
-          </p>
-          <Link href="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 36px', borderRadius: 12, fontSize: 16, fontWeight: 800, background: 'linear-gradient(135deg,#7B5EFF,#3b82f6)', color: '#fff', textDecoration: 'none', boxShadow: '0 8px 30px rgba(123,94,255,0.3)' }}>
-            👁️ Explorer le projet démo →
-          </Link>
-          <p style={{ fontSize: 12, color: '#475569', marginTop: 14 }}>Sans connexion · Lecture seule · 100% représentatif</p>
+      <section style={{ padding: '72px 5%', background: 'linear-gradient(135deg,#0f172a,#1e293b)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#7B5EFF', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Projet de démonstration</p>
+            <h2 style={{ fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 800, color: '#f1f5f9', margin: '0 0 14px', letterSpacing: '-0.5px' }}>
+              Explorez un vrai projet géré avec PMO AI Studio
+            </h2>
+            <p style={{ fontSize: 16, color: '#94a3b8', margin: '0 0 0', lineHeight: 1.7, maxWidth: 600, marginLeft: 'auto', marginRight: 'auto' }}>
+              Migration Azure · 850k€ · 18 mois · 12 ressources — Gantt, EVM, RAID, WBS, RACI en lecture seule.
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'center', marginBottom: 32 }}>
+            <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <img src="/screenshots/dashboard-evm.png" alt="Démo PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 320, objectFit: 'cover', objectPosition: 'top' }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {[
+                { icon: '📅', label: 'Planning Gantt', desc: '10 tâches · 18 mois · chemin critique' },
+                { icon: '💰', label: 'EVM & Courbe S', desc: 'CPI, SPI, EAC · courbe PV/EV/AC' },
+                { icon: '⚠️', label: 'RAID Register',  desc: '8 entrées · priorités · mitigations' },
+                { icon: '🗂️', label: 'WBS & Budget',   desc: '16 livrables · budget par WP' },
+                { icon: '👥', label: 'RACI & Ressources', desc: '6 rôles · 6 ressources · compétences' },
+              ].map(t => (
+                <div key={t.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'rgba(255,255,255,0.04)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <span style={{ fontSize: 20 }}>{t.icon}</span>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9', margin: 0 }}>{t.label}</p>
+                    <p style={{ fontSize: 11, color: '#64748b', margin: '2px 0 0' }}>{t.desc}</p>
+                  </div>
+                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#22c55e', fontWeight: 600 }}>✓ Inclus</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <Link href="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 36px', borderRadius: 12, fontSize: 16, fontWeight: 800, background: 'linear-gradient(135deg,#7B5EFF,#3b82f6)', color: '#fff', textDecoration: 'none', boxShadow: '0 8px 30px rgba(123,94,255,0.3)' }}>
+              👁️ Explorer le projet démo →
+            </Link>
+            <p style={{ fontSize: 12, color: '#475569', marginTop: 12 }}>Sans connexion · Lecture seule · 100% représentatif</p>
+          </div>
         </div>
       </section>
 
@@ -338,31 +364,39 @@ export default function LandingPage() {
               Voir tous les articles →
             </a>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
-            {[
-              { tag: 'Gestion de projet', color: '#3b82f6', bg: '#eff6ff', title: 'Structurer un projet complexe avec le WBS', desc: 'Le WBS est l\'outil clé pour décomposer tout projet. Découvrez comment le construire efficacement.', time: '5 min', icon: '🗂️' },
-              { tag: 'EVM & Budget',      color: '#22c55e', bg: '#f0fdf4', title: 'Guide complet Earned Value Management', desc: 'CPI, SPI, EAC, VAC... Tous les indicateurs EVM expliqués avec des exemples concrets de vrais projets.', time: '8 min', icon: '💰' },
-              { tag: 'Management',        color: '#7B5EFF', bg: '#faf5ff', title: 'Les 10 erreurs fatales en gestion de risques', desc: 'Identifier les risques ne suffit pas. Les erreurs courantes et comment les éviter sur vos projets.', time: '6 min', icon: '⚠️' },
-            ].map(post => (
-              <a key={post.title} href="/blog" style={{ textDecoration: 'none', display: 'block', background: '#f8fafc', borderRadius: 16, overflow: 'hidden', border: '1px solid #f1f5f9' }}>
-                <div style={{ height: 5, background: post.color }} />
-                <div style={{ padding: '20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                    <span style={{ fontSize: 20 }}>{post.icon}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: post.bg, color: post.color }}>{post.tag}</span>
-                    <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>⏱ {post.time}</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
+            {/* Capture blog */}
+            <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 16px 50px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
+              <img src="/screenshots/dashboard-evm2.png" alt="Blog PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 340, objectFit: 'cover', objectPosition: 'top' }} />
+              <div style={{ padding: '16px 20px', background: '#f8fafc', borderTop: '1px solid #f1f5f9' }}>
+                <p style={{ fontSize: 12, color: '#94a3b8', margin: '0 0 6px' }}>Article mis en avant</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', margin: '0 0 8px' }}>Maîtriser l&apos;EVM sur un vrai projet de migration IT</p>
+                <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 12px' }}>CPI, SPI, EAC expliqués avec des données réelles d&apos;un projet bancaire.</p>
+                <a href="/blog" style={{ fontSize: 13, fontWeight: 600, color: '#3b82f6', textDecoration: 'none' }}>Lire l&apos;article →</a>
+              </div>
+            </div>
+            {/* 3 articles */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {[
+                { tag: 'Gestion de projet', color: '#3b82f6', bg: '#eff6ff', title: 'Structurer un projet complexe avec le WBS', desc: 'Le WBS est l\'outil clé pour décomposer tout projet. Construisez-le efficacement.', time: '5 min', icon: '🗂️' },
+                { tag: 'EVM & Budget',      color: '#22c55e', bg: '#f0fdf4', title: 'Guide complet Earned Value Management', desc: 'CPI, SPI, EAC, VAC... Tous les indicateurs EVM expliqués avec des exemples concrets.', time: '8 min', icon: '💰' },
+                { tag: 'Management',        color: '#7B5EFF', bg: '#faf5ff', title: 'Les 10 erreurs fatales en gestion de risques', desc: 'Les erreurs courantes et comment les éviter sur vos projets critiques.', time: '6 min', icon: '⚠️' },
+              ].map(post => (
+                <a key={post.title} href="/blog" style={{ textDecoration: 'none', display: 'flex', gap: 14, alignItems: 'flex-start', padding: '14px', background: '#f8fafc', borderRadius: 12, border: '1px solid #f1f5f9' }}>
+                  <div style={{ width: 42, height: 42, borderRadius: 10, background: post.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{post.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: post.bg, color: post.color, marginBottom: 6, display: 'inline-block' }}>{post.tag} · {post.time}</span>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', margin: '4px 0 4px' }}>{post.title}</p>
+                    <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>{post.desc}</p>
                   </div>
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', margin: '0 0 10px', lineHeight: 1.4 }}>{post.title}</h3>
-                  <p style={{ fontSize: 13, color: '#64748b', margin: 0, lineHeight: 1.6 }}>{post.desc}</p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: post.color, margin: '14px 0 0' }}>Lire l&apos;article →</p>
-                </div>
-              </a>
-            ))}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── TEMPLATES PRO ── */}
+            {/* ── TEMPLATES PRO ── */}
       <section style={{ padding: '80px 5%', background: '#fff' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
