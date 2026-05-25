@@ -352,6 +352,119 @@ export default function LandingPage() {
         </div>
       </section>
 
+
+      {/* ── BLOG ── */}
+      <section style={{ padding: '80px 5%', background: '#fff' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 40, flexWrap: 'wrap', gap: 16 }}>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 10px' }}>Blog & Ressources</p>
+              <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 36px)', fontWeight: 800, margin: 0, letterSpacing: '-0.5px', color: '#1e293b' }}>Conseils, méthodes et bonnes pratiques</h2>
+            </div>
+            <a href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 8, fontSize: 14, fontWeight: 600, background: '#f1f5f9', color: '#475569', textDecoration: 'none', border: '1px solid #e2e8f0', whiteSpace: 'nowrap' }}>
+              Voir tous les articles →
+            </a>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+            {[
+              { tag: 'Gestion de projet', color: '#3b82f6', bg: '#eff6ff', title: 'Comment structurer un projet complexe avec le WBS', desc: 'Le Work Breakdown Structure est l'outil le plus puissant pour décomposer n'importe quel projet. Découvrez comment le construire efficacement.', time: '5 min', icon: '🗂️' },
+              { tag: 'EVM & Budget',      color: '#22c55e', bg: '#f0fdf4', title: 'Maîtriser l'Earned Value Management : guide complet', desc: 'CPI, SPI, EAC, VAC... Tous les indicateurs EVM expliqués avec des exemples concrets tirés de vrais projets.', time: '8 min', icon: '💰' },
+              { tag: 'Management',        color: '#7B5EFF', bg: '#faf5ff', title: 'Les 10 erreurs fatales en gestion de risques RAID', desc: 'Identifier les risques ne suffit pas. Voici les erreurs les plus courantes et comment les éviter sur vos projets critiques.', time: '6 min', icon: '⚠️' },
+            ].map(post => (
+              <a key={post.title} href="/blog" style={{ textDecoration: 'none', display: 'block', background: '#f8fafc', borderRadius: 16, overflow: 'hidden', border: '1px solid #f1f5f9' }}>
+                <div style={{ height: 5, background: post.color }} />
+                <div style={{ padding: '20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <span style={{ fontSize: 20 }}>{post.icon}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: post.bg, color: post.color }}>{post.tag}</span>
+                    <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>⏱ {post.time}</span>
+                  </div>
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', margin: '0 0 10px', lineHeight: 1.4 }}>{post.title}</h3>
+                  <p style={{ fontSize: 13, color: '#64748b', margin: 0, lineHeight: 1.6 }}>{post.desc}</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: post.color, margin: '14px 0 0' }}>Lire l&apos;article →</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── TEMPLATES PRO ── */}
+      <section style={{ padding: '80px 5%', background: '#f8fafc' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#FF8C00', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 10px' }}>Templates Pro</p>
+              <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 36px)', fontWeight: 800, margin: '0 0 10px', letterSpacing: '-0.5px', color: '#1e293b' }}>Des modèles prêts à l&apos;emploi</h2>
+              <p style={{ fontSize: 15, color: '#64748b', margin: 0 }}>Téléchargez et adaptez nos modèles Excel et PDF professionnels pour vos projets.</p>
+            </div>
+            <a href="/templates" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 8, fontSize: 14, fontWeight: 600, background: '#fff7ed', color: '#c2410c', textDecoration: 'none', border: '1px solid #fed7aa', whiteSpace: 'nowrap' }}>
+              Voir tous les templates →
+            </a>
+          </div>
+
+          {/* Pack-Templates Hero */}
+          <div style={{ marginBottom: 28, borderRadius: 20, overflow: 'hidden', boxShadow: '0 25px 70px rgba(0,0,0,0.14)', border: '1px solid #e2e8f0', position: 'relative' }}>
+            <img src="/screenshots/Pack-Templates.png" alt="Pack Templates Pro PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 420, objectFit: 'cover', objectPosition: 'top' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(15,23,42,0.9), transparent)', padding: '48px 32px 24px' }}>
+              <p style={{ color: '#fff', fontWeight: 800, fontSize: 20, margin: '0 0 8px' }}>Pack Templates Pro — Téléchargement immédiat</p>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, margin: '0 0 16px' }}>EVM · Gantt · RAID · RACI · WBS · Charte de projet</p>
+              <a href="/templates" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 22px', background: '#fff', color: '#1e293b', borderRadius: 8, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>⬇ Accéder aux templates →</a>
+            </div>
+          </div>
+
+          {/* Cards templates */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
+            {[
+              { icon: '📊', name: 'Dashboard EVM',  format: 'Excel', color: '#22c55e', bg: '#f0fdf4', border: '#bbf7d0', desc: 'Courbes S, CPI, SPI, EAC automatisés' },
+              { icon: '🗂️', name: 'WBS Template',   format: 'Excel', color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', desc: 'Structure de découpage du travail' },
+              { icon: '⚠️', name: 'RAID Register',  format: 'Excel', color: '#f59e0b', bg: '#fffbeb', border: '#fde68a', desc: 'Registre risques, actions, issues' },
+              { icon: '👥', name: 'Matrice RACI',   format: 'Excel', color: '#7B5EFF', bg: '#faf5ff', border: '#e9d5ff', desc: 'Responsabilités par rôle et tâche' },
+              { icon: '📅', name: 'Plan de projet', format: 'Excel', color: '#ec4899', bg: '#fdf2f8', border: '#fbcfe8', desc: 'Gantt complet avec jalons' },
+              { icon: '📋', name: 'Charte projet',  format: 'PDF + Word', color: '#64748b', bg: '#f8fafc', border: '#e2e8f0', desc: 'Document de cadrage professionnel' },
+            ].map(t => (
+              <div key={t.name} style={{ background: t.bg, border: `1px solid ${t.border}`, borderRadius: 14, padding: '18px 16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                  <span style={{ fontSize: 28 }}>{t.icon}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 4, background: `${t.color}22`, color: t.color, border: `1px solid ${t.color}44` }}>{t.format}</span>
+                </div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', margin: '0 0 4px' }}>{t.name}</p>
+                <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 14px', lineHeight: 1.5 }}>{t.desc}</p>
+                <a href="/templates" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: t.color, textDecoration: 'none' }}>⬇ Télécharger</a>
+              </div>
+            ))}
+          </div>
+
+          {/* Screenshots Gantt + EVM */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div>
+              <p style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', display: 'inline-block', marginBottom: 10 }}>📅 Gantt Master Excel</p>
+              <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
+                <img src="/screenshots/GANTT-Template.png" alt="Gantt Template Excel" style={{ width: '100%', display: 'block', maxHeight: 220, objectFit: 'cover', objectPosition: 'top' }} />
+              </div>
+              <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 6 }}>Barres auto · Phases · Jalons · Chemin critique</p>
+            </div>
+            <div>
+              <p style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', display: 'inline-block', marginBottom: 10 }}>📊 Courbes S EVM Excel</p>
+              <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
+                <img src="/screenshots/EVM-Template.png" alt="EVM Template Excel" style={{ width: '100%', display: 'block', maxHeight: 220, objectFit: 'cover', objectPosition: 'top' }} />
+              </div>
+              <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 6 }}>PV / EV / AC / EAC · Graphique auto · 12 mois</p>
+            </div>
+          </div>
+
+          {/* RAID pleine largeur */}
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', display: 'inline-block', marginBottom: 10 }}>⚠️ RAID Register Excel — 5 onglets</p>
+            <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
+              <img src="/screenshots/template-RAID.png" alt="RAID Template Excel" style={{ width: '100%', display: 'block', maxHeight: 260, objectFit: 'cover', objectPosition: 'top' }} />
+            </div>
+            <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 6 }}>Formules auto · Priorités colorées · Guide inclus</p>
+          </div>
+
+        </div>
+      </section>
+
       {/* ── CTA FINAL ── */}
       <section style={{ padding: '80px 5%', background: 'linear-gradient(135deg,#1e40af,#7B5EFF)', textAlign: 'center' }}>
         <div style={{ maxWidth: 700, margin: '0 auto' }}>
