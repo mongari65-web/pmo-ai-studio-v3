@@ -21,9 +21,8 @@ export async function proxy(request: NextRequest) {
   if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute) {
     return NextResponse.redirect(new URL('/maintenance', request.url))
   }
-  if (!maintenanceActive && isMaintenancePage) {
-    return NextResponse.redirect(new URL('/', request.url))
-  }
+  // Ne pas rediriger depuis /maintenance si maintenance désactivée
+  // L'utilisateur peut quitter manuellement
   // ─────────────────────────────────────────────────────────
 
   let supabaseResponse = NextResponse.next({ request })
