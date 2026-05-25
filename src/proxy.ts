@@ -5,6 +5,21 @@ import { NextResponse, type NextRequest } from "next/server"
 const PRO_ROUTES = ["/portfolio", "/ressources", "/templates", "/propale"]
 
 export async function proxy(request: NextRequest) {
+  // ── MODE MAINTENANCE ─────────────────────────────────────
+  const maintenanceMode = process.env.MAINTENANCE_MODE === 'true'
+  const { pathname } = request.nextUrl
+  const isMaintenancePage = pathname === '/maintenance'
+  const isStaticAsset = pathname.startsWith('/_next') || pathname.startsWith('/favicon')
+  const isAdminRoute = pathname.startsWith('/admin')
+
+  if (maintenanceMode && !isMaintenancePage && !isStaticAsset && !isAdminRoute) {
+    return NextResponse.redirect(new URL('/maintenance', request.url))
+  }
+  if (!maintenanceMode && isMaintenancePage) {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+  // ─────────────────────────────────────────────────────────
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(

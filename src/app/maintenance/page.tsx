@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import RefreshButton from './RefreshButton'
 
 export const metadata: Metadata = {
   title: 'Maintenance en cours — PMO AI Studio',
@@ -97,16 +98,7 @@ export default function MaintenancePage() {
           </p>
 
           {/* Bouton vérifier statut */}
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              padding: '12px 28px', borderRadius: 10, fontSize: 14, fontWeight: 700,
-              background: 'linear-gradient(135deg,#1e40af,#7B5EFF)', color: '#fff',
-              border: 'none', cursor: 'pointer',
-              boxShadow: '0 4px 16px rgba(123,94,255,0.3)',
-            }}>
-            🔄 Vérifier si c&apos;est résolu
-          </button>
+          <RefreshButton />
         </div>
 
         {/* Footer */}
@@ -115,12 +107,6 @@ export default function MaintenancePage() {
         </p>
       </div>
 
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
-      `}</style>
     </div>
   )
 }
