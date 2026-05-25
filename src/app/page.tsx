@@ -79,6 +79,9 @@ export default function LandingPage() {
             <span style={{ fontSize: 18, fontWeight: 800, color: '#1e293b' }}>PMO AI Studio</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Link href="/demo" style={{ padding: '8px 18px', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#7B5EFF', textDecoration: 'none', border: '1px solid rgba(123,94,255,0.3)' }}>
+              👁️ Démo live
+            </Link>
             <Link href="/auth/connexion" style={{ padding: '8px 18px', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#64748b', textDecoration: 'none' }}>
               Connexion
             </Link>
@@ -230,6 +233,25 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+
+      {/* ── DÉMO LIVE ── */}
+      <section style={{ padding: '60px 5%', background: 'linear-gradient(135deg,#0f172a,#1e293b)', textAlign: 'center' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#7B5EFF', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Projet de démonstration</p>
+          <h2 style={{ fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 800, color: '#f1f5f9', margin: '0 0 14px', letterSpacing: '-0.5px' }}>
+            Explorez un vrai projet géré avec PMO AI Studio
+          </h2>
+          <p style={{ fontSize: 16, color: '#94a3b8', margin: '0 0 32px', lineHeight: 1.7 }}>
+            Migration Azure d&apos;une banque régionale — 850k€ · 18 mois · 12 ressources.<br/>
+            Gantt, EVM, RAID, WBS, RACI, Ressources — en lecture seule, sans connexion.
+          </p>
+          <Link href="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 36px', borderRadius: 12, fontSize: 16, fontWeight: 800, background: 'linear-gradient(135deg,#7B5EFF,#3b82f6)', color: '#fff', textDecoration: 'none', boxShadow: '0 8px 30px rgba(123,94,255,0.3)' }}>
+            👁️ Explorer le projet démo →
+          </Link>
+          <p style={{ fontSize: 12, color: '#475569', marginTop: 14 }}>Sans connexion · Lecture seule · 100% représentatif</p>
         </div>
       </section>
 
