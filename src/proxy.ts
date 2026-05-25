@@ -8,7 +8,7 @@ export async function proxy(request: NextRequest) {
   // ── MODE MAINTENANCE (lu depuis Supabase app_config) ────
   const { pathname } = request.nextUrl
   const isMaintenancePage = pathname === '/maintenance'
-  const isStaticAsset = pathname.startsWith('/_next') || pathname.startsWith('/favicon')
+  const isStaticAsset = pathname.startsWith('/_next') || pathname.startsWith('/favicon') || pathname === '/sitemap.xml' || pathname === '/robots.txt'
   const isAdminRoute = pathname.startsWith('/admin')
   const isApiRoute = pathname.startsWith('/api')
 
