@@ -367,9 +367,9 @@ export default function LandingPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
             {[
-              { tag: 'Gestion de projet', color: '#3b82f6', bg: '#eff6ff', title: 'Comment structurer un projet complexe avec le WBS', desc: 'Le Work Breakdown Structure est l'outil le plus puissant pour décomposer n'importe quel projet. Découvrez comment le construire efficacement.', time: '5 min', icon: '🗂️' },
-              { tag: 'EVM & Budget',      color: '#22c55e', bg: '#f0fdf4', title: 'Maîtriser l'Earned Value Management : guide complet', desc: 'CPI, SPI, EAC, VAC... Tous les indicateurs EVM expliqués avec des exemples concrets tirés de vrais projets.', time: '8 min', icon: '💰' },
-              { tag: 'Management',        color: '#7B5EFF', bg: '#faf5ff', title: 'Les 10 erreurs fatales en gestion de risques RAID', desc: 'Identifier les risques ne suffit pas. Voici les erreurs les plus courantes et comment les éviter sur vos projets critiques.', time: '6 min', icon: '⚠️' },
+              { tag: 'Gestion de projet', color: '#3b82f6', bg: '#eff6ff', title: 'Structurer un projet complexe avec le WBS', desc: 'Le WBS est l\'outil clé pour décomposer tout projet. Découvrez comment le construire efficacement.', time: '5 min', icon: '🗂️' },
+              { tag: 'EVM & Budget',      color: '#22c55e', bg: '#f0fdf4', title: 'Guide complet Earned Value Management', desc: 'CPI, SPI, EAC, VAC... Tous les indicateurs EVM expliqués avec des exemples concrets de vrais projets.', time: '8 min', icon: '💰' },
+              { tag: 'Management',        color: '#7B5EFF', bg: '#faf5ff', title: 'Les 10 erreurs fatales en gestion de risques', desc: 'Identifier les risques ne suffit pas. Les erreurs courantes et comment les éviter sur vos projets.', time: '6 min', icon: '⚠️' },
             ].map(post => (
               <a key={post.title} href="/blog" style={{ textDecoration: 'none', display: 'block', background: '#f8fafc', borderRadius: 16, overflow: 'hidden', border: '1px solid #f1f5f9' }}>
                 <div style={{ height: 5, background: post.color }} />
