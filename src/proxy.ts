@@ -5,18 +5,43 @@ import { NextResponse, type NextRequest } from "next/server"
 const PRO_ROUTES = ["/portfolio", "/ressources", "/templates", "/propale"]
 
 export async function proxy(request: NextRequest) {
-  // ── MODE MAINTENANCE ─────────────────────────────────────
-  const maintenanceMode = process.env.MAINTENANCE_MODE === 'true'
+  // ── MODE MAINTENANCE (lu depuis Supabase app_config) ────
   const { pathname } = request.nextUrl
   const isMaintenancePage = pathname === '/maintenance'
   const isStaticAsset = pathname.startsWith('/_next') || pathname.startsWith('/favicon')
   const isAdminRoute = pathname.startsWith('/admin')
+  const isApiRoute = pathname.startsWith('/api')
 
-  if (maintenanceMode && !isMaintenancePage && !isStaticAsset && !isAdminRoute) {
-    return NextResponse.redirect(new URL('/maintenance', request.url))
+  if (!isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute) {
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      const res = await fetch(
+        `${supabaseUrl}/rest/v1/app_config?key=eq.maintenance_mode&select=value`,
+        { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+          next: { revalidate: 30 } }
+      )
+      const rows = await res.json() as Array<{ value: string }>
+      const maintenanceMode = rows?.[0]?.value === 'true'
+      if (maintenanceMode) {
+        return NextResponse.redirect(new URL('/maintenance', request.url))
+      }
+    } catch { /* Si erreur Supabase, ne pas bloquer */ }
   }
-  if (!maintenanceMode && isMaintenancePage) {
-    return NextResponse.redirect(new URL('/', request.url))
+  if (isMaintenancePage) {
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      const res = await fetch(
+        `${supabaseUrl}/rest/v1/app_config?key=eq.maintenance_mode&select=value`,
+        { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+      )
+      const rows = await res.json() as Array<{ value: string }>
+      const maintenanceMode = rows?.[0]?.value === 'true'
+      if (!maintenanceMode) {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+    } catch { /* Si erreur, laisser passer */ }
   }
   // ─────────────────────────────────────────────────────────
 
