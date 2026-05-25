@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import AppSlider from '@/components/landing/AppSlider'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -188,75 +189,23 @@ export default function LandingPage() {
 
 
 
-      {/* ── SCREENSHOTS RÉELS ── */}
+      {/* ── SLIDER APP ── */}
       <section style={{ padding: '80px 5%', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 60 }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: '#7B5EFF', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Aperçu de l&apos;application</p>
             <h2 style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 800, margin: '0 0 14px', letterSpacing: '-0.5px' }}>
-              Des outils pro, conçus pour votre réalité terrain
+              Tout ce qu&apos;il faut pour piloter avec excellence
             </h2>
             <p style={{ fontSize: 16, color: '#64748b', maxWidth: 500, margin: '0 auto' }}>
-              Chaque fonctionnalité est pensée pour les vrais projets d&apos;entreprise.
+              6 modules, 1 plateforme — cliquez sur les onglets ou laissez défiler automatiquement.
             </p>
           </div>
-
-          {/* EVM pleine largeur */}
-          <div style={{ marginBottom: 40 }}>
-            <div style={{ marginBottom: 14 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, padding: '4px 14px', borderRadius: 20, background: 'rgba(59,130,246,0.1)', color: '#1d4ed8', border: '1px solid rgba(59,130,246,0.2)' }}>
-                💰 Earned Value Management — Courbe S temps réel
-              </span>
-            </div>
-            <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.18)', border: '1px solid #e2e8f0' }}>
-              <img src="/screenshots/dashboard-evm.png" alt="Dashboard EVM PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 520, objectFit: 'cover', objectPosition: 'top' }} />
-            </div>
-            <p style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', marginTop: 12 }}>CPI · SPI · EAC · Courbe S PV vs EV vs AC · Indicateurs période</p>
-          </div>
-
-          {/* WP + Gantt 2 colonnes */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 40 }}>
-            <div>
-              <div style={{ marginBottom: 14 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, padding: '4px 14px', borderRadius: 20, background: 'rgba(123,94,255,0.1)', color: '#7B5EFF', border: '1px solid rgba(123,94,255,0.2)' }}>
-                  📦 Work Packages
-                </span>
-              </div>
-              <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', border: '1px solid #e2e8f0' }}>
-                <img src="/screenshots/workpackages.png" alt="Work Packages PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 380, objectFit: 'cover', objectPosition: 'top' }} />
-              </div>
-              <p style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>Cards WP colorées · Budget · Responsables · Livrables</p>
-            </div>
-            <div>
-              <div style={{ marginBottom: 14 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, padding: '4px 14px', borderRadius: 20, background: 'rgba(34,197,94,0.1)', color: '#15803d', border: '1px solid rgba(34,197,94,0.2)' }}>
-                  📅 Planning Gantt
-                </span>
-              </div>
-              <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', border: '1px solid #e2e8f0' }}>
-                <img src="/screenshots/gantt.png" alt="Gantt PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 380, objectFit: 'cover', objectPosition: 'top' }} />
-              </div>
-              <p style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>Gantt visuel · Chemin critique · % avancement · Phases</p>
-            </div>
-          </div>
-
-          {/* RAID pleine largeur */}
-          <div>
-            <div style={{ marginBottom: 14 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, padding: '4px 14px', borderRadius: 20, background: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}>
-                ⚠️ RAID Register — Risques · Actions · Issues · Décisions
-              </span>
-            </div>
-            <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.18)', border: '1px solid #e2e8f0' }}>
-              <img src="/screenshots/raid.png" alt="RAID Register PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 500, objectFit: 'cover', objectPosition: 'top' }} />
-            </div>
-            <p style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', marginTop: 12 }}>Filtres RAID · Priorités critiques · Plans de mitigation · Responsables</p>
-          </div>
-
+          <AppSlider />
         </div>
       </section>
 
-      {/* ── POUR QUI ── */}
+            {/* ── POUR QUI ── */}
       <section style={{ padding: '80px 5%', background: 'linear-gradient(135deg,#eff6ff,#f5f3ff)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 800, margin: '0 0 14px', letterSpacing: '-0.5px' }}>
@@ -390,7 +339,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── TEMPLATES PRO ── */}
-      <section style={{ padding: '80px 5%', background: '#f8fafc' }}>
+      <section style={{ padding: '80px 5%', background: '#fff' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
             <div>
@@ -402,8 +351,6 @@ export default function LandingPage() {
               Voir tous les templates →
             </a>
           </div>
-
-          {/* Pack-Templates Hero */}
           <div style={{ marginBottom: 28, borderRadius: 20, overflow: 'hidden', boxShadow: '0 25px 70px rgba(0,0,0,0.14)', border: '1px solid #e2e8f0', position: 'relative' }}>
             <img src="/screenshots/Pack-Templates.png" alt="Pack Templates Pro PMO AI Studio" style={{ width: '100%', display: 'block', maxHeight: 420, objectFit: 'cover', objectPosition: 'top' }} />
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(15,23,42,0.9), transparent)', padding: '48px 32px 24px' }}>
@@ -412,9 +359,7 @@ export default function LandingPage() {
               <a href="/templates" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 22px', background: '#fff', color: '#1e293b', borderRadius: 8, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>⬇ Accéder aux templates →</a>
             </div>
           </div>
-
-          {/* Cards templates */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
             {[
               { icon: '📊', name: 'Dashboard EVM',  format: 'Excel', color: '#22c55e', bg: '#f0fdf4', border: '#bbf7d0', desc: 'Courbes S, CPI, SPI, EAC automatisés' },
               { icon: '🗂️', name: 'WBS Template',   format: 'Excel', color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', desc: 'Structure de découpage du travail' },
@@ -434,38 +379,10 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-
-          {/* Screenshots Gantt + EVM */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-            <div>
-              <p style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', display: 'inline-block', marginBottom: 10 }}>📅 Gantt Master Excel</p>
-              <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-                <img src="/screenshots/GANTT-Template.png" alt="Gantt Template Excel" style={{ width: '100%', display: 'block', maxHeight: 220, objectFit: 'cover', objectPosition: 'top' }} />
-              </div>
-              <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 6 }}>Barres auto · Phases · Jalons · Chemin critique</p>
-            </div>
-            <div>
-              <p style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', display: 'inline-block', marginBottom: 10 }}>📊 Courbes S EVM Excel</p>
-              <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-                <img src="/screenshots/EVM-Template.png" alt="EVM Template Excel" style={{ width: '100%', display: 'block', maxHeight: 220, objectFit: 'cover', objectPosition: 'top' }} />
-              </div>
-              <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 6 }}>PV / EV / AC / EAC · Graphique auto · 12 mois</p>
-            </div>
-          </div>
-
-          {/* RAID pleine largeur */}
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', display: 'inline-block', marginBottom: 10 }}>⚠️ RAID Register Excel — 5 onglets</p>
-            <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-              <img src="/screenshots/template-RAID.png" alt="RAID Template Excel" style={{ width: '100%', display: 'block', maxHeight: 260, objectFit: 'cover', objectPosition: 'top' }} />
-            </div>
-            <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 6 }}>Formules auto · Priorités colorées · Guide inclus</p>
-          </div>
-
         </div>
       </section>
 
-      {/* ── CTA FINAL ── */}
+            {/* ── CTA FINAL ── */}
       <section style={{ padding: '80px 5%', background: 'linear-gradient(135deg,#1e40af,#7B5EFF)', textAlign: 'center' }}>
         <div style={{ maxWidth: 700, margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#fff', margin: '0 0 16px', letterSpacing: '-0.5px' }}>
