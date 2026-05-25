@@ -212,7 +212,7 @@ export default function LandingPage() {
             Conçu pour piloter n'importe quel type de projet
           </h2>
           <p style={{ fontSize: 16, color: '#64748b', margin: '0 0 48px' }}>Qu&apos;importe votre secteur ou votre niveau d&apos;expérience.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             {[
               { icon: '🏦', role: 'Banque & Finance', desc: 'BNP, Société Générale, AXA' },
               { icon: '⚡', role: 'Énergie & Industrie', desc: 'EDF, Total, CEA, Airbus' },
@@ -361,12 +361,10 @@ export default function LandingPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
             {[
-              { icon: '📊', name: 'Dashboard EVM',  format: 'Excel', color: '#22c55e', bg: '#f0fdf4', border: '#bbf7d0', desc: 'Courbes S, CPI, SPI, EAC automatisés' },
-              { icon: '🗂️', name: 'WBS Template',   format: 'Excel', color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', desc: 'Structure de découpage du travail' },
-              { icon: '⚠️', name: 'RAID Register',  format: 'Excel', color: '#f59e0b', bg: '#fffbeb', border: '#fde68a', desc: 'Registre risques, actions, issues' },
-              { icon: '👥', name: 'Matrice RACI',   format: 'Excel', color: '#7B5EFF', bg: '#faf5ff', border: '#e9d5ff', desc: 'Responsabilités par rôle et tâche' },
-              { icon: '📅', name: 'Plan de projet', format: 'Excel', color: '#ec4899', bg: '#fdf2f8', border: '#fbcfe8', desc: 'Gantt complet avec jalons' },
-              { icon: '📋', name: 'Charte projet',  format: 'PDF + Word', color: '#64748b', bg: '#f8fafc', border: '#e2e8f0', desc: 'Document de cadrage professionnel' },
+              { icon: '📊', name: 'Dashboard EVM', format: 'Excel', color: '#22c55e', bg: '#f0fdf4', border: '#bbf7d0', desc: 'Courbes S, CPI, SPI, EAC automatisés' },
+              { icon: '🗂️', name: 'WBS Template',  format: 'Excel', color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', desc: 'Structure de découpage du travail' },
+              { icon: '⚠️', name: 'RAID Register', format: 'Excel', color: '#f59e0b', bg: '#fffbeb', border: '#fde68a', desc: 'Registre risques, actions, issues' },
+              { icon: '👥', name: 'Matrice RACI',  format: 'Excel', color: '#7B5EFF', bg: '#faf5ff', border: '#e9d5ff', desc: 'Responsabilités par rôle et tâche' },
             ].map(t => (
               <div key={t.name} style={{ background: t.bg, border: `1px solid ${t.border}`, borderRadius: 14, padding: '18px 16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
