@@ -443,7 +443,7 @@ ${wps.length ? `
       <div style="width:28px;height:28px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;">P</div>
       <span style="font-size:12px;color:#64748b;">PMO AI Studio · Rapport généré le ${date}</span>
     </div>
-    <span style="font-size:11px;color:#94a3b8;">Conforme PMBOK 7 · Propulsé par Claude AI</span>
+    <span style="font-size:11px;color:#94a3b8;">Conforme standards de gestion de projet · Propulsé par Claude AI</span>
   </div>
 </div>
 

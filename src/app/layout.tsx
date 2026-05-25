@@ -4,13 +4,13 @@ import "./globals.css"
 import { Toaster } from "sonner"
 export const metadata: Metadata = {
   title: "PMO AI Studio — Le copilote IA des Chefs de Projet",
-  description: "15 outils PMO générés par Claude AI en 30 secondes. Gantt, RAID, Budget EVM, OKR, Sprint Review. Aligné PMBOK 7. Préparation PMP® intégrée.",
+  description: "15 outils PMO générés par Claude AI en 30 secondes. Gantt, RAID, Budget EVM, OKR, Sprint Review. Aligné standards de gestion de projet. Préparation certification intégrée.",
   keywords: ["PMO","Chef de Projet","PMP","PMBOK","Agile","Scrum","EVM","RAID","Gantt","IA","Claude AI"],
   authors: [{ name: "PMO AI Studio" }],
   creator: "PMO AI Studio",
   openGraph: {
     title: "PMO AI Studio — Le copilote IA des Chefs de Projet",
-    description: "15 outils PMO générés par Claude AI en 30 secondes. PMBOK 7 aligné.",
+    description: "15 outils PMO générés par Claude AI en 30 secondes. standards de gestion de projet aligné.",
     url: "https://pmo-ai-studio-v3.vercel.app",
     siteName: "PMO AI Studio",
     locale: "fr_FR",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "PMO AI Studio",
-    description: "Le copilote IA des Chefs de Projet certifiés PMP®",
+    description: "Le copilote IA des Chefs de Projet certifiés PMP",
   },
   icons: {
     icon: "/favicon.svg",

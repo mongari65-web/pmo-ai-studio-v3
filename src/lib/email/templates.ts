@@ -82,7 +82,7 @@ export function welcomeEmail(params: { name: string; email: string }) {
       <li>Créer jusqu'à <strong>3 projets</strong></li>
       <li>Utiliser les outils PMO (WBS, Gantt, RAID, PERT...)</li>
       <li>Générer <strong>20 analyses IA</strong> par mois</li>
-      <li>Accéder au simulateur PMP (50 questions)</li>
+      <li>Accéder au simulateur de certifications (50 questions)</li>
     </ul>
     <div style="text-align:center;margin:24px 0;">
       <a href="${EMAIL_CONFIG.appUrl}/dashboard" style="${btnStyle}">
@@ -159,7 +159,7 @@ export function upgradeProEmail(params: {
       <li>Projets <strong>illimités</strong></li>
       <li><strong>500 appels IA</strong>/mois (Sonnet premium)</li>
       <li>Templates Excel Pro (EVM, Dashboard, RAID, WBS, RACI)</li>
-      <li>Simulateur PMP <strong>225 questions</strong> complètes</li>
+      <li>Simulateur Certifications <strong>225 questions</strong> complètes</li>
       ${params.plan === 'team' ? '<li>Collaboration équipe temps réel</li>' : ''}
       <li>Export PDF professionnel illimité</li>
     </ul>

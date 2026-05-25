@@ -28,7 +28,7 @@ const NAV_GROUPS = [
   {
     label: "Outils CP",
     items: [
-      { href:"/documents-pmi",icon:FileText,    label:"Documents PMI",     hl:true },
+
       { href:"/propale",      icon:Briefcase,   label:"Propale / Contrat", hl:true },
       { href:"/templates",    icon:Package,     label:"Templates Pro",     pro:true },
     ]
@@ -41,11 +41,11 @@ const NAV_GROUPS = [
     ]
   },
   {
-    label: "Formation PMP",
+    label: "Formation Gestion de Projet",
     items: [
-      { href:"/pmp-simulator",icon:GraduationCap, label:"Simulateur PMP",    hl:true, pro:true },
-      { href:"/quiz-pmi",     icon:Zap,            label:"Quiz Rapide PMI",  hl:true },
-      { href:"/pmp-conseils", icon:GraduationCap,  label:"Conseils PMP" },
+      { href:"/simulateur-certif",icon:GraduationCap, label:"Simulateur Certif.",    hl:true, pro:true },
+      { href:"/quiz-certif",     icon:Zap,            label:"Quiz Certifications",  hl:true },
+      { href:"/conseils-management", icon:GraduationCap,  label:"Conseils Management" },
       { href:"/blog",         icon:BookOpen,       label:"Blog PMO" },
       { href:"/nouveau-pm",   icon:GraduationCap,  label:"Guide Nouveau PM" },
       { href:"/scrum-guide",  icon:Zap,            label:"Guide Scrum" },

@@ -159,8 +159,8 @@ export default function OnboardingPage() {
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
                 {[
                   { icon:"🤖", label:"IA Claude Sonnet", desc:"Génération en 30s" },
-                  { icon:"📊", label:"15 outils PMO", desc:"PMBOK 7 aligné" },
-                  { icon:"🎯", label:"PMP® Ready", desc:"225 questions" },
+                  { icon:"📊", label:"15 outils PMO", desc:"standards de gestion de projet aligné" },
+                  { icon:"🎯", label:"PMP Ready", desc:"225 questions" },
                 ].map(f => (
                   <div key={f.icon} style={{ background:"#1e293b", borderRadius:10, padding:"12px 10px", textAlign:"center" }}>
                     <div style={{ fontSize:20, marginBottom:4 }}>{f.icon}</div>

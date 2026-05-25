@@ -34,7 +34,7 @@ export default function BlogPage() {
               <span style={{ background:"linear-gradient(135deg,#7B5EFF,#22c55e)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>à l'ère de l'IA</span>
             </h1>
             <p style={{ fontSize:15, color:"#94a3b8", margin:"0 0 28px", lineHeight:1.7 }}>
-              Pratiques PMO, Agile, DevOps, EVM, PMP® — Articles experts avec exemples réels
+              Pratiques PMO, Agile, DevOps, EVM, PMP — Articles experts avec exemples réels
             </p>
             {/* Barre recherche */}
             <div style={{ position:"relative", maxWidth:480, margin:"0 auto" }}>
@@ -162,7 +162,7 @@ export default function BlogPage() {
           <div style={{ marginTop:48, background:"linear-gradient(135deg,rgba(123,94,255,0.1),rgba(34,197,94,0.08))", border:"1px solid rgba(123,94,255,0.2)", borderRadius:16, padding:"32px", textAlign:"center" }}>
             <div style={{ fontSize:32, marginBottom:12 }}>📧</div>
             <h3 style={{ fontSize:20, fontWeight:800, color:"var(--text-1)", margin:"0 0 8px" }}>Restez à jour sur les pratiques PMO</h3>
-            <p style={{ fontSize:13, color:"var(--text-3)", margin:"0 0 20px" }}>Nouveaux articles chaque semaine · Formation PMP · Tips Agile · Tutoriels IA</p>
+            <p style={{ fontSize:13, color:"var(--text-3)", margin:"0 0 20px" }}>Nouveaux articles chaque semaine · Formation Gestion de Projet · Tips Agile · Tutoriels IA</p>
             <div style={{ display:"flex", gap:8, maxWidth:400, margin:"0 auto" }}>
               <input placeholder="votre@email.com" style={{ flex:1, padding:"10px 14px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:8, fontSize:13, color:"var(--text-1)", outline:"none" }}/>
               <button style={{ padding:"10px 20px", background:"var(--primary)", color:"#fff", border:"none", borderRadius:8, fontSize:13, fontWeight:700, cursor:"pointer" }}>S'abonner</button>

@@ -152,13 +152,13 @@ STYLE : Pédagogique, coloré, schémas illustratifs, exemples concrets du proje
     case "formation":
       return `${base}
 
-TYPE DE DOCUMENT : Support de Formation PMP® — 12 slides
+TYPE DE DOCUMENT : Support de Formation Gestion de Projet — 12 slides
 
-CONTEXTE : Préparation certification PMP® pour chef de projet ${projectName}
+CONTEXTE : Préparation certification chef de projet pour chef de projet ${projectName}
 
 STRUCTURE :
 1. 🎓 INTRODUCTION PMP — Qu'est-ce que le PMP, statistiques, valeur du diplôme
-2. 📚 PMBOK 7 — Les 12 principes, 8 domaines de performance
+2. 📚 standards de gestion de projet — Les 12 principes, 8 domaines de performance
 3. 👥 DOMAINE PERSONNES — Leadership, gestion équipe, stakeholders (42%)
 4. ⚙️ DOMAINE PROCESSUS — Planification, exécution, contrôle (50%)
 5. 🌍 DOMAINE ENVIRONNEMENT — Stratégie, valeur business (8%)
@@ -196,7 +196,7 @@ function getDocType(type: string): string {
     "raid": "Rapport RAID/Risques",
     "okr": "Rapport OKR",
     "scrum": "Guide Formation Scrum",
-    "formation": "Support Formation PMP",
+    "formation": "Support Formation Gestion de Projet",
     "gantt": "Présentation Planning",
     "onboarding": "Présentation Onboarding"
   }

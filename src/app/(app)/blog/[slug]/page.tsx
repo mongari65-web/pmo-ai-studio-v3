@@ -13,12 +13,12 @@ import { toast } from "sonner"
 // ── Profil auteur ────────────────────────────────────────────────────────────
 const AUTHOR_PROFILE = {
   name: "Abdelhafid TOUIL",
-  title: "Chef de Projet Senior · PMP® · SAFe® 6 · DevOps Leader",
+  title: "Chef de Projet Senior · PMP · Framework Agile Scalable · DevOps Leader",
   company: "Atos France",
   linkedin: "https://www.linkedin.com/in/abdelhafid-touil",
   twitter: "https://twitter.com/AbdelhafidTouil",
   youtube: "https://youtube.com/@pmp-en-action",
-  bio: "22 ans d'expérience en gestion de projets IT dans des organisations critiques (CEA, BNP Paribas, SNCF, Orange). Certifié PMP®, SAFe® 6, PRINCE2, DevOps Leader. Créateur de PMO AI Studio et de la chaîne YouTube 'PMP en Action'.",
+  bio: "22 ans d'expérience en gestion de projets IT dans des organisations critiques (CEA, BNP Paribas, SNCF, Orange). Certifié PMP, Framework Agile Scalable, PRINCE2, DevOps Leader. Créateur de PMO AI Studio et de la chaîne YouTube 'PMP en Action'.",
   avatar: "AT",
   color: "#7B5EFF"
 }
@@ -27,7 +27,7 @@ const AUTHOR_PROFILE = {
 function ShareButtons({ title, slug }: { title: string; slug: string }) {
   const [copied, setCopied] = useState(false)
   const url = `https://pmo-ai-studio-v3.vercel.app/blog/${slug}`
-  const text = encodeURIComponent(`📊 ${title} — Par Abdelhafid TOUIL, PMP® #PMO #GestionProjet #PMBOK #PMP`)
+  const text = encodeURIComponent(`📊 ${title} — Par Abdelhafid TOUIL, PMP #PMO #GestionProjet #PMBOK #PMP`)
   const urlEnc = encodeURIComponent(url)
 
   const SOCIALS = [
@@ -387,7 +387,7 @@ function ArticleCPI({ editMode, images, onImageUpdate }: any) {
           <p style={{...P,margin:"6px 0 0",fontSize:13}}>{desc}</p>
         </div>
       ))}
-      <div style={ALERT_GREEN}><strong>✅ Bonne pratique PMI :</strong> Le PMBOK 7 recommande de mettre à jour l&apos;EVM à chaque période de reporting. PMO AI Studio le fait automatiquement — modifiez l&apos;AC réel, la courbe S se recalcule instantanément.</div>
+      <div style={ALERT_GREEN}><strong>✅ Bonne pratique PMI :</strong> Le standards de gestion de projet recommande de mettre à jour l&apos;EVM à chaque période de reporting. PMO AI Studio le fait automatiquement — modifiez l&apos;AC réel, la courbe S se recalcule instantanément.</div>
     </div>
   )
 }
@@ -513,9 +513,9 @@ function ArticleDevOps({ editMode, images, onImageUpdate }: any) {
 function ArticlePMP({ editMode, images, onImageUpdate }: any) {
   return (
     <div>
-      <p style={P}>L&apos;examen PMP® 2026 n&apos;est plus ce qu&apos;il était. 180 questions, 50% Agile, formats multiples, 230 minutes chrono. Voici le guide complet basé sur 22 ans d&apos;expérience en gestion de projet et 225 questions de notre simulateur.</p>
-      <div style={ALERT_ORANGE}><strong>📊 Statistiques PMP® 2024 :</strong> Taux de réussite premier passage : 62%. Score minimum recommandé au simulateur avant de passer : 75%+. Temps de préparation moyen : 3-4 mois.</div>
-      <h2 style={H2}>🎯 Ce qui a changé dans l&apos;examen PMP® 2026</h2>
+      <p style={P}>L&apos;examen PMP 2026 n&apos;est plus ce qu&apos;il était. 180 questions, 50% Agile, formats multiples, 230 minutes chrono. Voici le guide complet basé sur 22 ans d&apos;expérience en gestion de projet et 225 questions de notre simulateur.</p>
+      <div style={ALERT_ORANGE}><strong>📊 Statistiques PMP 2024 :</strong> Taux de réussite premier passage : 62%. Score minimum recommandé au simulateur avant de passer : 75%+. Temps de préparation moyen : 3-4 mois.</div>
+      <h2 style={H2}>🎯 Ce qui a changé dans l&apos;examen PMP 2026</h2>
       <div style={TABLE_WRAP}><table style={TABLE}><thead><tr>
         <th style={TH}>Domaine</th><th style={TH}>Poids</th><th style={TH}>Ce que ça implique</th>
       </tr></thead><tbody>
@@ -532,7 +532,7 @@ function ArticlePMP({ editMode, images, onImageUpdate }: any) {
       </tbody></table></div>
       <h2 style={H2}>📚 Plan de préparation 12 semaines</h2>
       {[
-        {sem:"Semaines 1-3",titre:"Fondamentaux PMBOK 7 + ECO",desc:"Lisez le PMBOK Guide 7e édition. Focalisez sur les 12 principes. Mémorisez l&apos;ECO — c&apos;est le vrai syllabus de l&apos;examen."},
+        {sem:"Semaines 1-3",titre:"Fondamentaux standards de gestion de projet + ECO",desc:"Lisez le guide de gestion de projet 7e édition. Focalisez sur les 12 principes. Mémorisez l&apos;ECO — c&apos;est le vrai syllabus de l&apos;examen."},
         {sem:"Semaines 4-6",titre:"Agile & Hybride",desc:"Le Agile Practice Guide est obligatoire. Maîtrisez Scrum, Kanban, SAFe. 50% des questions = contexte Agile."},
         {sem:"Semaines 7-9",titre:"EVM, Risques, Parties prenantes",desc:"Ces 3 sujets représentent 30%+ des questions. EVM : mémorisez CPI, SPI, EAC, TCPI. Risques : matrice probabilité/impact, 4 réponses."},
         {sem:"Semaines 10-11",titre:"Simulateurs intensifs",desc:"Minimum 600 questions de pratique. Analysez chaque erreur. Pattern PMI : toujours choisir la réponse qui engage l&apos;équipe et communique proactivement."},
@@ -544,7 +544,7 @@ function ArticlePMP({ editMode, images, onImageUpdate }: any) {
           <p style={{...P,margin:0,fontSize:13}}>{s.desc}</p>
         </div>
       ))}
-      <div style={ALERT_GREEN}><strong>🎓 Notre simulateur PMO AI Studio :</strong> 225 questions PMP® en conditions réelles, avec explications détaillées et score par domaine. Disponible dans la section Formation.</div>
+      <div style={ALERT_GREEN}><strong>🎓 Notre simulateur PMO AI Studio :</strong> 225 questions PMP en conditions réelles, avec explications détaillées et score par domaine. Disponible dans la section Formation.</div>
     </div>
   )
 }
@@ -586,7 +586,7 @@ function ArticleConflits({ editMode, images, onImageUpdate }: any) {
           <p style={{...P,margin:0,fontSize:12,fontStyle:"italic"}}>{s.action}</p>
         </div>
       ))}
-      <div style={ALERT_GREEN}><strong>🎓 Conseil PMP® :</strong> L&apos;examen PMP® 2026 teste abondamment la gestion des conflits. La réponse PMI préférée est presque toujours la Collaboration — engager, écouter, construire une solution commune.</div>
+      <div style={ALERT_GREEN}><strong>🎓 Conseil PMP :</strong> L&apos;examen PMP 2026 teste abondamment la gestion des conflits. La réponse PMI préférée est presque toujours la Collaboration — engager, écouter, construire une solution commune.</div>
     </div>
   )
 }
@@ -595,7 +595,7 @@ function ArticleClaudeAI({ editMode, images, onImageUpdate }: any) {
   return (
     <div>
       <p style={P}>30 secondes. C&apos;est le temps qu&apos;il faut à PMO AI Studio pour transformer une description de projet en Gantt complet avec 20 tâches, dépendances, jalons et chemin critique. Voici le tutoriel pas-à-pas avec Claude AI.</p>
-      <div style={ALERT_GREEN}><strong>🤖 Claude AI dans PMO AI Studio :</strong> Chaque génération utilise Claude Sonnet via l&apos;API Anthropic. Le modèle connaît PMBOK 7, SAFe, les meilleures pratiques PMO et génère des livrables directement utilisables.</div>
+      <div style={ALERT_GREEN}><strong>🤖 Claude AI dans PMO AI Studio :</strong> Chaque génération utilise Claude Sonnet via l&apos;API Anthropic. Le modèle connaît standards de gestion de projet, SAFe, les meilleures pratiques PMO et génère des livrables directement utilisables.</div>
       <h2 style={H2}>🚀 Tutoriel — Générer un Gantt en 30 secondes</h2>
       {[
         {n:"1",titre:"Créez votre projet",desc:"Cliquez sur \"+ Nouveau projet\" dans le dashboard. Renseignez le nom, la description, le budget et les dates. Plus votre description est précise, meilleur sera le résultat IA."},
@@ -631,8 +631,8 @@ function ArticleClaudeAI({ editMode, images, onImageUpdate }: any) {
 function ArticleSAFe({ editMode, images, onImageUpdate }: any) {
   return (
     <div>
-      <p style={P}>SAFe 6 est le framework Agile le plus adopté en entreprise — 35% des grandes organisations l&apos;utilisent. Mais il est souvent mal compris. Voici le guide illustré, de l&apos;équipe Scrum au Portfolio Kanban, avec les métriques et le PI Planning.</p>
-      <h2 style={H2}>🏗️ Les 4 niveaux SAFe 6</h2>
+      <p style={P}>Framework Agile Scalable est le framework Agile le plus adopté en entreprise — 35% des grandes organisations l&apos;utilisent. Mais il est souvent mal compris. Voici le guide illustré, de l&apos;équipe Scrum au Portfolio Kanban, avec les métriques et le PI Planning.</p>
+      <h2 style={H2}>🏗️ Les 4 niveaux Framework Agile Scalable</h2>
       <div style={TABLE_WRAP}><table style={TABLE}><thead><tr>
         <th style={TH}>Niveau</th><th style={TH}>Acteurs</th><th style={TH}>Cadence</th><th style={TH}>Artefact clé</th>
       </tr></thead><tbody>
@@ -659,7 +659,7 @@ function ArticleSAFe({ editMode, images, onImageUpdate }: any) {
           {j.steps.map((s,si) => <p key={si} style={{...P,margin:"0 0 4px",fontSize:13,paddingLeft:12,borderLeft:"2px solid var(--primary-light)"}}>• {s}</p>)}
         </div>
       ))}
-      <div style={ALERT_GREEN}><strong>🎓 SAFe® 6 Certification :</strong> Le Guide CP de PMO AI Studio inclut les pipelines SAFe cliquables — ART, PI Planning, Inspect & Adapt. Idéal pour la préparation SAFe® 6 Agilist.</div>
+      <div style={ALERT_GREEN}><strong>🎓 Framework Agile Scalable Certification :</strong> Le Guide CP de PMO AI Studio inclut les pipelines SAFe cliquables — ART, PI Planning, Inspect & Adapt. Idéal pour la préparation Framework Agile Scalable Agilist.</div>
     </div>
   )
 }
@@ -943,7 +943,7 @@ export default function ArticlePage() {
                 "pmp-2026-guide-preparation":       ["Ce qui a changé","3 domaines examen","Plan 12 semaines","Simulateur 225 questions","PMO AI Studio"],
                 "thomas-kilmann-conflits-projet":   ["5 styles TK","Matrice assertivité","5 scénarios projet","Conseil PMP","PMO AI Studio"],
                 "claude-ai-gantt-30-secondes":      ["Tutoriel 5 étapes","Prompts avancés","Types de projets","Export et partage","PMO AI Studio"],
-                "safe-6-guide-illustre":            ["4 niveaux SAFe 6","PI Planning","Métriques clés","Certification SAFe","PMO AI Studio"],
+                "safe-6-guide-illustre":            ["4 niveaux Framework Agile Scalable","PI Planning","Métriques clés","Certification SAFe","PMO AI Studio"],
                 "okr-vs-kpi-quelle-difference":     ["OKR vs KPI","Exemple OKR complet","5 règles d'or","Module OKR Studio","PMO AI Studio"],
               } as Record<string,string[]>)[slug] || ["Introduction","Concepts clés","Exemples pratiques","Conclusion","PMO AI Studio"]
               ).map((item,i) => (

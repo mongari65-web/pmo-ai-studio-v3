@@ -67,7 +67,7 @@ export default function PublicBlogLayout({ children }: { children: React.ReactNo
       {/* Footer */}
       <footer style={{ borderTop:"1px solid var(--border)", padding:"24px", textAlign:"center", marginTop:40 }}>
         <div style={{ fontSize:12, color:"var(--text-3)", marginBottom:8 }}>
-          © 2026 PMO AI Studio · Propulsé par Claude AI · PMBOK 7
+          © 2026 PMO AI Studio · Propulsé par Claude AI · standards de gestion de projet
         </div>
         <div style={{ display:"flex", gap:16, justifyContent:"center", flexWrap:"wrap" }}>
           {[["Blog","/blog"],["Dashboard","/dashboard"],["Tarifs","/#pricing"],["Contact","mailto:contact@pmoai.studio"]].map(([label,href]) => (

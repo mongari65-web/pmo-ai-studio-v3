@@ -70,7 +70,7 @@ const CONTENT: Record<string, any> = {
       { label:"OKR Tracker", href:"okr", desc:"Objectifs & KRs" },
     ],
     tip:"💡 Un bon backlog est DEEP : Détaillé, Estimé, Émergent et Priorisé. Évitez les backlogs figés.",
-    pmbok:"PMBOK 7 — Domaine : Planification · Principe : Valeur",
+    pmbok:"standards de gestion de projet — Domaine : Planification · Principe : Valeur",
   },
   planning: {
     title:"Sprint Planning",
@@ -88,7 +88,7 @@ const CONTENT: Record<string, any> = {
       { label:"PERT", href:"pert", desc:"Chemin critique" },
     ],
     tip:"💡 La vélocité des derniers 3 Sprints est le meilleur prédicteur de la capacité future. Ne surchargez pas !",
-    pmbok:"PMBOK 7 — Domaine : Planification · Méthode : Agile/Hybride",
+    pmbok:"standards de gestion de projet — Domaine : Planification · Méthode : Agile/Hybride",
   },
   daily: {
     title:"Daily Scrum (Stand-up)",
@@ -112,7 +112,7 @@ const CONTENT: Record<string, any> = {
       { label:"Jalons", href:"jalons", desc:"Avancement Sprint" },
     ],
     tip:"💡 Le Daily Scrum n'est PAS un rapport de statut. C'est une réunion de planification et de synchronisation.",
-    pmbok:"PMBOK 7 — Domaine : Travail d'équipe · Principe : Transparence",
+    pmbok:"standards de gestion de projet — Domaine : Travail d'équipe · Principe : Transparence",
   },
   review: {
     title:"Sprint Review",
@@ -136,7 +136,7 @@ const CONTENT: Record<string, any> = {
       { label:"CODIR", href:"codir", desc:"Rapport direction" },
     ],
     tip:"💡 Mesurez la 'Definition of Done' strictement. Un item est Done quand il répond à TOUS les critères d'acceptation.",
-    pmbok:"PMBOK 7 — Domaine : Parties prenantes · Principe : Valeur",
+    pmbok:"standards de gestion de projet — Domaine : Parties prenantes · Principe : Valeur",
   },
   retro: {
     title:"Rétrospective Sprint",
@@ -160,7 +160,7 @@ const CONTENT: Record<string, any> = {
       { label:"Décisions", href:"decisions", desc:"Registre décisions" },
     ],
     tip:"💡 La règle d'or : focalisez sur les processus, pas sur les personnes. 'Nous avons un problème' pas 'Tu as fait...'",
-    pmbok:"PMBOK 7 — Domaine : Amélioration continue · Principe : Apprendre en faisant",
+    pmbok:"standards de gestion de projet — Domaine : Amélioration continue · Principe : Apprendre en faisant",
   },
 }
 

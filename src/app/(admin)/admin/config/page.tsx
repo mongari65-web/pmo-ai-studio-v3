@@ -148,7 +148,7 @@ export default function AdminConfigPage() {
         <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)", margin: "0 0 16px" }}>🚩 Feature Flags</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {[
-            { field: "feature_pmp_simulator" as keyof Config, label: "Simulateur PMP® 225 questions", desc: "Activer l'accès au simulateur PMP" },
+            { field: "feature_pmp_simulator" as keyof Config, label: "Simulateur Certifications 225 questions", desc: "Activer l'accès au simulateur de certifications" },
             { field: "feature_templates"     as keyof Config, label: "Templates sectoriels Pro",       desc: "Pack de templates pour les plans payants" },
             { field: "feature_ai_reports"    as keyof Config, label: "Rapports IA automatiques",       desc: "Génération automatique de rapports (bêta)" },
           ].map(({ field, label, desc }) => (

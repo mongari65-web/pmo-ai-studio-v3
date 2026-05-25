@@ -255,7 +255,7 @@ export default function NouveauPMPage() {
               <p style={{ fontSize:13, color:"var(--text-2)", margin:0 }}>Vous démarrez votre premier projet ? Voici votre guide pas à pas selon le type de projet.</p>
             </div>
             <Link href="/pmp-simulator" style={{ padding:"7px 14px", background:"var(--primary-bg)", border:"1px solid #B5D4F4", borderRadius:"var(--r8)", fontSize:12, color:"var(--primary-t)", textDecoration:"none", fontWeight:500 }}>
-              🎯 Simulateur PMP
+              🎯 Simulateur Certifications
             </Link>
           </div>
         </div>
@@ -459,8 +459,8 @@ export default function NouveauPMPage() {
         <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12, marginTop:20 }}>
           {[
             { href:"/guide", icon:"✨", title:"Guide CP IA", desc:"Créer votre 1er projet avec l'IA", color:"#854F0B", bg:"#FAEEDA" },
-            { href:"/pmp-simulator", icon:"🎯", title:"Simulateur PMP", desc:"Testez vos connaissances PMBOK 7", color:"var(--primary-light)", bg:"#E6F1FB" },
-            { href:"/pmp-conseils", icon:"📖", title:"Conseils PMP", desc:"Guide complet pour réussir l'examen", color:"#27500A", bg:"#EAF3DE" },
+            { href:"/pmp-simulator", icon:"🎯", title:"Simulateur Certifications", desc:"Testez vos connaissances standards de gestion de projet", color:"var(--primary-light)", bg:"#E6F1FB" },
+            { href:"/pmp-conseils", icon:"📖", title:"Conseils Management", desc:"Guide complet pour réussir l'examen", color:"#27500A", bg:"#EAF3DE" },
           ].map(item => (
             <Link key={item.href} href={item.href}
               style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 16px", background:item.bg, border:`1px solid ${item.color}44`, borderRadius:"var(--r8)", textDecoration:"none", transition:"all 0.15s" }}

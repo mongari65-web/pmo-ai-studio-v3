@@ -69,7 +69,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <div>
                 <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
                   <div style={{ fontSize:20, fontWeight:700, color:"#fff" }}>PMO AI Studio</div>
-                  <div style={{ background:"rgba(123,94,255,0.25)", border:"1px solid rgba(123,94,255,0.5)", borderRadius:4, padding:"1px 7px", fontSize:10, color:"#B8A4FF" }}>PMBOK 7</div>
+                  <div style={{ background:"rgba(123,94,255,0.25)", border:"1px solid rgba(123,94,255,0.5)", borderRadius:4, padding:"1px 7px", fontSize:10, color:"#B8A4FF" }}>standards de gestion de projet</div>
                 </div>
                 <div style={{ fontSize:15, fontWeight:500, color:"#E0DEFF", letterSpacing:"0.3px", marginBottom:6 }}>
                   {"Pilotez"}<span style={{ color:"#7B5EFF" }}>.</span>{" Apprenez"}<span style={{ color:"#7B5EFF" }}>.</span>{" Excellez"}<span style={{ color:"#7B5EFF" }}>.</span>

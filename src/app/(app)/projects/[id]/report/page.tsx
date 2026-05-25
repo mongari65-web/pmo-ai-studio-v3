@@ -80,7 +80,7 @@ export default function ReportPage() {
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
           <p className="text-sm text-foreground font-medium mb-1">📄 Rapport professionnel multi-outils</p>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Génère un rapport PDF complet conforme PMBOK 7 avec page de couverture, sommaire, synthèse exécutive et tous les outils sélectionnés. Prêt pour le CODIR.
+            Génère un rapport PDF complet conforme standards de gestion de projet avec page de couverture, sommaire, synthèse exécutive et tous les outils sélectionnés. Prêt pour le CODIR.
           </p>
         </div>
 

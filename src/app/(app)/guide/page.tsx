@@ -8,7 +8,7 @@ import { NavButtons } from "@/components/ui/BackButton"
 
 const SCENARIOS = [
   { id:"initiation", icon:"🆕", label:"Nouveau projet", subtitle:"Projet à initier", color:"#22c55e",
-    principe:"En PRINCE2®, tout projet doit avoir un Business Case avant de démarrer.",
+    principe:"En PRINCE2, tout projet doit avoir un Business Case avant de démarrer.",
     message:"Espace projet vierge créé à partir de la date de début.",
     outils:["wbs","gantt","raid","budget","raci"],
     questions:[
@@ -17,7 +17,7 @@ const SCENARIOS = [
       {id:"startDate",label:"Date de début prévue",type:"date",placeholder:"",required:true,aide:"Conditionne tous les jalons du projet."},
       {id:"endDate",label:"Date de fin prévue",type:"date",placeholder:"",required:true,aide:"Doit être réaliste — la sous-estimation est la 1ère cause d'échec."},
       {id:"budget",label:"Budget alloué (EUR)",type:"number",placeholder:"Ex: 150000",required:true,aide:"Base du calcul EVM (Valeur Planifiée)."},
-      {id:"methodology",label:"Méthodologie cible",type:"select",options:["PMBOK 7","PRINCE2®","Agile / Scrum","Waterfall","Hybride"],required:true,aide:"Détermine les outils prioritaires à générer."},
+      {id:"methodology",label:"Méthodologie cible",type:"select",options:["standards de gestion de projet","PRINCE2","Agile / Scrum","Waterfall","Hybride"],required:true,aide:"Détermine les outils prioritaires à générer."},
       {id:"sector",label:"Secteur",type:"select",options:["IT / Digital","Finance / Banking","Santé / Médical","BTP / Construction","Industrie","Télécom","Retail","Autre"],required:true,aide:"Le secteur influence les contraintes réglementaires."},
       {id:"client",label:"Nom du client",type:"text",placeholder:"Ex: BNP Paribas, SNCF...",required:false,aide:"Identifiez le commanditaire ou client final."},
       {id:"environment",label:"Environnement technique",type:"select",options:["Cloud AWS/Azure/GCP","On-premise","Hybride","SaaS","Mobile","IoT / Embarqué","Mainframe","Autre"],required:false,aide:"Oriente les risques et compétences nécessaires."},
@@ -39,11 +39,11 @@ const SCENARIOS = [
       {id:"cpi",label:"CPI actuel (optionnel)",type:"number",placeholder:"Ex: 0.87",required:false,aide:"CPI < 1 = dépassement. Laissez vide si inconnu."},
       {id:"spi",label:"SPI actuel (optionnel)",type:"number",placeholder:"Ex: 0.92",required:false,aide:"SPI < 1 = retard sur planning."},
       {id:"issues",label:"Problèmes identifiés",type:"textarea",placeholder:"Retards, risques actifs...",required:false,aide:"Un problème bien décrit génère un RAID plus pertinent."},
-      {id:"methodology",label:"Méthodologie",type:"select",options:["PMBOK 7","PRINCE2®","Agile / Scrum","Waterfall","Hybride"],required:true,aide:""},
+      {id:"methodology",label:"Méthodologie",type:"select",options:["standards de gestion de projet","PRINCE2","Agile / Scrum","Waterfall","Hybride"],required:true,aide:""},
     ]
   },
   { id:"sauvetage", icon:"🚨", label:"Projet en crise", subtitle:"CPI < 0.8 ou retard critique", color:"#ef4444",
-    principe:"PRINCE2®: une exception déclenche un rapport au Project Board. L'objectif est une trajectoire crédible de redressement.",
+    principe:"PRINCE2: une exception déclenche un rapport au Project Board. L'objectif est une trajectoire crédible de redressement.",
     message:"Diagnostic de crise avec plan de redressement. EVM avec scénarios de récupération.",
     outils:["raid","budget","gantt","wbs"],
     questions:[
@@ -59,14 +59,14 @@ const SCENARIOS = [
     ]
   },
   { id:"audit", icon:"🔍", label:"Audit / Étude", subtitle:"Business Case PRINCE2", color:"#7B5EFF",
-    principe:"PRINCE2® exige une justification continue. L'audit vérifie que le Business Case est valide et les bénéfices atteignables.",
-    message:"Cadre d'audit avec 7 principes PRINCE2®, grille Business Case et template de rapport.",
+    principe:"PRINCE2 exige une justification continue. L'audit vérifie que le Business Case est valide et les bénéfices atteignables.",
+    message:"Cadre d'audit avec 7 principes PRINCE2, grille Business Case et template de rapport.",
     outils:["raid","wbs","budget","gantt"],
     questions:[
       {id:"name",label:"Périmètre d'audit",type:"text",placeholder:"Ex: Audit SI Finance Q2 2026",required:true,aide:"Précisez si c'est un audit complet ou ciblé."},
       {id:"description",label:"Objectif de l'audit",type:"textarea",placeholder:"Ce que vous cherchez à évaluer...",required:true,aide:"Quelles questions se pose le commanditaire? Quelles décisions attend-il?"},
       {id:"scope",label:"Périmètre",type:"textarea",placeholder:"Systèmes, processus, équipes concernés...",required:true,aide:"Délimitez explicitement ce qui est IN et OUT."},
-      {id:"businessCase",label:"Business Case disponible?",type:"select",options:["Oui — documenté","Oui — informel","Non — à construire","Inconnu"],required:true,aide:"Document central de PRINCE2®. S'il n'existe pas, l'audit doit en proposer un."},
+      {id:"businessCase",label:"Business Case disponible?",type:"select",options:["Oui — documenté","Oui — informel","Non — à construire","Inconnu"],required:true,aide:"Document central de PRINCE2. S'il n'existe pas, l'audit doit en proposer un."},
       {id:"stakeholders",label:"Commanditaire / Parties prenantes",type:"text",placeholder:"Ex: DSI, DAF, Comité de Direction",required:true,aide:"Identifiez qui commandite et qui reçoit le rapport."},
       {id:"endDate",label:"Date de remise du rapport",type:"date",placeholder:"",required:true,aide:""},
       {id:"budget",label:"Budget de l'étude (EUR)",type:"number",placeholder:"Ex: 15000",required:false,aide:""},

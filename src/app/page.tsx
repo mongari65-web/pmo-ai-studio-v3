@@ -4,11 +4,11 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'PMO AI Studio — La plateforme PMO intelligente | Gérez vos projets avec l\'IA',
-  description: 'PMO AI Studio combine les outils PMBOK 7, l\'IA Claude et la formation PMP pour les chefs de projet. WBS, Gantt, RAID, EVM, simulateur PMP 225Q. Essai gratuit 14 jours.',
+  description: 'PMO AI Studio combine les outils standards de gestion de projet, l\'IA Claude et la formation en gestion de projet pour les chefs de projet. WBS, Gantt, RAID, EVM, simulateur de certifications 225Q. Essai gratuit 14 jours.',
   keywords: ['PMO', 'gestion de projet', 'management', 'IA', 'chef de projet', 'WBS', 'Gantt', 'EVM', 'pilotage projet'],
   openGraph: {
     title: 'PMO AI Studio — La plateforme PMO intelligente',
-    description: 'Pilotez vos projets avec l\'IA. Outils PMBOK 7, simulateur PMP, templates pro.',
+    description: 'Pilotez vos projets avec l\'IA. Outils standards de gestion de projet, simulateur de certifications, templates pro.',
     url: 'https://pmoai.studio',
     siteName: 'PMO AI Studio',
     locale: 'fr_FR',
@@ -56,7 +56,7 @@ const PLANS = [
 
 const TESTIMONIALS = [
   { name: 'Sarah M.', role: 'Chef de projet IT, BNP Paribas', text: 'PMO AI Studio m\'a permis de réduire mon temps de reporting de 60%. Le générateur WBS avec l\'IA est bluffant.', avatar: 'SM' },
-  { name: 'Karim B.', role: 'PMO Manager, Orange', text: 'Enfin un outil qui combine vraiment la gestion de projet et l\'IA. Le simulateur PMP m\'a aidé à décrocher ma certification.', avatar: 'KB' },
+  { name: 'Karim B.', role: 'PMO Manager, Orange', text: 'Enfin un outil qui combine vraiment la gestion de projet et l\'IA. Le simulateur de certifications m\'a aidé à décrocher ma certification.', avatar: 'KB' },
   { name: 'Marie L.', role: 'Directrice de projet, Thales', text: 'L\'EVM automatisé nous fait gagner un temps précieux. Le dashboard de suivi est exactement ce dont notre équipe avait besoin.', avatar: 'ML' },
 ]
 

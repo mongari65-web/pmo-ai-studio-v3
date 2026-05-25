@@ -14,7 +14,7 @@ export default function ChangelogPage() {
         "👥 RACI Matrix Pro avec mode DACI + export CSV",
         "🔗 Intégrations Jira/Notion/CSV — import automatique vers outils PMO",
         "🖼️ Widget embarquable iframe pour SharePoint/PowerPoint/Notion",
-        "🎓 Quiz Rapide PMI — 5 questions par domaine avec chrono",
+        "🎓 Quiz Certifications — 5 questions par domaine avec chrono",
         "🚀 Onboarding guidé 5 étapes avec génération IA automatique",
         "📧 Notifications email hebdo — résumé projet (Resend)",
         "👥 Mode collaboratif — membres, permissions, lien de partage",
@@ -39,7 +39,7 @@ export default function ChangelogPage() {
         "💳 Intégration Stripe complète — checkout, webhook, portal",
         "🤖 Claude AI intégré — génération Gantt, RAID, Budget EVM, WBS, PERT",
         "📊 Budget EVM complet — CPI, SPI, EAC, TCPI, Courbe S",
-        "📈 Simulateur PMP 225 questions — 3 niveaux, 15 lots",
+        "📈 Simulateur Certifications 225 questions — 3 niveaux, 15 lots",
         "🗂️ WBS + Dictionnaire, Work Packages, Jalons, PERT",
         "🔐 Authentification Supabase + ProGate plans payants",
       ]

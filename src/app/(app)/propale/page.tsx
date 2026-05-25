@@ -20,7 +20,7 @@ const DOC_TYPES = [
 export default function PropalePage() {
   const [form, setForm] = useState({
     client:"", mission:MISSION_TYPES[0], tjm:"700", duration:DURATIONS[3],
-    context:"", consultant:"", certifications:"PMP®, SAFe® 6", docType:"propale",
+    context:"", consultant:"", certifications:"PMP, Framework Agile Scalable", docType:"propale",
   })
   const [result, setResult] = useState("")
   const [loading, setLoading] = useState(false)
@@ -124,7 +124,7 @@ Génère un document complet, professionnel, directement utilisable. Format Mark
                   </select>
                 </div>
               </div>
-              <div>{lbl("Certifications")}<input value={form.certifications} onChange={e=>upd("certifications",e.target.value)} placeholder="PMP®, SAFe® 6..." style={inp} onFocus={e=>e.target.style.borderColor="#7B5EFF"} onBlur={e=>e.target.style.borderColor="var(--border)"}/></div>
+              <div>{lbl("Certifications")}<input value={form.certifications} onChange={e=>upd("certifications",e.target.value)} placeholder="PMP, Framework Agile Scalable..." style={inp} onFocus={e=>e.target.style.borderColor="#7B5EFF"} onBlur={e=>e.target.style.borderColor="var(--border)"}/></div>
               <div>{lbl("Contexte de la mission")}
                 <textarea value={form.context} onChange={e=>upd("context",e.target.value)}
                   placeholder="Décrire le contexte, les enjeux, les objectifs..."

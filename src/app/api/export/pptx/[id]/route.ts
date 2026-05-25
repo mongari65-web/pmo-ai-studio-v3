@@ -90,7 +90,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     // Date + métadonnées
     s1.addText(new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}), { x:0.3, y:3.3, w:5, h:0.3, fontSize:10, color:GRAY })
-    s1.addText("PMO AI Studio · PMBOK 7", { x:0.3, y:3.65, w:5, h:0.25, fontSize:9, color:GRAY })
+    s1.addText("PMO AI Studio · standards de gestion de projet", { x:0.3, y:3.65, w:5, h:0.25, fontSize:9, color:GRAY })
 
     // Barre de progression avancement
     s1.addShape(pptx.ShapeType.rect, { x:0.3, y:4.2, w:10.5, h:0.12, fill:{ color:DARK2 } })

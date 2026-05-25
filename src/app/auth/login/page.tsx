@@ -104,7 +104,7 @@ export default function LoginPage() {
       </div>
 
       <p style={{ marginTop:24, fontSize:12, color:"#5A5F80" }}>
-        PMO AI Studio · PMBOK 7 · Propulsé par Claude AI
+        PMO AI Studio · standards de gestion de projet · Propulsé par Claude AI
       </p>
     </div>
   )
