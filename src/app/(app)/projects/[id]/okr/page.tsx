@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import AppLayout from "@/components/layout/AppLayout"
 import ToolLayout from "@/components/tools/ToolLayout"
@@ -37,7 +37,11 @@ export default function OKRPage() {
   const [editingKR, setEditingKR]   = useState<{objId:string;krId:string}|null>(null)
   const [editingObj, setEditingObj] = useState<string|null>(null)
 
-  useState(() => { if (data?.objectives?.length) setObjectives(data.objectives) })
+  useEffect(() => {
+    if (data?.objectives?.length) {
+      setObjectives(data.objectives)
+    }
+  }, [data])
 
   const saveObjs = async (objs:Objective[]) => { setObjectives(objs); await save({ objectives:objs }) }
 
