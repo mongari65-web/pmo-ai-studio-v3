@@ -79,7 +79,14 @@ export default function OKRPage() {
   }
 
   const updateKRCurrent = (objId:string, krId:string, val:number) => {
-    saveObjs(objectives.map(o => o.id!==objId?o:{ ...o, keyResults:o.keyResults.map(kr=>kr.id!==krId?kr:{ ...kr, current:val }) }))
+    // Mettre à jour le state local immédiatement
+    const updated = objectives.map(o => o.id!==objId?o:{ ...o, keyResults:o.keyResults.map(kr=>kr.id!==krId?kr:{ ...kr, current:val }) })
+    setObjectives(updated)
+    // Sauvegarder après 800ms de pause (debounce)
+    clearTimeout((window as any).__okrSaveTimer)
+    ;(window as any).__okrSaveTimer = setTimeout(() => {
+      save({ objectives: updated })
+    }, 800)
   }
 
   const filtered = filterQ==="all"?objectives:objectives.filter(o=>o.quarter===filterQ)
@@ -264,7 +271,7 @@ export default function OKRPage() {
                         <div style={{ display:"flex", alignItems:"center", gap:6, flexShrink:0 }}>
                           <input type="number" value={kr.current} min={0} max={kr.target}
                             onChange={e => updateKRCurrent(obj.id, kr.id, +e.target.value)}
-                            style={{ width:60, fontSize:11, fontWeight:700, border:"1px solid "+kColor+"44", borderRadius:5, padding:"2px 6px", background:"var(--bg)", color:kColor, textAlign:"center" }}/>
+                            style={{ width:72, fontSize:14, fontWeight:800, border:"2px solid "+kColor, borderRadius:6, padding:"4px 8px", background:"var(--bg-card)", color:kColor, textAlign:"center", cursor:"text" }}/>
                           <span style={{ fontSize:10, color:"var(--text-3)" }}>/ {kr.target} {kr.unit}</span>
                           <div style={{ width:60, height:5, background:"var(--bg-card)", borderRadius:3, overflow:"hidden" }}>
                             <div style={{ width:kPct+"%", height:"100%", background:kColor, borderRadius:3 }}/>
