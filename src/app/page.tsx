@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'PMO AI Studio — La plateforme PMO intelligente | Gérez vos projets avec l\'IA',
   description: 'PMO AI Studio combine les outils PMBOK 7, l\'IA Claude et la formation PMP pour les chefs de projet. WBS, Gantt, RAID, EVM, simulateur PMP 225Q. Essai gratuit 14 jours.',
-  keywords: ['PMO', 'gestion de projet', 'PMP', 'PMBOK', 'IA', 'chef de projet', 'WBS', 'Gantt', 'EVM'],
+  keywords: ['PMO', 'gestion de projet', 'management', 'IA', 'chef de projet', 'WBS', 'Gantt', 'EVM', 'pilotage projet'],
   openGraph: {
     title: 'PMO AI Studio — La plateforme PMO intelligente',
     description: 'Pilotez vos projets avec l\'IA. Outils PMBOK 7, simulateur PMP, templates pro.',
@@ -21,7 +21,7 @@ const FEATURES = [
   { icon: '⚠️', title: 'RAID & Risques', desc: 'Identifiez, évaluez et gérez vos risques, actions, issues et décisions en un seul endroit.' },
   { icon: '💰', title: 'EVM & Budget', desc: 'Pilotez votre budget avec la méthode EVM. CPI, SPI, EAC calculés automatiquement.' },
   { icon: '🤖', title: 'IA Claude intégrée', desc: 'Générez des analyses, rapports et recommandations avec Claude Sonnet en un clic.' },
-  { icon: '🎓', title: 'Simulateur PMP', desc: '225 questions officielles PMI pour préparer votre certification PMP. Explications détaillées.' },
+  { icon: '🎓', title: 'Simulateur certif.', desc: '225 questions pour préparer vos certifications projet. Explications détaillées et scoring.' },
   { icon: '📊', title: 'PERT & Courbes S', desc: 'Estimez vos délais avec PERT. Visualisez l\'avancement avec des courbes S professionnelles.' },
   { icon: '📋', title: 'RACI & Gouvernance', desc: 'Clarifiez les responsabilités de votre équipe avec une matrice RACI générée automatiquement.' },
 ]
@@ -35,20 +35,20 @@ const PLANS = [
   },
   {
     name: 'Starter', price: 9, period: '/mois', color: '#36B37E', bg: '#f0fdf4', border: '#bbf7d0',
-    cta: 'Essai gratuit 14 jours', ctaStyle: { background: '#36B37E', color: '#fff', border: 'none' },
+    cta: 'Commencer →', ctaStyle: { background: '#36B37E', color: '#fff', border: 'none' },
     features: ['3 projets en parallèle', 'WBS + RACI + Gantt', 'Export PDF', 'IA Claude Haiku (100 req.)', 'Support email'],
     tag: null,
   },
   {
     name: 'Pro', price: 17, period: '/mois', color: '#7B5EFF', bg: '#faf5ff', border: '#e9d5ff',
-    cta: 'Essai gratuit 14 jours', ctaStyle: { background: 'linear-gradient(135deg,#7B5EFF,#3b82f6)', color: '#fff', border: 'none' },
+    cta: 'Commencer →', ctaStyle: { background: 'linear-gradient(135deg,#7B5EFF,#3b82f6)', color: '#fff', border: 'none' },
     features: ['10 projets en parallèle', 'Tous les outils PMO (10+)', 'Export Excel + PDF + Word', 'IA Claude Sonnet (200 req.)', 'Templates sectoriels', 'EVM, PERT & Courbes S', 'Support prioritaire'],
     tag: '⭐ Le plus populaire',
   },
   {
     name: 'Premium', price: 23, period: '/mois', color: '#FF8C00', bg: '#fff7ed', border: '#fed7aa',
-    cta: 'Essai gratuit 14 jours', ctaStyle: { background: 'linear-gradient(135deg,#FF8C00,#f59e0b)', color: '#fff', border: 'none' },
-    features: ['20 projets + archive illimitée', 'Tout ce qui est en Pro', 'IA Claude Sonnet (300 req.)', 'Simulateur PMP 225Q complet', 'Export PowerPoint inclus', 'Templates sectoriels complets', 'Historique & archive projets'],
+    cta: 'Commencer →', ctaStyle: { background: 'linear-gradient(135deg,#FF8C00,#f59e0b)', color: '#fff', border: 'none' },
+    features: ['20 projets + archive illimitée', 'Tout ce qui est en Pro', 'IA Claude Sonnet (300 req.)', 'Simulateur certifications 225Q', 'Export PowerPoint inclus', 'Templates sectoriels complets', 'Historique & archive projets'],
     tag: '👑 Pour les PMO',
   },
 ]
@@ -60,8 +60,8 @@ const TESTIMONIALS = [
 ]
 
 const STATS = [
-  { value: '10+', label: 'Outils PMO intégrés' },
-  { value: '225', label: 'Questions PMP' },
+  { value: '10+', label: 'Outils intégrés' },
+  { value: '225', label: 'Questions certif.' },
   { value: '95%', label: 'Taux de satisfaction' },
   { value: '14j', label: 'Essai gratuit' },
 ]
@@ -92,7 +92,7 @@ export default function LandingPage() {
       <section style={{ background: 'linear-gradient(135deg, #f8faff 0%, #f0f4ff 50%, #faf5ff 100%)', padding: '80px 5% 60px', textAlign: 'center' }}>
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 20, padding: '6px 16px', fontSize: 13, color: '#1d4ed8', fontWeight: 600, marginBottom: 24 }}>
-            🚀 Nouveau : Simulateur PMP 225 questions disponible
+            🚀 Nouveau : Simulateur de certification intégré
           </div>
           <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, lineHeight: 1.15, margin: '0 0 20px', letterSpacing: '-1px' }}>
             Pilotez vos projets avec<br />
@@ -101,11 +101,11 @@ export default function LandingPage() {
             </span>
           </h1>
           <p style={{ fontSize: 'clamp(16px, 2vw, 20px)', color: '#64748b', lineHeight: 1.7, margin: '0 0 36px', maxWidth: 600, marginLeft: 'auto', marginRight: 'auto' }}>
-            PMO AI Studio réunit tous les outils PMBOK 7, la puissance de Claude AI et la préparation PMP dans une seule plateforme. Pour les chefs de projet qui veulent aller plus vite.
+            PMO AI Studio réunit les meilleurs outils de gestion de projet, la puissance de l'IA et la montée en compétence dans une seule plateforme. Pour les managers qui veulent livrer avec excellence.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/auth/inscription" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', borderRadius: 12, fontSize: 16, fontWeight: 700, background: 'linear-gradient(135deg,#1e40af,#3b82f6)', color: '#fff', textDecoration: 'none', boxShadow: '0 4px 20px rgba(59,130,246,0.4)' }}>
-              Commencer gratuitement — 14 jours
+              Commencer gratuitement
             </Link>
             <a href="#video" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', borderRadius: 12, fontSize: 16, fontWeight: 600, background: '#fff', color: '#1e293b', textDecoration: 'none', border: '1px solid #e2e8f0' }}>
               ▶ Voir la démo
@@ -137,7 +137,7 @@ export default function LandingPage() {
             Apprenez le project management en regardant
           </h2>
           <p style={{ fontSize: 16, color: '#64748b', margin: '0 0 36px', maxWidth: 600, marginLeft: 'auto', marginRight: 'auto' }}>
-            Retrouvez nos vidéos de formation PMP, tutoriels PMO et conseils de chef de projet sur YouTube.
+            Retrouvez nos vidéos de formation, tutoriels et conseils de management de projet sur YouTube.
           </p>
           {/* YouTube placeholder — remplacer VIDEO_ID par le vrai ID */}
           <div style={{ position: 'relative', paddingBottom: '56.25%', borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', background: '#0f172a' }}>
@@ -153,7 +153,7 @@ export default function LandingPage() {
               <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, marginBottom: 16 }}>▶</div>
               <p style={{ color: '#fff', fontSize: 18, fontWeight: 700, margin: 0 }}>PMP en Action</p>
               <p style={{ color: '#94a3b8', fontSize: 14, margin: '6px 0 0' }}>Formation & Tutoriels Project Management</p>
-              <a href="https://youtube.com/@PMPenAction" target="_blank" rel="noopener noreferrer"
+              <a href="https://youtube.com/@PMOAIStudio" target="_blank" rel="noopener noreferrer"
                 style={{ marginTop: 20, padding: '10px 24px', background: '#ef4444', color: '#fff', borderRadius: 8, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
                 🎬 Voir la chaîne YouTube →
               </a>
@@ -168,7 +168,7 @@ export default function LandingPage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: '#7B5EFF', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Fonctionnalités</p>
             <h2 style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 800, margin: '0 0 14px', letterSpacing: '-0.5px' }}>
-              Tout ce dont un chef de projet a besoin
+              Tout ce dont un manager de projet a besoin
             </h2>
             <p style={{ fontSize: 16, color: '#64748b', maxWidth: 500, margin: '0 auto' }}>
               10+ outils PMO professionnels, tous alimentés par l&apos;IA, dans une seule plateforme.
@@ -260,7 +260,7 @@ export default function LandingPage() {
       <section style={{ padding: '80px 5%', background: 'linear-gradient(135deg,#eff6ff,#f5f3ff)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 800, margin: '0 0 14px', letterSpacing: '-0.5px' }}>
-            Conçu pour les professionnels du projet
+            Conçu pour piloter n'importe quel type de projet
           </h2>
           <p style={{ fontSize: 16, color: '#64748b', margin: '0 0 48px' }}>Qu&apos;importe votre secteur ou votre niveau d&apos;expérience.</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
@@ -270,7 +270,7 @@ export default function LandingPage() {
               { icon: '🚆', role: 'Transport & Infra', desc: 'SNCF, RATP, Vinci' },
               { icon: '💻', role: 'IT & Tech', desc: 'ESN, startups, éditeurs' },
               { icon: '🏥', role: 'Santé & Pharma', desc: 'Hôpitaux, labos, medtech' },
-              { icon: '🎓', role: 'Candidats PMP', desc: 'Préparation certification PMI' },
+              { icon: '🎓', role: 'Formation & Coaching', desc: 'Montée en compétence équipes' },
             ].map(p => (
               <div key={p.role} style={{ padding: '20px', background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', textAlign: 'center' }}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>{p.icon}</div>
@@ -356,13 +356,13 @@ export default function LandingPage() {
       <section style={{ padding: '80px 5%', background: 'linear-gradient(135deg,#1e40af,#7B5EFF)', textAlign: 'center' }}>
         <div style={{ maxWidth: 700, margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#fff', margin: '0 0 16px', letterSpacing: '-0.5px' }}>
-            Prêt à transformer votre gestion de projet ?
+            Prêt à piloter vos projets avec excellence ?
           </h2>
           <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)', margin: '0 0 36px', lineHeight: 1.6 }}>
             Rejoignez les chefs de projet qui utilisent l&apos;IA pour livrer plus vite, mieux et sans stress.
           </p>
           <Link href="/auth/inscription" style={{ display: 'inline-block', padding: '16px 36px', borderRadius: 12, fontSize: 18, fontWeight: 800, background: '#fff', color: '#1e40af', textDecoration: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
-            Démarrer gratuitement — 14 jours →
+            Commencer gratuitement →
           </Link>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 16 }}>
             ✓ Sans carte bancaire &nbsp;·&nbsp; ✓ Accès immédiat &nbsp;·&nbsp; ✓ Support inclus
@@ -380,7 +380,7 @@ export default function LandingPage() {
           <div style={{ display: 'flex', gap: 24, fontSize: 13 }}>
             <Link href="/pricing" style={{ color: '#94a3b8', textDecoration: 'none' }}>Tarifs</Link>
             <Link href="/auth/connexion" style={{ color: '#94a3b8', textDecoration: 'none' }}>Connexion</Link>
-            <a href="https://youtube.com/@PMPenAction" target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>YouTube</a>
+            <a href="https://youtube.com/@PMOAIStudio" target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>YouTube</a>
             <a href="mailto:support@pmoai.studio" style={{ color: '#94a3b8', textDecoration: 'none' }}>Contact</a>
           </div>
           <p style={{ fontSize: 12, color: '#475569', margin: 0 }}>
