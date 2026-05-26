@@ -91,8 +91,8 @@ export async function POST(req: NextRequest) {
           stripe_price_id: priceId,
           plan: finalPlan,
           status: sub.status,
-          current_period_start: new Date((sub as any).current_period_start * 1000).toISOString(),
-          current_period_end:   new Date((sub as any).current_period_end   * 1000).toISOString(),
+          current_period_start: (sub as any).current_period_start ? new Date((sub as any).current_period_start * 1000).toISOString() : null,
+          current_period_end: (sub as any).current_period_end ? new Date((sub as any).current_period_end * 1000).toISOString() : null,
           trial_end: (sub as any).trial_end
             ? new Date((sub as any).trial_end * 1000).toISOString() : null,
           updated_at: new Date().toISOString(),
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
           stripe_customer_id: sub.customer as string,
           plan: finalPlan,
           subscription_status: sub.status,
-          plan_expires_at: new Date((sub as any).current_period_end * 1000).toISOString(),
+          plan_expires_at: (sub as any).current_period_end ? new Date((sub as any).current_period_end * 1000).toISOString() : null,
         }).eq("id", userId)
         console.log("[Webhook] profiles mis à jour pour user:", userId, "plan:", finalPlan)
 
@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
         await supabase.from("profiles").update({
           plan: event.type === "customer.subscription.deleted" ? "free" : (PLAN_FROM_PRICE[sub.items.data[0]?.price.id ?? ""] ?? "free"),
           subscription_status: sub.status,
-          plan_expires_at: new Date((sub as any).current_period_end * 1000).toISOString(),
+          plan_expires_at: (sub as any).current_period_end ? new Date((sub as any).current_period_end * 1000).toISOString() : null,
         }).eq("id", profileId)
 
         await supabase.from("subscriptions").upsert({
@@ -168,8 +168,8 @@ export async function POST(req: NextRequest) {
           stripe_price_id: priceId,
           plan: PLAN_FROM_PRICE[priceId] ?? "free",
           status: sub.status,
-          current_period_start: new Date((sub as any).current_period_start * 1000).toISOString(),
-          current_period_end:   new Date((sub as any).current_period_end   * 1000).toISOString(),
+          current_period_start: (sub as any).current_period_start ? new Date((sub as any).current_period_start * 1000).toISOString() : null,
+          current_period_end: (sub as any).current_period_end ? new Date((sub as any).current_period_end * 1000).toISOString() : null,
           cancel_at_period_end: sub.cancel_at_period_end,
           canceled_at: sub.canceled_at
             ? new Date(sub.canceled_at * 1000).toISOString() : null,
@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
             await supabase.from("subscriptions").update({
               status: "active",
               plan: PLAN_FROM_PRICE[priceId] ?? "starter",
-              current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
+              current_period_end: (sub as any).current_period_end ? new Date((sub as any).current_period_end * 1000).toISOString() : null,
               updated_at: new Date().toISOString(),
             }).eq("stripe_subscription_id", sub.id)
           }
