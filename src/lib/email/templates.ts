@@ -141,45 +141,77 @@ export function projectCreatedEmail(params: {
 // ── 3. UPGRADE PRO ───────────────────────────────────────────
 export function upgradeProEmail(params: {
   name: string
-  plan: 'pro' | 'team'
+  plan: 'starter' | 'pro' | 'premium'
   amount?: number
   invoiceUrl?: string
 }) {
-  const planLabel = params.plan === 'team' ? 'Team' : 'Pro'
-  const content = `
-    <h2 style="color:#1e40af;margin:0 0 8px;">Bienvenue dans le plan ${planLabel} ! ⭐</h2>
+  const planConfig: Record<string, { label: string; color: string; projects: string; aiGen: string; features: string[] }> = {
+    starter: {
+      label: 'Starter', color: '#36B37E',
+      projects: '3 projets en parallèle', aiGen: '50 générations IA/mois',
+      features: [
+        '3 projets en parallèle',
+        '50 générations IA/mois (Claude Haiku)',
+        'WBS, RACI, Gantt inclus',
+        'Export PDF',
+        'Support email',
+      ],
+    },
+    pro: {
+      label: 'Pro', color: '#7B5EFF',
+      projects: '10 projets en parallèle', aiGen: '150 générations IA/mois',
+      features: [
+        '10 projets en parallèle',
+        '150 générations IA/mois (Claude Sonnet)',
+        'Tous les outils PMO (WBS, Gantt, RAID, EVM, RACI, PERT)',
+        'Export Excel + PDF + Word',
+        'Templates sectoriels inclus',
+        'Support prioritaire',
+      ],
+    },
+    premium: {
+      label: 'Premium', color: '#FF8C00',
+      projects: '25 projets + historique', aiGen: '300 générations IA/mois',
+      features: [
+        '25 projets + historique',
+        '300 générations IA/mois (Claude Sonnet)',
+        'Simulateur certifications 225 questions',
+        'Export PowerPoint inclus',
+        'Templates sectoriels complets',
+        'Support prioritaire',
+      ],
+    },
+  }
+  const cfg = planConfig[params.plan] ?? planConfig.pro
+  const featuresHtml = cfg.features.map(f => `<li style="margin-bottom:6px;">${f}</li>`).join("")
+  const emailContent = `
+    <h2 style="color:${cfg.color};margin:0 0 8px;">Bienvenue dans le plan ${cfg.label} ! ⭐</h2>
     <p style="margin:0 0 20px;color:#6b7280;font-size:14px;">Votre abonnement est actif</p>
-    <div style="background:linear-gradient(135deg,#1e40af,#3b82f6);border-radius:8px;padding:20px;color:#fff;margin:0 0 20px;text-align:center;">
+    <div style="background:linear-gradient(135deg,${cfg.color},${cfg.color}cc);border-radius:12px;padding:24px;color:#fff;margin:0 0 24px;text-align:center;">
       <p style="margin:0 0 4px;font-size:13px;opacity:0.85;">Plan actif</p>
-      <p style="margin:0;font-size:28px;font-weight:700;">${planLabel}</p>
-      <p style="margin:6px 0 0;font-size:15px;opacity:0.9;">${params.amount ?? 29}€/mois</p>
+      <p style="margin:0;font-size:30px;font-weight:800;">${cfg.label}</p>
+      <p style="margin:6px 0 0;font-size:16px;opacity:0.9;">${params.amount ?? 39}€/mois</p>
+      <p style="margin:8px 0 0;font-size:12px;opacity:0.75;">${cfg.projects} · ${cfg.aiGen}</p>
     </div>
-    <p>Vous avez maintenant accès à <strong>toutes les fonctionnalités</strong> :</p>
-    <ul style="color:#374151;padding-left:20px;">
-      <li>Projets <strong>illimités</strong></li>
-      <li><strong>500 appels IA</strong>/mois (Sonnet premium)</li>
-      <li>Templates Excel Pro (EVM, Dashboard, RAID, WBS, RACI)</li>
-      <li>Simulateur Certifications <strong>225 questions</strong> complètes</li>
-      ${params.plan === 'team' ? '<li>Collaboration équipe temps réel</li>' : ''}
-      <li>Export PDF professionnel illimité</li>
-    </ul>
-    ${params.invoiceUrl ? `
-    <div style="text-align:center;margin:24px 0;">
-      <a href="${params.invoiceUrl}" style="${btnStyle}">
-        Télécharger ma facture →
-      </a>
-    </div>` : ''}
-    <p style="font-size:13px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:16px;">
-      Pour gérer votre abonnement : 
-      <a href="${EMAIL_CONFIG.appUrl}/billing" style="color:#3b82f6;">Mon espace facturation</a>
+    <p style="margin:0 0 12px;">Bonjour <strong>${params.name}</strong>,</p>
+    <p style="margin:0 0 16px;">Vous avez maintenant accès aux fonctionnalités suivantes :</p>
+    <ul style="color:#374151;padding-left:20px;margin:0 0 20px;">${featuresHtml}</ul>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin:0 0 20px;">
+      <p style="margin:0;font-size:13px;color:#166534;">
+        💡 <strong>Rappel :</strong> Vos outils PMO (WBS, Gantt, RAID, EVM...) sont sauvegardés et modifiables à tout moment sans consommer votre quota IA. Le quota s'applique uniquement aux nouvelles générations.
+      </p>
+    </div>
+    ${params.invoiceUrl ? `<div style="text-align:center;margin:24px 0;"><a href="${params.invoiceUrl}" style="${btnStyle}">📄 Télécharger ma facture →</a></div>` : ""}
+    <p style="font-size:13px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:16px;margin:0;">
+      Gérer votre abonnement : <a href="${EMAIL_CONFIG.appUrl}/settings" style="color:#3b82f6;">Mon espace facturation</a>
+      &nbsp;·&nbsp;<a href="${EMAIL_CONFIG.appUrl}/dashboard" style="color:#3b82f6;">Dashboard</a>
     </p>
   `
   return {
-    subject: `🎉 Votre plan ${planLabel} est activé !`,
-    html: baseLayout(content, `Plan ${planLabel} actif — accès complet débloqué`),
+    subject: `✅ Plan ${cfg.label} activé — PMO AI Studio`,
+    html: baseLayout(emailContent, `Plan ${cfg.label} actif — ${cfg.aiGen}`),
   }
 }
-
 // ── 4. RESET MOT DE PASSE ────────────────────────────────────
 export function passwordResetEmail(params: { name: string; resetUrl: string }) {
   const content = `
