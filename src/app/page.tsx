@@ -629,12 +629,12 @@ export default function LandingPage() {
             <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', margin: '0 0 16px' }}>❓ Questions fréquentes</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
-                ['L'essai est-il gratuit ?', 'Oui, 7 jours sans carte bancaire. Annulation libre avant la fin.'],
+                ["L'essai est-il gratuit ?", "Oui, 7 jours sans carte bancaire. Annulation libre avant la fin."],
                 ['Puis-je annuler à tout moment ?', 'Oui, sans pénalités. Votre accès reste actif jusqu'à la fin de la période.'],
-                ['La TVA est-elle incluse ?', 'Prix HT. TVA appliquée selon votre pays au moment du paiement.'],
-                ['Puis-je changer de plan ?', 'Oui, upgrade ou downgrade à tout moment, au prorata.'],
+                ["La TVA est-elle incluse ?", "Prix HT. TVA appliquée selon votre pays au moment du paiement."],
+                ["Puis-je changer de plan ?", "Oui, upgrade ou downgrade à tout moment, au prorata."],
                 ['Qu'est-ce qu'une génération IA ?', 'Créer un outil PMO depuis zéro avec l'IA. La modification d'un outil existant ne consomme pas de quota.'],
-                ['Mes données sont-elles sécurisées ?', 'Oui, hébergées sur Supabase (EU) avec chiffrement complet.'],
+                ["Mes données sont-elles sécurisées ?", "Oui, hébergées sur Supabase (EU) avec chiffrement complet."],
               ].map(([q, a]) => (
                 <div key={q} style={{ padding: '12px 16px', background: '#f8fafc', borderRadius: 10, border: '1px solid #f1f5f9' }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', margin: '0 0 4px' }}>{q}</p>
