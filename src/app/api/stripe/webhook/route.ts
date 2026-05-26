@@ -98,6 +98,15 @@ export async function POST(req: NextRequest) {
           updated_at: new Date().toISOString(),
         }, { onConflict: "stripe_subscription_id" })
 
+        // ── Mettre à jour profiles avec stripe_customer_id + plan ──
+        await supabase.from("profiles").update({
+          stripe_customer_id: sub.customer as string,
+          plan: finalPlan,
+          subscription_status: sub.status,
+          plan_expires_at: new Date((sub as any).current_period_end * 1000).toISOString(),
+        }).eq("id", userId)
+        console.log("[Webhook] profiles mis à jour pour user:", userId, "plan:", finalPlan)
+
         // ── Email upgrade ──────────────────────────────────────
         const { data: profile } = await supabase
           .from("profiles")
@@ -117,13 +126,40 @@ export async function POST(req: NextRequest) {
         const sub     = event.data.object as Stripe.Subscription
         const priceId = sub.items.data[0]?.price.id ?? ""
 
-        const { data: profile } = await supabase
+        // Chercher via stripe_customer_id OU via subscriptions existantes
+        let profileId: string | null = null
+        const { data: profileByCustomer } = await supabase
           .from("profiles")
           .select("id")
           .eq("stripe_customer_id", sub.customer as string)
           .single()
+        
+        if (profileByCustomer) {
+          profileId = profileByCustomer.id
+        } else {
+          // Fallback : chercher via subscriptions
+          const { data: existingSub } = await supabase
+            .from("subscriptions")
+            .select("user_id")
+            .eq("stripe_subscription_id", sub.id)
+            .single()
+          if (existingSub) profileId = existingSub.user_id
+        }
 
-        if (!profile) break
+        if (!profileId) {
+          console.error("[Webhook] Profile non trouvé pour customer:", sub.customer)
+          break
+        }
+
+        const profile = { id: profileId }
+
+        // Mettre à jour profiles
+        const newPlan = PLAN_FROM_PRICE[PLAN_FROM_PRICE[sub.items.data[0]?.price.id ?? ""] ?? ""] ?? "free"
+        await supabase.from("profiles").update({
+          plan: event.type === "customer.subscription.deleted" ? "free" : (PLAN_FROM_PRICE[sub.items.data[0]?.price.id ?? ""] ?? "free"),
+          subscription_status: sub.status,
+          plan_expires_at: new Date((sub as any).current_period_end * 1000).toISOString(),
+        }).eq("id", profileId)
 
         await supabase.from("subscriptions").upsert({
           user_id: profile.id,
