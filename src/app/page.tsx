@@ -86,25 +86,25 @@ const PLANS = [
   {
     name: 'Gratuit', price: 0, period: 'pour toujours', color: '#64748b', border: '#e2e8f0', bg: '#f8fafc',
     cta: 'Commencer gratuitement', ctaBg: '#f1f5f9', ctaColor: '#475569',
-    features: ['1 projet actif', 'WBS simplifié', 'RACI basique', 'Export PDF (1)', 'IA Haiku (5 req.)'],
+    features: ['1 projet actif', 'WBS simplifié', 'RACI basique', 'Export PDF (1)', 'IA Haiku (10 générations)'],
     tag: null,
   },
   {
-    name: 'Starter', price: 9, period: '/mois', color: '#36B37E', border: '#bbf7d0', bg: '#f0fdf4',
+    name: 'Starter', price: 19, period: '/mois', color: '#36B37E', border: '#bbf7d0', bg: '#f0fdf4',
     cta: 'Essai 7j gratuit →', ctaBg: '#36B37E', ctaColor: '#fff',
-    features: ['3 projets', 'WBS + RACI + Gantt', 'Export PDF', 'IA Haiku (100 req.)', 'Support email'],
+    features: ['3 projets en parallèle', 'WBS + RACI + Gantt', 'Export PDF', 'IA Haiku (50 générations/mois)', 'Support email'],
     tag: null,
   },
   {
-    name: 'Pro', price: 17, period: '/mois', color: '#7B5EFF', border: '#7B5EFF', bg: '#faf5ff',
+    name: 'Pro', price: 39, period: '/mois', color: '#7B5EFF', border: '#7B5EFF', bg: '#faf5ff',
     cta: 'Essai 7j gratuit →', ctaBg: 'linear-gradient(135deg,#7B5EFF,#3b82f6)', ctaColor: '#fff',
-    features: ['10 projets', 'Tous les outils PMO', 'Export Excel + PDF + Word', 'IA Sonnet (200 req.)', 'EVM, PERT, Courbes S', 'Templates sectoriels'],
+    features: ['10 projets en parallèle', 'Tous les outils PMO', 'Export Excel + PDF + Word', 'IA Sonnet (150 générations/mois)', 'EVM, PERT, Courbes S', 'Templates sectoriels'],
     tag: '⭐ Le plus populaire',
   },
   {
-    name: 'Premium', price: 23, period: '/mois', color: '#FF8C00', border: '#fed7aa', bg: '#fff7ed',
+    name: 'Premium', price: 69, period: '/mois', color: '#FF8C00', border: '#fed7aa', bg: '#fff7ed',
     cta: 'Essai 7j gratuit →', ctaBg: 'linear-gradient(135deg,#FF8C00,#f59e0b)', ctaColor: '#fff',
-    features: ['20 projets + archive', 'Tout ce qui est en Pro', 'IA Sonnet (300 req.)', 'Simulateur PMP® 225Q', 'Export PowerPoint', 'Historique illimité'],
+    features: ['25 projets + historique', 'Tout ce qui est en Pro', 'IA Sonnet (300 générations/mois)', 'Simulateur PMP® 225Q', 'Export PowerPoint', 'Archive projets'],
     tag: '👑 Pour les PMO',
   },
 ]
@@ -618,6 +618,32 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
+
+          {/* Note quota IA */}
+          <div style={{ maxWidth: 1100, margin: '16px auto 0', background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 12, padding: '14px 20px', fontSize: 13, color: '#475569', lineHeight: 1.7 }}>
+            💡 <strong>Comment fonctionne le quota IA ?</strong> Une génération = créer un outil PMO (WBS, Gantt, RAID, EVM...) depuis zéro avec l&apos;IA. Une fois créé, votre outil est <strong>sauvegardé et modifiable à tout moment</strong> sans consommer de quota. Le quota ne s&apos;applique qu&apos;aux nouvelles créations.
+          </div>
+
+          {/* FAQ pricing */}
+          <div style={{ maxWidth: 1100, margin: '16px auto 0', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '20px 24px' }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', margin: '0 0 16px' }}>❓ Questions fréquentes</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {[
+                ['L'essai est-il gratuit ?', 'Oui, 7 jours sans carte bancaire. Annulation libre avant la fin.'],
+                ['Puis-je annuler à tout moment ?', 'Oui, sans pénalités. Votre accès reste actif jusqu'à la fin de la période.'],
+                ['La TVA est-elle incluse ?', 'Prix HT. TVA appliquée selon votre pays au moment du paiement.'],
+                ['Puis-je changer de plan ?', 'Oui, upgrade ou downgrade à tout moment, au prorata.'],
+                ['Qu'est-ce qu'une génération IA ?', 'Créer un outil PMO depuis zéro avec l'IA. La modification d'un outil existant ne consomme pas de quota.'],
+                ['Mes données sont-elles sécurisées ?', 'Oui, hébergées sur Supabase (EU) avec chiffrement complet.'],
+              ].map(([q, a]) => (
+                <div key={q} style={{ padding: '12px 16px', background: '#f8fafc', borderRadius: 10, border: '1px solid #f1f5f9' }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', margin: '0 0 4px' }}>{q}</p>
+                  <p style={{ fontSize: 12, color: '#64748b', margin: 0, lineHeight: 1.6 }}>{a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
       </section>
 
       {/* ── TÉMOIGNAGES ── */}
