@@ -6,7 +6,7 @@ import { upgradeProEmail } from "@/lib/email/templates"
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const body = await req.json() as { userId: string; email: string; name?: string; plan: "pro" | "team"; amount: number; invoiceUrl?: string }
+    const body = await req.json() as { userId: string; email: string; name?: string; plan: "starter" | "pro" | "premium"; amount: number; invoiceUrl?: string }
 
     const template = upgradeProEmail({ name: body.name || "Utilisateur", plan: body.plan, amount: body.amount, invoiceUrl: body.invoiceUrl })
     const result   = await sendEmail({ to: body.email, subject: template.subject, html: template.html, tags: [{ name: "type", value: "upgrade_pro" }] })
