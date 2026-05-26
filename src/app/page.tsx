@@ -457,7 +457,7 @@ export default function LandingPage() {
             </div>
             <div style={{ fontSize: 10, color: '#475569', marginBottom: 8 }}>{'>'} Vous :</div>
             <div style={{ fontSize: 11, color: '#64748b', marginBottom: 12, fontStyle: 'italic' }}>
-              "Génère un WBS PMBOK® 7 pour migration Azure, 3 phases, 12 livrables"
+              "Génère un WBS & Dictionnaire WBS pour migration Azure, 3 phases, 12 livrables"
             </div>
             <div style={{ fontSize: 10, color: '#7B5EFF', marginBottom: 6 }}>{'>'} Claude :</div>
             <div style={{ fontSize: 10, color: '#c4b5fd', lineHeight: 1.7 }}>
@@ -479,7 +479,7 @@ export default function LandingPage() {
       <section style={{ padding: '72px 5%', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 10 }}>PMP® en Action — YouTube</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 10 }}>PMO AI Studio — YouTube</div>
             <h2 style={{ fontSize: 'clamp(22px,4vw,36px)', fontWeight: 900, letterSpacing: '-0.5px', margin: '0 0 12px' }}>
               Apprenez le management de projet en regardant
             </h2>
@@ -495,7 +495,7 @@ export default function LandingPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, width: '70%', marginBottom: 32, opacity: 0.4 }}>
                   {[
                     { color: '#1e40af', label: 'EVM expliqué' },
-                    { color: '#7B5EFF', label: 'WBS PMBOK® 7' },
+                    { color: '#7B5EFF', label: 'WBS & Dictionnaire WBS' },
                     { color: '#059669', label: 'Gantt avancé' },
                   ].map(t => (
                     <div key={t.label} style={{ aspectRatio: '16/9', background: t.color, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>
@@ -504,13 +504,13 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <div style={{ width: 68, height: 68, borderRadius: '50%', background: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, marginBottom: 16, boxShadow: '0 0 0 8px rgba(239,68,68,0.2)' }}>▶</div>
-                <p style={{ color: '#fff', fontSize: 20, fontWeight: 800, margin: '0 0 8px', letterSpacing: '-0.3px' }}>PMP® en Action</p>
+                <p style={{ color: '#fff', fontSize: 20, fontWeight: 800, margin: '0 0 8px', letterSpacing: '-0.3px' }}>PMO AI Studio</p>
                 <p style={{ color: '#94a3b8', fontSize: 14, margin: '0 0 24px' }}>Formation · Certifications · Management de projet</p>
                 <a href="https://www.youtube.com/@PMOAIStudio" target="_blank" rel="noopener noreferrer"
                   style={{ padding: '12px 28px', background: '#ef4444', color: '#fff', borderRadius: 10, fontSize: 14, fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                   🎬 S'abonner à la chaîne →
                 </a>
-                <p style={{ color: '#475569', fontSize: 11, marginTop: 12 }}>Prochaines vidéos : EVM · WBS PMBOK® 7 · Gantt avec chemin critique</p>
+                <p style={{ color: '#475569', fontSize: 11, marginTop: 12 }}>Prochaines vidéos : EVM · WBS & Dictionnaire WBS · Gantt avec chemin critique</p>
               </div>
             </div>
           </div>
@@ -518,7 +518,7 @@ export default function LandingPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginTop: 20 }}>
             {[
               { icon: '💰', title: 'Maîtriser l\'EVM', sub: 'CPI, SPI, EAC expliqués', color: '#3b82f6', bg: '#eff6ff' },
-              { icon: '🗂️', title: 'WBS PMBOK® 7', sub: 'Décomposer n\'importe quel projet', color: '#7B5EFF', bg: '#faf5ff' },
+              { icon: '🗂️', title: 'WBS & Dictionnaire WBS', sub: 'Décomposer n\'importe quel projet', color: '#7B5EFF', bg: '#faf5ff' },
               { icon: '⚠️', title: 'Gestion des risques', sub: 'RAID register en pratique', color: '#ef4444', bg: '#fef2f2' },
               { icon: '🎓', title: 'Préparer la PMP®®', sub: '225 questions & stratégies', color: '#059669', bg: '#f0fdf4' },
             ].map(v => (
