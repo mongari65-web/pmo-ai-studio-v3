@@ -700,7 +700,7 @@ export default function LandingPage() {
             <Link href="/demo" style={{ color: '#64748b', textDecoration: 'none' }}>Démo</Link>
             <Link href="/auth/connexion" style={{ color: '#64748b', textDecoration: 'none' }}>Connexion</Link>
             <a href="https://www.youtube.com/@PMOAIStudio" target="_blank" rel="noopener noreferrer" style={{ color: '#64748b', textDecoration: 'none' }}>YouTube</a>
-            <a href="mailto:support@pmoai.studio" style={{ color: '#64748b', textDecoration: 'none' }}>Contact</a>
+            <a href="mailto:contact@pmoai.studio" style={{ color: '#64748b', textDecoration: 'none' }}>Contact</a>
           </div>
           <p style={{ fontSize: 12, color: '#334155', margin: 0 }}>© {new Date().getFullYear()} PMO AI Studio · pmoai.studio</p>
         </div>
