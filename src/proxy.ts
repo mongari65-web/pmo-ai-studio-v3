@@ -15,14 +15,7 @@ export async function proxy(request: NextRequest) {
   // Maintenance : MAINTENANCE_MODE=true dans Vercel env vars
   const maintenanceActive = process.env.MAINTENANCE_MODE === 'true'
   if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute) {
-    // Vérifier via cookie Supabase si admin
-    const sessionCookie = request.cookies.getAll()
-      .find(c => c.name.includes('auth-token') || c.name.includes('sb-'))
-    if (!sessionCookie) {
-      return NextResponse.redirect(new URL('/maintenance', request.url))
-    }
-    // Laisser passer — la vérification admin complète se fait après
-    // Les non-admins connectés verront la maintenance via le client supabase plus bas
+    return NextResponse.redirect(new URL('/maintenance', request.url))
   }
   // ─────────────────────────────────────────────────────────
 
