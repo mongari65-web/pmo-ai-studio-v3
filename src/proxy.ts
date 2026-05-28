@@ -16,7 +16,8 @@ export async function proxy(request: NextRequest) {
   const maintenanceActive = process.env.MAINTENANCE_MODE === 'true'
   const isAuthRoute = pathname.startsWith('/auth')
   if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute && !isAuthRoute) {
-    return NextResponse.redirect(new URL('/maintenance', request.url))
+    // Temporairement stocker pour check admin plus bas
+    // La redirection maintenance se fait après vérification admin
   }
   // ─────────────────────────────────────────────────────────
 
@@ -41,6 +42,22 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
+
+  // ── Check maintenance avec bypass admin ─────────────────────
+  if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute && !isAuthRoute) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/maintenance', request.url))
+    }
+    const { data: adminProfile } = await supabase
+      .from("profiles")
+      .select("is_admin, plan")
+      .eq("id", user.id)
+      .single()
+    const isAdminUser = adminProfile?.is_admin === true || ['premium','pro'].includes(adminProfile?.plan ?? '')
+    if (!isAdminUser) {
+      return NextResponse.redirect(new URL('/maintenance', request.url))
+    }
+  }
 
   // ── Redirect unauthenticated users ──────────────────────────
   const publicPaths = ["/", "/auth/login", "/auth/register", "/auth/callback"]
