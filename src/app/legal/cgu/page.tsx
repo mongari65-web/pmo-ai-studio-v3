@@ -23,5 +23,6 @@ export default function CGUPage() {
         </div>
       ))}
     </div>
+    </PublicLayout>
   )
 }

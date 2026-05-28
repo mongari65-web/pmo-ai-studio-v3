@@ -38,5 +38,6 @@ export default function Confidentialite() {
       </section>
       <a href="/" style={{ color:"#7B5EFF", fontSize:13 }}>retour accueil</a>
     </div>
+    </PublicLayout>
   )
 }
