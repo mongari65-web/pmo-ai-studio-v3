@@ -1,5 +1,7 @@
+import PublicLayout from '@/components/public/PublicLayout'
 export default function MentionsLegales() {
   return (
+    <PublicLayout>
     <div style={{ maxWidth:800, margin:"0 auto", padding:"60px 24px", fontFamily:"DM Sans,sans-serif", color:"#F0F2FF", background:"#0A0B14", minHeight:"100vh" }}>
       <h1 style={{ fontSize:28, fontWeight:800, marginBottom:8 }}>Mentions légales</h1>
       <p style={{ color:"#A0A5C0", marginBottom:40 }}>Dernière mise à jour : mai 2026</p>

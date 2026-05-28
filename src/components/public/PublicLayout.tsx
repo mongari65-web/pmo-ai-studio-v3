@@ -64,7 +64,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <Link href="/legal/cgu" style={{ fontSize: 13, color: '#64748b', textDecoration: 'none' }}>CGU</Link>
                   <Link href="/legal/confidentialite" style={{ fontSize: 13, color: '#64748b', textDecoration: 'none' }}>Confidentialité</Link>
-                  <Link href="/legal/mentions" style={{ fontSize: 13, color: '#64748b', textDecoration: 'none' }}>Mentions légales</Link>
+                  <Link href="/legal/mentions-legales" style={{ fontSize: 13, color: '#64748b', textDecoration: 'none' }}>Mentions légales</Link>
                 </div>
               </div>
             </div>
