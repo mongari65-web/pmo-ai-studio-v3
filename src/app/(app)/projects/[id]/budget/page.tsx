@@ -264,17 +264,28 @@ export default function BudgetEVMPage() {
         exportRows={evm.tasks.map(t => {
           const pv = t.pv[cp]??0; const ev = t.ev[cp]??0; const ac = t.ac[cp]??0
           const cv = ev - ac; const sv = ev - pv
-          const cpi = ac > 0 ? ev/ac : 0; const spi = pv > 0 ? ev/pv : 0
-          const eac = cpi > 0 ? t.bac/cpi : t.bac
-          return {
-            WBS: t.wbs, Tâche: t.name, BAC: t.bac,
-            PV: pv, EV: ev, AC: ac,
+          const cpi =           const cpi =           const cpi =           const cpi =           const?           const cpi            const cpi =           const cpi =           const cpi = ,
+          cons: pv, EV: ev, AC: ac,
             CV: cv, SV: sv,
             CPI: Math.round(cpi*100)/100,
             SPI: Math.round(spi*100)/100,
             EAC: Math.round(eac)
           }
         })}
+        onExcelOverride={async () => {
+          const res = await fetch("/api/export/evm-excel", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tasks: evm.tasks, currentPeriod: cp, projectName: project?.name })
+          })
+          if (res.ok) {
+            const blob = await res.blob()
+            const a = document.createElement("a")
+            a.href = URL.createObjectURL(blob)
+            a.download = `BudgetEVM_${project?.name ?? "Projet"}.xlsx`
+            a.click()
+          }
+        }}
         exportFilename={`BudgetEVM_${project?.name??""}`}
         projectName={project?.name}
         gammaType="codir" gammaData={data}>
