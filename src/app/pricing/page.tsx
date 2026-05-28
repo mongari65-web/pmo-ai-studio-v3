@@ -1,6 +1,5 @@
 "use client"
 import PublicLayout from "@/components/public/PublicLayout"
-import PublicLayout from "@/components/public/PublicLayout"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
