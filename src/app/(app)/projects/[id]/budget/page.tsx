@@ -261,7 +261,20 @@ export default function BudgetEVMPage() {
         history={history}
         onLoadHistory={(e) => { loadHistory(e); if(e.data?.tasks) setEvm(e.data) }}
         onGenerate={generate} generateLabel="Générer depuis WBS" generating={loading}
-        exportRows={evm.tasks.map(t => ({ WBS:t.wbs, Tâche:t.name, BAC:t.bac, PV_courant:t.pv[cp]??0, EV_courant:t.ev[cp]??0, AC_courant:t.ac[cp]??0 }))}
+        exportRows={evm.tasks.map(t => {
+          const pv = t.pv[cp]??0; const ev = t.ev[cp]??0; const ac = t.ac[cp]??0
+          const cv = ev - ac; const sv = ev - pv
+          const cpi = ac > 0 ? ev/ac : 0; const spi = pv > 0 ? ev/pv : 0
+          const eac = cpi > 0 ? t.bac/cpi : t.bac
+          return {
+            WBS: t.wbs, Tâche: t.name, BAC: t.bac,
+            PV: pv, EV: ev, AC: ac,
+            CV: cv, SV: sv,
+            CPI: Math.round(cpi*100)/100,
+            SPI: Math.round(spi*100)/100,
+            EAC: Math.round(eac)
+          }
+        })}
         exportFilename={`BudgetEVM_${project?.name??""}`}
         projectName={project?.name}
         gammaType="codir" gammaData={data}>
