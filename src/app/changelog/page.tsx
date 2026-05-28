@@ -1,3 +1,4 @@
+import PublicLayout from '@/components/public/PublicLayout'
 export default function ChangelogPage() {
   const releases = [
     {
@@ -47,6 +48,7 @@ export default function ChangelogPage() {
   ]
 
   return (
+    <PublicLayout>
     <div style={{ maxWidth:800, margin:"0 auto", padding:"40px 24px", fontFamily:"Arial, sans-serif", color:"#f1f5f9", background:"#0f172a", minHeight:"100vh" }}>
       <a href="/" style={{ fontSize:12, color:"#7B5EFF", textDecoration:"none" }}>← Retour</a>
       <h1 style={{ fontSize:28, fontWeight:800, margin:"20px 0 4px" }}>Changelog</h1>
