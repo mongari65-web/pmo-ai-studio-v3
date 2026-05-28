@@ -262,15 +262,13 @@ export default function BudgetEVMPage() {
         onLoadHistory={(e) => { loadHistory(e); if(e.data?.tasks) setEvm(e.data) }}
         onGenerate={generate} generateLabel="Générer depuis WBS" generating={loading}
         exportRows={evm.tasks.map(t => {
-          const pv = t.pv[cp]??0; const ev = t.ev[cp]??0; const ac = t.ac[cp]??0
-          const cv = ev - ac; const sv = ev - pv
-          const cpi =           const cpi =           const cpi =           const cpi =           const?           const cpi            const cpi =           const cpi =           const cpi = ,
-          cons: pv, EV: ev, AC: ac,
-            CV: cv, SV: sv,
-            CPI: Math.round(cpi*100)/100,
-            SPI: Math.round(spi*100)/100,
-            EAC: Math.round(eac)
-          }
+          const pv = t.pv[cp]??0, ev = t.ev[cp]??0, ac = t.ac[cp]??0
+          const cv = ev - ac, sv = ev - pv
+          const cpi = ac > 0 ? ev/ac : 0, spi = pv > 0 ? ev/pv : 0
+          const eac = cpi > 0 ? t.bac/cpi : t.bac
+          return { WBS: t.wbs, Tâche: t.name, BAC: t.bac, PV: pv, EV: ev, AC: ac,
+            CV: cv, SV: sv, CPI: Math.round(cpi*100)/100,
+            SPI: Math.round(spi*100)/100, EAC: Math.round(eac) }
         })}
         onExcelOverride={async () => {
           const res = await fetch("/api/export/evm-excel", {
