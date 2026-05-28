@@ -49,7 +49,7 @@ export default function LoginPage() {
       <div style={{ textAlign:"center", marginBottom:36, position:"relative" }}>
         <div style={{ margin:"0 auto 14px", display:"flex", justifyContent:"center" }}><LogoIcon size={64}/></div>
         <h1 style={{ fontSize:22, fontWeight:800, color:"#F0F2FF", margin:"0 0 6px" }}>PMO AI Studio</h1>
-        <p style={{ fontSize:13, color:"#5A5F80", margin:0 }}>Le copilote IA des Chefs de Projet</p>
+        <p style={{ fontSize:13, color:"#5A5F80", margin:0 }}>L'outil PMO qui transforme vos projets en succès — de débutant à expert</p>
       </div>
 
       {/* Card */}
@@ -69,8 +69,13 @@ export default function LoginPage() {
           </div>
 
           <div style={{ marginBottom:20 }}>
-            <label style={{ display:"block", fontSize:12, fontWeight:600, color:"#9499C0",
-              marginBottom:7, textTransform:"uppercase", letterSpacing:"0.05em" }}>Mot de passe</label>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:7 }}>
+              <label style={{ display:"block", fontSize:12, fontWeight:600, color:"#9499C0",
+                textTransform:"uppercase", letterSpacing:"0.05em" }}>Mot de passe</label>
+              <Link href="/auth/forgot-password" style={{ fontSize:12, color:"#9B84FF", textDecoration:"none" }}>
+                Mot de passe oublié ?
+              </Link>
+            </div>
             <input type="password" value={password} onChange={e=>setPassword(e.target.value)}
               required placeholder="••••••••" style={fieldStyle}
               onFocus={e=>e.target.style.borderColor="#7B5EFF"}
