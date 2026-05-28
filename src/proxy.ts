@@ -15,7 +15,21 @@ export async function proxy(request: NextRequest) {
   // Maintenance : MAINTENANCE_MODE=true dans Vercel env vars
   const maintenanceActive = process.env.MAINTENANCE_MODE === 'true'
   if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute) {
-    return NextResponse.redirect(new URL('/maintenance', request.url))
+    // Vérifier si l'utilisateur est admin — si oui, laisser passer
+    const { data: { user: maintenanceUser } } = await supabase.auth.getUser()
+    if (maintenanceUser) {
+      const { data: adminCheck } = await supabase
+        .from("profiles")
+        .select("is_admin, plan")
+        .eq("id", maintenanceUser.id)
+        .single()
+      const isAdmin = adminCheck?.is_admin === true || ['premium','pro'].includes(adminCheck?.plan ?? '')
+      if (!isAdmin) {
+        return NextResponse.redirect(new URL('/maintenance', request.url))
+      }
+    } else {
+      return NextResponse.redirect(new URL('/maintenance', request.url))
+    }
   }
   // ─────────────────────────────────────────────────────────
 
