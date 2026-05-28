@@ -14,7 +14,8 @@ export async function proxy(request: NextRequest) {
 
   // Maintenance : MAINTENANCE_MODE=true dans Vercel env vars
   const maintenanceActive = process.env.MAINTENANCE_MODE === 'true'
-  if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute) {
+  const isAuthRoute = pathname.startsWith('/auth')
+  if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute && !isAuthRoute) {
     return NextResponse.redirect(new URL('/maintenance', request.url))
   }
   // ─────────────────────────────────────────────────────────
