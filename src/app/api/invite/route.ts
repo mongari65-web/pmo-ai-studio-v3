@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { projectSharedEmail } from "@/lib/email/templates"
+import { sendEmail } from "@/lib/email/send"
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     const { Resend } = await import("resend")
     const resend = new Resend(resendKey)
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://pmo-ai-studio-v3.vercel.app"
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://pmoai.studio"
     const inviteLink = appUrl + "/auth/login?redirect=/projects/" + projectId
     const senderName = user.user_metadata?.full_name ?? user.email ?? "Un chef de projet"
     const roleLabel = role === "editor" ? "Éditeur" : "Lecteur"
