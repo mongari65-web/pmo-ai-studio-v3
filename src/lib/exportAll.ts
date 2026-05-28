@@ -2,7 +2,7 @@
 // lib/exportAll.ts — Exports universels : Excel, PDF, Word, PPTX, Notion, Gmail, Drive
 
 // ── EXCEL ─────────────────────────────────────────────────────────
-export async function exportExcel(rows, filename, sheetName = "Export") {
+export async function exportExcel(rows: Record<string, any>[], filename: string, sheetName = "Export") {
   if (!rows.length) return
   try {
     const XLSX = await import("xlsx")
