@@ -1,4 +1,5 @@
 "use client"
+import PublicLayout from "@/components/public/PublicLayout"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
@@ -157,7 +158,7 @@ export default function PricingPage() {
   }).filter(Boolean) as any[]
 
   return (
-    <main style={{ minHeight: "100vh", background: "#0f172a" }}>
+    <PublicLayout>
       <div style={{ padding: "28px", background: "var(--bg)", minHeight: "100%" }}>
 
         {/* Header */}
@@ -319,6 +320,6 @@ export default function PricingPage() {
         </div>
 
       </div>
-    </main>
+    </PublicLayout>
   )
 }
