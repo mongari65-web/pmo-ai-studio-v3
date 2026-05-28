@@ -54,10 +54,11 @@ function baseLayout(content: string, preheader = '') {
 <body style="margin:0;padding:20px;background:#f3f4f6;">
   <div style="${baseStyle}">
     <div style="${headerStyle}">
-      <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;letter-spacing:-0.5px;">
-        📊 ${EMAIL_CONFIG.appName}
-      </h1>
-      <p style="color:#bfdbfe;margin:6px 0 0;font-size:13px;">La plateforme PMO intelligente</p>
+      <div style="display:inline-flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;">
+        <img src="https://pmoai.studio/logo-pmo.svg" alt="PMO AI Studio" width="40" height="40" style="border-radius:10px;" />
+        <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:800;letter-spacing:-0.5px;">${EMAIL_CONFIG.appName}</h1>
+      </div>
+      <p style="color:#bfdbfe;margin:4px 0 0;font-size:12px;">L'outil PMO qui transforme vos projets en succès — de débutant à expert</p>
     </div>
     <div style="${bodyStyle}">${content}</div>
     <div style="${footerStyle}">
@@ -77,13 +78,19 @@ export function welcomeEmail(params: { name: string; email: string }) {
     <h2 style="color:#1e40af;margin:0 0 8px;">Bienvenue ${params.name} ! 🎉</h2>
     <p style="margin:0 0 16px;color:#6b7280;font-size:14px;">Votre compte a été créé avec succès</p>
     <p>Vous avez maintenant accès à <strong>PMO AI Studio</strong> — votre plateforme de gestion de projets alimentée par l'IA.</p>
-    <p>Avec votre compte <strong>Free</strong>, vous pouvez :</p>
+    <p>Avec votre compte <strong>Gratuit</strong>, vous pouvez :</p>
     <ul style="color:#374151;padding-left:20px;">
-      <li>Créer jusqu'à <strong>3 projets</strong></li>
-      <li>Utiliser les outils PMO (WBS, Gantt, RAID, PERT...)</li>
-      <li>Générer <strong>20 analyses IA</strong> par mois</li>
-      <li>Accéder au simulateur de certifications (50 questions)</li>
+      <li>Créer <strong>1 projet actif</strong></li>
+      <li>WBS simplifié, RACI basique</li>
+      <li>Export PDF (1 seul)</li>
+      <li><strong>10 générations IA</strong> (Claude Haiku)</li>
     </ul>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;margin:16px 0;">
+      <p style="margin:0;font-size:13px;color:#1d4ed8;">
+        💡 <strong>Passez au plan Starter (19€/mois)</strong> pour 3 projets et 50 générations IA, 
+        ou au plan Pro (39€/mois) pour accéder à tous les outils PMO.
+      </p>
+    </div>
     <div style="text-align:center;margin:24px 0;">
       <a href="${EMAIL_CONFIG.appUrl}/dashboard" style="${btnStyle}">
         Accéder à mon tableau de bord →
