@@ -466,6 +466,5 @@ export default function DemoPage() {
       </div>
     </div>
   </PublicLayout>
-  </PublicLayout>
   )
 }
