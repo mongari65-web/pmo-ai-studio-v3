@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import PublicLayout from '@/components/public/PublicLayout'
+import PublicLayout from '@/components/public/PublicLayout'
 
 const GANTT = [
   { task:'Charte & gouvernance',       start:1,  dur:2,  pct:100, color:'#7B5EFF', cp:false },
@@ -465,6 +466,7 @@ export default function DemoPage() {
 
       </div>
     </div>
+  </PublicLayout>
   </PublicLayout>
   )
 }
