@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
           projectId: 'test-123', description: 'Migration infrastructure',
         }); break
       case 'upgrade_pro':
-        template = upgradeProEmail({ name: 'Hafid (Test)', plan: 'pro', amount: 29 }); break
+        template = upgradeProEmail({ name: 'Hafid (Test)', plan: 'pro', amount: 39 }); break
       case 'password_reset':
         template = passwordResetEmail({
           name: 'Hafid (Test)',
