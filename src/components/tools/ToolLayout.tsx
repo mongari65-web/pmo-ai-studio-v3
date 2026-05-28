@@ -22,6 +22,7 @@ interface ToolLayoutProps {
   children: React.ReactNode
   projectName?: string
   exportRows?: Record<string, any>[]
+  onExcelOverride?: () => Promise<void>
   exportFilename?: string
   contentId?: string
   svgRef?: React.RefObject<SVGElement>
@@ -37,7 +38,7 @@ export default function ToolLayout({
   onGenerate, generateLabel = "Générer IA", generating,
   onAdd, addLabel = "+ Ajouter",
   children, projectName,
-  exportRows, exportFilename = "export", contentId = "tool-content",
+  exportRows, exportFilename = "export", contentId = "tool-content", onExcelOverride,
   svgRef, jsonData, pptxSlides, projectId,
   gammaType, gammaData
 }: ToolLayoutProps) {
@@ -46,6 +47,7 @@ export default function ToolLayout({
 
   const exportConfig = exportRows ? {
     rows: exportRows,
+    onExcelOverride,
     filename: exportFilename,
     contentId,
     svgRef,

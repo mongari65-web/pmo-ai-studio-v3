@@ -18,6 +18,7 @@ interface ExportConfig {
   notionContent?: string
   gmailBody?: string
   pptxSlides?: Array<{ title: string; content: string[] }>
+  onExcelOverride?: () => Promise<void>
 }
 
 interface ExportMenuProps {
@@ -49,8 +50,12 @@ export default function ExportMenu({ config }: ExportMenuProps) {
         {
           key: "excel", icon: FileSpreadsheet, label: "Excel (.xls)", color: "#22c55e",
           fn: async () => {
-            const { exportExcel } = await import("@/lib/exportAll")
-            if (config.rows?.length) exportExcel(config.rows, config.filename)
+            if (config.onExcelOverride) {
+              await config.onExcelOverride()
+            } else {
+              const { exportExcel } = await import("@/lib/exportAll")
+              if (config.rows?.length) exportExcel(config.rows, config.filename)
+            }
           }
         },
         {
