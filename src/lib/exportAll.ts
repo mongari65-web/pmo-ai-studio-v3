@@ -2,22 +2,21 @@
 // lib/exportAll.ts — Exports universels : Excel, PDF, Word, PPTX, Notion, Gmail, Drive
 
 // ── EXCEL ─────────────────────────────────────────────────────────
-export function exportExcel(rows: Record<string, any>[], filename: string, sheetName = "Export") {
+export async function exportExcel(rows, filename, sheetName = "Export") {
   if (!rows.length) return
-  const headers = Object.keys(rows[0])
-  const csvRows = [
-    headers.join("\t"),
-    ...rows.map(r => headers.map(h => {
-      const v = r[h] ?? ""
-      return String(v).includes("\t") ? `"${v}"` : String(v)
-    }).join("\t"))
-  ]
-  const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "application/vnd.ms-excel;charset=utf-8" })
-  const a = document.createElement("a")
-  a.href = URL.createObjectURL(blob)
-  a.download = `${filename}.xls`
-  a.click()
-  URL.revokeObjectURL(a.href)
+  try {
+    const XLSX = await import("xlsx")
+    const ws = XLSX.utils.json_to_sheet(rows)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, sheetName)
+    const colWidths = Object.keys(rows[0]).map(key => ({
+      wch: Math.max(key.length, ...rows.map(r => String(r[key] ?? "").length)) + 2
+    }))
+    ws["!cols"] = colWidths
+    XLSX.writeFile(wb, filename + ".xlsx")
+  } catch (e) {
+    console.error("Excel export:", e)
+  }
 }
 
 // ── PDF (via impression navigateur) ──────────────────────────────
