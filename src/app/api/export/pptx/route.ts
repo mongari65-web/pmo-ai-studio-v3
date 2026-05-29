@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       s.addText("OBJECTIF", { x: COL1_X + 0.1, y: 1.45, w: COL1_W - 0.2, h: 0.28, fontSize: 8, color: pc, bold: true, charSpacing: 1 })
       s.addText(clean(wp.objective ?? wp.description ?? ""), {
         x: COL1_X + 0.1, y: 1.76, w: COL1_W - 0.1, h: 0.7,
-        fontSize: 9, color: "CBD5E1", wrap: true
+        fontSize: 10, color: "CBD5E1", wrap: true
       })
 
       // Activités
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
         s.addShape(pptx.ShapeType.ellipse, { x: COL1_X + 0.1, y: ay + 0.08, w: 0.14, h: 0.14, fill: { color: pc }, line: { color: pc } })
         s.addText((i+1) + ". " + clean(a), {
           x: COL1_X + 0.32, y: ay, w: COL1_W - 0.42, h: 0.35,
-          fontSize: 9, color: "E2E8F0", wrap: true
+          fontSize: 10, color: "E2E8F0", wrap: true
         })
       })
       if (activities.length > 5) {
@@ -151,7 +151,7 @@ export async function POST(req: NextRequest) {
       s.addText("LIVRABLES", { x: COL1_X + 0.1, y: livrY, w: COL1_W - 0.2, h: 0.28, fontSize: 8, color: pc, bold: true, charSpacing: 1 })
       s.addText(clean(wp.deliverables ?? "A definir"), {
         x: COL1_X + 0.1, y: livrY + 0.3, w: COL1_W - 0.1, h: 0.55,
-        fontSize: 8, color: "94A3B8", wrap: true, italic: true
+        fontSize: 10, color: "94A3B8", wrap: true, italic: true
       })
 
       // ── Colonne droite ─────────────────────────────────────────
@@ -166,14 +166,14 @@ export async function POST(req: NextRequest) {
       // Responsable
       s.addShape(pptx.ShapeType.rect, { x: COL2_X, y: 2.45, w: COL2_W, h: 0.7, fill: { color: "111827" }, line: { color: "1E293B", pt: 1 } })
       s.addText("RESPONSABLE", { x: COL2_X + 0.15, y: 2.5, w: COL2_W - 0.3, h: 0.22, fontSize: 7, color: "64748B", bold: true, charSpacing: 1 })
-      s.addText(clean(wp.responsible ?? ""), { x: COL2_X + 0.15, y: 2.7, w: COL2_W - 0.3, h: 0.35, fontSize: 11, color: "F0F2FF", bold: true })
+      s.addText(clean(wp.responsible ?? ""), { x: COL2_X + 0.15, y: 2.7, w: COL2_W - 0.3, h: 0.35, fontSize: 13, color: "F0F2FF", bold: true })
 
       // Lead
       if (wp.lead_profile) {
         s.addShape(pptx.ShapeType.rect, { x: COL2_X, y: 3.25, w: COL2_W, h: 0.75, fill: { color: pc + "15" }, line: { color: pc + "44", pt: 1 } })
         s.addText("LEAD", { x: COL2_X + 0.15, y: 3.3, w: COL2_W - 0.3, h: 0.22, fontSize: 7, color: pc, bold: true, charSpacing: 1 })
-        s.addText(clean(wp.lead_profile), { x: COL2_X + 0.15, y: 3.5, w: COL2_W - 0.3, h: 0.25, fontSize: 10, color: "F0F2FF", bold: true })
-        if (wp.lead_etp) s.addText("ETP : " + clean(wp.lead_etp), { x: COL2_X + 0.15, y: 3.72, w: COL2_W - 0.3, h: 0.2, fontSize: 8, color: "94A3B8" })
+        s.addText(clean(wp.lead_profile), { x: COL2_X + 0.15, y: 3.5, w: COL2_W - 0.3, h: 0.25, fontSize: 12, color: "F0F2FF", bold: true })
+        if (wp.lead_etp) s.addText("ETP : " + clean(wp.lead_etp), { x: COL2_X + 0.15, y: 3.72, w: COL2_W - 0.3, h: 0.2, fontSize: 10, color: "94A3B8" })
       }
 
       // Contributeurs
@@ -187,8 +187,8 @@ export async function POST(req: NextRequest) {
           const crit = c.criticite ?? c.criticality ?? ""
           const cc = CRIT_COLORS[crit] ?? "64748b"
           s.addShape(pptx.ShapeType.rect, { x: COL2_X, y: cy, w: COL2_W, h: 0.35, fill: { color: "111827" }, line: { color: "1E293B", pt: 1 } })
-          s.addText(clean(c.profile ?? c.nom ?? ""), { x: COL2_X + 0.1, y: cy + 0.03, w: COL2_W - 0.5, h: 0.18, fontSize: 8, color: "CBD5E1" })
-          s.addText(clean(c.nom ?? ""), { x: COL2_X + 0.1, y: cy + 0.18, w: COL2_W - 0.7, h: 0.16, fontSize: 7, color: "64748B", italic: true })
+          s.addText(clean(c.profile ?? c.nom ?? ""), { x: COL2_X + 0.1, y: cy + 0.03, w: COL2_W - 0.5, h: 0.18, fontSize: 10, color: "CBD5E1" })
+          s.addText(clean(c.nom ?? ""), { x: COL2_X + 0.1, y: cy + 0.18, w: COL2_W - 0.7, h: 0.16, fontSize: 9, color: "64748B", italic: true })
           if (crit) s.addShape(pptx.ShapeType.rect, { x: COL2_X + COL2_W - 0.6, y: cy + 0.05, w: 0.5, h: 0.22, fill: { color: cc + "33" }, line: { color: cc, pt: 1 } })
           if (crit) s.addText(crit, { x: COL2_X + COL2_W - 0.6, y: cy + 0.05, w: 0.5, h: 0.22, fontSize: 6, color: cc, align: "center", bold: true })
         })
@@ -198,7 +198,7 @@ export async function POST(req: NextRequest) {
       if (wp.acceptance) {
         s.addShape(pptx.ShapeType.rect, { x: COL2_X, y: 5.1, w: COL2_W, h: 0.6, fill: { color: "0F172A" }, line: { color: "334155", pt: 1 } })
         s.addText("CRITERES D'ACCEPTATION", { x: COL2_X + 0.1, y: 5.12, w: COL2_W - 0.2, h: 0.2, fontSize: 6, color: "64748B", bold: true, charSpacing: 1 })
-        s.addText(clean(wp.acceptance), { x: COL2_X + 0.1, y: 5.3, w: COL2_W - 0.2, h: 0.35, fontSize: 7, color: "94A3B8", wrap: true })
+        s.addText(clean(wp.acceptance), { x: COL2_X + 0.1, y: 5.3, w: COL2_W - 0.2, h: 0.35, fontSize: 9, color: "94A3B8", wrap: true })
       }
 
       // ── Footer ─────────────────────────────────────────────────
