@@ -23,6 +23,8 @@ interface ToolLayoutProps {
   projectName?: string
   exportRows?: Record<string, any>[]
   onExcelOverride?: () => Promise<void>
+  projectId?: string
+  toolType?: string
   exportFilename?: string
   contentId?: string
   svgRef?: React.RefObject<SVGElement>
@@ -48,6 +50,8 @@ export default function ToolLayout({
   const exportConfig = exportRows ? {
     rows: exportRows,
     onExcelOverride,
+    projectId,
+    toolType, projectId, toolType,
     filename: exportFilename,
     contentId,
     svgRef,
