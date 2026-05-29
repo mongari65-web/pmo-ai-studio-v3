@@ -184,7 +184,8 @@ export default function GanttPage() {
 
   return (
     <AppLayout>
-      <ToolLayout title="Planning Gantt" icon="📅" subtitle="// PLANNING"
+      <ToolLayout
+        projectId={id} toolType="gantt" title="Planning Gantt" icon="📅" subtitle="// PLANNING"
         history={history}
         onLoadHistory={(e) => { loadHistory(e); if(e.data?.tasks) setTasks(e.data.tasks) }}
         onGenerate={generate} generateLabel="Générer Planning Gantt" generating={loading}

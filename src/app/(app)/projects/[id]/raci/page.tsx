@@ -134,7 +134,8 @@ export default function RACIPage() {
 
   return (
     <AppLayout>
-      <ToolLayout title="RACI Matrix Pro" icon="👥" subtitle="// RESPONSABILITÉS"
+      <ToolLayout
+        projectId={id} toolType="raci" title="RACI Matrix Pro" icon="👥" subtitle="// RESPONSABILITÉS"
         history={history} onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.rows) { setRows(e.data.rows); if(e.data.actors) setActors(e.data.actors) } }}
         onGenerate={generate} generateLabel="Générer RACI" generating={loading}
         exportRows={toRows()} exportFilename={"RACI_"+(project?.name||"")} projectName={project?.name}

@@ -363,7 +363,8 @@ export default function WorkPackagesPage() {
 
   return (
     <AppLayout>
-      <ToolLayout title="Work Packages" icon="📦" subtitle="// WORK PACKAGES"
+      <ToolLayout
+        projectId={id} toolType="workpackages" title="Work Packages" icon="📦" subtitle="// WORK PACKAGES"
         history={history} onLoadHistory={(e)=>{loadHistory(e);if(e.data?.workpackages)setWps(e.data.workpackages)}}
         onGenerate={generate} generateLabel="Générer Work Packages" generating={loading}
         exportRows={toRows()} exportFilename={"WP_"+(project?.name??"")} projectName={project?.name}
