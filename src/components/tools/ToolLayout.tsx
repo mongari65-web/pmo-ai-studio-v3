@@ -46,7 +46,7 @@ export default function ToolLayout({
   const [histOpen, setHistOpen] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string|null>(null)
 
-  const exportConfig = exportRows ? {
+  const exportConfig = (exportRows || projectId) ? {
     rows: exportRows,
     onExcelOverride,
     projectId,
