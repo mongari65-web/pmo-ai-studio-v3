@@ -248,6 +248,26 @@ export async function POST(req: NextRequest) {
       })
     })
 
+    // Instructions graphique Courbe S
+    wsS.addRow([])
+    wsS.addRow([])
+    const instrRow = wsS.addRow(["📊 COMMENT CRÉER LE GRAPHIQUE COURBE S :"])
+    instrRow.getCell(1).font = { bold: true, color: { argb: "FF" + BLUE_DARK }, size: 12 }
+    const steps = [
+      "1. Sélectionnez les colonnes : Mois (A), PV Cumulé (C), EV Cumulé (E), AC Cumulé (G)",
+      "2. Menu Insertion → Graphique → Courbe",
+      "3. Titre : 'Courbe S EVM — " + projectName + "'",
+      "4. Axe X : Mois | Axe Y : Valeur (€)",
+      "5. Couleurs suggérées : PV=Bleu, EV=Vert, AC=Orange",
+      "6. Ajoutez une ligne verticale sur le mois " + MONTHS[cp] + " (période courante)",
+    ]
+    steps.forEach(s => {
+      const r = wsS.addRow([s])
+      r.getCell(1).font = { color: { argb: "FF374151" } }
+      r.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFF7ED" } }
+      r.height = 18
+    })
+
     // ════════════════════════════════════════════════════
     // ONGLET — Paramètres
     // ════════════════════════════════════════════════════
