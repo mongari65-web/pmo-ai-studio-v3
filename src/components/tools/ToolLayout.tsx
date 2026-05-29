@@ -29,7 +29,6 @@ interface ToolLayoutProps {
   jsonData?: any
   pptxSlides?: Array<{ title: string; content: string[] }>
   projectId?: string
-  toolType?: string
   gammaType?: "codir"|"fiche-mission"|"raid"|"okr"|"scrum"|"formation"|"gantt"|"onboarding"
   gammaData?: any
 }
@@ -40,17 +39,15 @@ export default function ToolLayout({
   onAdd, addLabel = "+ Ajouter",
   children, projectName,
   exportRows, exportFilename = "export", contentId = "tool-content", onExcelOverride,
-  svgRef, jsonData, pptxSlides, projectId, toolType,
+  svgRef, jsonData, pptxSlides, projectId,
   gammaType, gammaData
 }: ToolLayoutProps) {
   const [histOpen, setHistOpen] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string|null>(null)
 
-  const exportConfig = (exportRows || projectId) ? {
+  const exportConfig = exportRows ? {
     rows: exportRows,
     onExcelOverride,
-    projectId,
-    toolType,
     filename: exportFilename,
     contentId,
     svgRef,
