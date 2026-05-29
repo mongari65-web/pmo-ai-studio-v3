@@ -366,7 +366,18 @@ export default function WorkPackagesPage() {
       <ToolLayout title="Work Packages" icon="📦" subtitle="// WORK PACKAGES"
         history={history} onLoadHistory={(e)=>{loadHistory(e);if(e.data?.workpackages)setWps(e.data.workpackages)}}
         onGenerate={generate} generateLabel="Générer Work Packages" generating={loading}
-        exportRows={toRows()} exportFilename={"WP_"+(project?.name??"")} projectName={project?.name}>
+        exportRows={toRows()} exportFilename={"WP_"+(project?.name??"")} projectName={project?.name}
+        pptxSlides={wps.map(w => ({
+          title: w.code + " - " + w.name,
+          content: [
+            "Phase: " + w.phase + " | Statut: " + w.status + " | Avancement: " + w.completion + "%",
+            "Responsable: " + w.responsible + " | Budget: " + w.budget.toLocaleString("fr-FR") + " EUR",
+            "Debut: " + w.start + " | Fin: " + w.end,
+            w.objective ? "Objectif: " + w.objective : "",
+            ...(w.activities?.slice(0,4).map((a,i) => (i+1) + ". " + a) ?? []),
+            "Livrables: " + (w.deliverables ?? "-"),
+          ].filter(Boolean)
+        }))}>
         {/* Boutons actions */}
         <div style={{ display:"flex", gap:8, marginBottom:16 }}>
           <button onClick={addEmptyWp} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(34,197,94,0.12)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:"var(--r8)", fontSize:12, fontWeight:600, color:"#22c55e", cursor:"pointer" }}>+ Nouveau WP</button>
