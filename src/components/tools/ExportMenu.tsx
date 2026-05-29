@@ -18,6 +18,8 @@ interface ExportConfig {
   gmailBody?: string
   pptxSlides?: Array<{ title: string; content: string[] }>
   onExcelOverride?: () => Promise<void>
+  projectId?: string
+  toolType?: string
 }
 
 interface ExportMenuProps {
@@ -221,6 +223,19 @@ export default function ExportMenu({ config }: ExportMenuProps) {
           fn: async () => {
             if (config.onExcelOverride) {
               await config.onExcelOverride()
+            } else if (config.projectId && config.toolType) {
+              const res = await fetch("/api/export/tool-excel", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ projectId: config.projectId, toolType: config.toolType, projectName: config.projectName })
+              })
+              if (res.ok) {
+                const blob = await res.blob()
+                const a = document.createElement("a")
+                a.href = URL.createObjectURL(blob)
+                a.download = config.filename + ".xlsx"
+                a.click()
+              }
             } else {
               const { exportExcel } = await import("@/lib/exportAll")
               if (config.rows?.length) exportExcel(config.rows, config.filename)
