@@ -186,7 +186,7 @@ export async function POST(req: NextRequest) {
     // Helper: onglets mensuels PV/EV/AC
     // ════════════════════════════════════════════════════
     const addMonthlySheet = (name: string, color: string, key: "pv"|"ev"|"ac", label: string) => {
-      const ws = wb.addWorksheet(name, { tabColor: { argb: "FF" + color } })
+      const ws = wb.addWorksheet(name, { properties: { tabColor: { argb: "FF" + color } } })
       ws.columns = [{ width: 8 }, { width: 42 }, { width: 14 }, ...MONTHS.map(() => ({ width: 9 })), { width: 14 }]
       addSheetTitle(ws, `${label} — ${projectName}`, `Valeurs mensuelles | ${date}`, MONTHS.length + 4)
       ws.addRow([])
