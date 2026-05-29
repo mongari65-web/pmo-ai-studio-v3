@@ -369,14 +369,8 @@ export default function WorkPackagesPage() {
         exportRows={toRows()} exportFilename={"WP_"+(project?.name??"")} projectName={project?.name}
         pptxSlides={wps.map(w => ({
           title: w.code + " - " + w.name,
-          content: [
-            "Phase: " + w.phase + " | Statut: " + w.status + " | Avancement: " + w.completion + "%",
-            "Responsable: " + w.responsible + " | Budget: " + w.budget.toLocaleString("fr-FR") + " EUR",
-            "Debut: " + w.start + " | Fin: " + w.end,
-            w.objective ? "Objectif: " + w.objective : "",
-            ...(w.activities?.slice(0,4).map((a,i) => (i+1) + ". " + a) ?? []),
-            "Livrables: " + (w.deliverables ?? "-"),
-          ].filter(Boolean)
+          content: [],
+          ...w
         }))}>
         {/* Boutons actions */}
         <div style={{ display:"flex", gap:8, marginBottom:16 }}>
