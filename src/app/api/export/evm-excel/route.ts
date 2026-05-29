@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     // ════════════════════════════════════════════════════
     // ONGLET 1 — Dashboard
     // ════════════════════════════════════════════════════
-    const ws1 = wb.addWorksheet("📊 Dashboard", { tabColor: { argb: "FF" + BLUE_DARK } })
+    const ws1 = wb.addWorksheet("📊 Dashboard", { properties: { tabColor: { argb: "FF" + BLUE_DARK } } })
     ws1.columns = [{ width: 35 }, { width: 20 }, { width: 15 }, { width: 20 }]
     addSheetTitle(ws1, `📊 DASHBOARD EVM — ${projectName}`, `Période : ${MONTHS[cp]} ${new Date().getFullYear()} | Généré le ${date} | PMO AI Studio`, 4)
 
@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
     // ════════════════════════════════════════════════════
     // ONGLET 2 — Rapport EVM (alias du Dashboard)
     // ════════════════════════════════════════════════════
-    const ws2 = wb.addWorksheet("📋 Rapport EVM", { tabColor: { argb: "FF" + BLUE_MED } })
+    const ws2 = wb.addWorksheet("📋 Rapport EVM", { properties: { tabColor: { argb: "FF" + BLUE_MED } } })
     ws2.columns = [{ width: 8 }, { width: 42 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 12 }, { width: 12 }, { width: 12 }, { width: 8 }, { width: 8 }, { width: 14 }, { width: 12 }]
     addSheetTitle(ws2, `📋 RAPPORT EVM COMPLET — ${projectName}`, `Période courante : ${MONTHS[cp]} | BAC Total : ${totalBAC.toLocaleString("fr-FR")} €`, 12)
     ws2.addRow([])
@@ -217,7 +217,7 @@ export async function POST(req: NextRequest) {
     // ════════════════════════════════════════════════════
     // ONGLET — Courbe S
     // ════════════════════════════════════════════════════
-    const wsS = wb.addWorksheet("📈 Courbe S", { tabColor: { argb: "FF" + PURPLE } })
+    const wsS = wb.addWorksheet("📈 Courbe S", { properties: { tabColor: { argb: "FF" + PURPLE } } })
     wsS.columns = [{ width: 8 }, { width: 12 }, { width: 14 }, { width: 12 }, { width: 14 }, { width: 12 }, { width: 14 }, { width: 8 }, { width: 8 }, { width: 12 }]
     addSheetTitle(wsS, `📈 COURBE S — ${projectName}`, "Évolution cumulée PV / EV / AC sur 12 mois", 10)
     wsS.addRow([])
@@ -251,7 +251,7 @@ export async function POST(req: NextRequest) {
     // ════════════════════════════════════════════════════
     // ONGLET — Paramètres
     // ════════════════════════════════════════════════════
-    const wsParam = wb.addWorksheet("⚙️ Paramètres", { tabColor: { argb: "FF64748B" } })
+    const wsParam = wb.addWorksheet("⚙️ Paramètres", { properties: { tabColor: { argb: "FF64748B" } } })
     wsParam.columns = [{ width: 35 }, { width: 30 }]
     addSheetTitle(wsParam, "⚙️ PARAMÈTRES DU PROJET", "Budget EVM — PMO AI Studio", 2)
     wsParam.addRow([])
