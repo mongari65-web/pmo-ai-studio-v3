@@ -273,8 +273,9 @@ export async function POST(req: NextRequest) {
 
     // Générer le buffer
     const buffer = await wb.xlsx.writeBuffer()
+    const uint8 = new Uint8Array(buffer as ArrayBuffer)
     const filename = `BudgetEVM_${projectName.replace(/[^a-zA-Z0-9]/g, "_")}`
-    return new NextResponse(buffer as Buffer, {
+    return new NextResponse(uint8, {
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "Content-Disposition": `attachment; filename="${filename}.xlsx"`,
