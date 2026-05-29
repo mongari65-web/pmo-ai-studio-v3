@@ -100,13 +100,14 @@ export function exportWord(content: string, filename: string, title: string) {
 export async function exportPPTX(
   title: string,
   slides: Array<{ title: string; content: string[] }>,
-  filename: string
+  filename: string,
+  projectName?: string
 ) {
   try {
     const res = await fetch("/api/export/pptx", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, slides, filename })
+      body: JSON.stringify({ title, slides, filename, projectName })
     })
     if (!res.ok) throw new Error("PPTX export failed")
     const blob = await res.blob()
