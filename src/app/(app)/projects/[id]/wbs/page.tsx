@@ -88,7 +88,7 @@ export default function WBSPage() {
   return (
     <AppLayout>
       <ToolLayout
-        projectId={id} toolType="wbs" title="WBS — Dictionnaire" icon="🗂️" subtitle="// STRUCTURE DE DÉCOUPAGE"
+        title="WBS — Dictionnaire" icon="🗂️" subtitle="// STRUCTURE DE DÉCOUPAGE"
         history={history} onLoadHistory={(e) => { loadHistory(e); if (e.data?.items) setItems(e.data.items) }} onDeleteHistory={deleteHistory}
         onGenerate={generate} generateLabel="Générer WBS" generating={loading}
         onAdd={() => setAdding(true)} addLabel="+ Ajouter ligne"

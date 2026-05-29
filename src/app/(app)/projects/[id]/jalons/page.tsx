@@ -71,7 +71,7 @@ export default function JalonsPage() {
   return (
     <AppLayout>
       <ToolLayout
-        projectId={id} toolType="jalons" title="Jalons" icon="🏁" subtitle="// JALONS CLÉS"
+        title="Jalons" icon="🏁" subtitle="// JALONS CLÉS"
         history={history}
         onLoadHistory={(e) => { loadHistory(e); const k = e.data?.jalons ? "jalons" : Object.keys(e.data??{})[0]; if(k) setItems(e.data[k]) }}
         onGenerate={generate} generateLabel="Générer Jalons" generating={loading}

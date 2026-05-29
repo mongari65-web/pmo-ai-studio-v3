@@ -88,7 +88,7 @@ export default function CommunicationPage() {
   return (
     <AppLayout>
       <ToolLayout
-        projectId={id} toolType="communication" title="Plan de Communication" icon="📣" subtitle="// PARTIES PRENANTES"
+        title="Plan de Communication" icon="📣" subtitle="// PARTIES PRENANTES"
         history={history} onLoadHistory={(e) => { loadHistory(e); if(e.data?.items) setItems(e.data.items) }}
         onGenerate={generate} generateLabel="Générer Plan Comm" generating={loading}
         exportRows={toRows()} exportFilename={"Communication_"+(project?.name??"")} projectName={project?.name}

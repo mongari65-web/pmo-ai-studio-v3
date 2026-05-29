@@ -116,7 +116,7 @@ export default function RAIDPage() {
   return (
     <AppLayout>
       <ToolLayout title="RAID Register"
-        projectId={id} toolType="raid" icon="⚠️" subtitle="// RISQUES · ACTIONS · ISSUES · DÉCISIONS"
+        icon="⚠️" subtitle="// RISQUES · ACTIONS · ISSUES · DÉCISIONS"
         history={history} onLoadHistory={(e) => { loadHistory(e); if(e.data?.items) setItems(e.data.items) }}
         onGenerate={generate} generateLabel="Générer RAID" generating={loading}
         onAdd={() => setShowAdd(true)} addLabel="+ Ajouter"
