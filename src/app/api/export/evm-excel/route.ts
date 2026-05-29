@@ -1,235 +1,287 @@
 import { NextRequest, NextResponse } from "next/server"
-import * as XLSX from "xlsx"
+import ExcelJS from "exceljs"
 
 const MONTHS = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"]
 
-// Helpers style
-const hdr = (v: any) => ({ v, t: "s", s: { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E3A8A" } }, alignment: { horizontal: "center" }, border: { bottom: { style: "thin", color: { rgb: "FFFFFF" } } } } })
-const hdr2 = (v: any) => ({ v, t: "s", s: { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "7B5EFF" } }, alignment: { horizontal: "center" } } })
-const num = (v: any) => ({ v: v ?? 0, t: "n", s: { numFmt: "#,##0", alignment: { horizontal: "right" } } })
-const pct2 = (v: any) => ({ v: v ?? 0, t: "n", s: { numFmt: "0.00", alignment: { horizontal: "right" } } })
-const neg = (v: any) => ({ v: v ?? 0, t: "n", s: { numFmt: "#,##0", alignment: { horizontal: "right" }, font: { color: { rgb: (v ?? 0) < 0 ? "DC2626" : "16A34A" } } } })
-const lbl = (v: any) => ({ v, t: "s", s: { font: { bold: true }, fill: { fgColor: { rgb: "EFF6FF" } } } })
-const txt = (v: any) => ({ v: v ?? "", t: "s" })
-const total = (v: any) => ({ v: v ?? 0, t: "n", s: { numFmt: "#,##0", font: { bold: true }, fill: { fgColor: { rgb: "DBEAFE" } }, alignment: { horizontal: "right" } } })
+// Couleurs PMO AI Studio
+const BLUE_DARK  = "1E3A8A"
+const BLUE_MED   = "2563EB"
+const BLUE_LIGHT = "DBEAFE"
+const PURPLE     = "7B5EFF"
+const GREEN      = "16A34A"
+const RED        = "DC2626"
+const YELLOW     = "CA8A04"
+const GRAY_LIGHT = "F8FAFC"
+const GRAY_HDR   = "E2E8F0"
+const WHITE      = "FFFFFF"
 
-function setColWidths(ws: any, widths: number[]) {
-  ws["!cols"] = widths.map(w => ({ wch: w }))
+function styleHeader(cell: ExcelJS.Cell, bgColor = BLUE_DARK) {
+  cell.font = { bold: true, color: { argb: "FF" + WHITE }, size: 11 }
+  cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + bgColor } }
+  cell.alignment = { horizontal: "center", vertical: "middle" }
+  cell.border = {
+    bottom: { style: "thin", color: { argb: "FF" + WHITE } },
+    right: { style: "thin", color: { argb: "FF" + WHITE } }
+  }
+}
+
+function styleTotal(cell: ExcelJS.Cell) {
+  cell.font = { bold: true, color: { argb: "FF" + BLUE_DARK } }
+  cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + BLUE_LIGHT } }
+  cell.border = { top: { style: "double", color: { argb: "FF" + BLUE_DARK } } }
+  if (typeof cell.value === "number") {
+    cell.numFmt = "#,##0"
+    cell.alignment = { horizontal: "right" }
+  }
+}
+
+function styleKPI(cell: ExcelJS.Cell, value: number, isGood: boolean) {
+  cell.font = { bold: true, size: 12, color: { argb: "FF" + (isGood ? GREEN : RED) } }
+  cell.numFmt = typeof cell.value === "number" && Math.abs(value) > 10 ? "#,##0" : "0.00"
+  cell.alignment = { horizontal: "center", vertical: "middle" }
+}
+
+function styleData(cell: ExcelJS.Cell, isEven: boolean) {
+  cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: isEven ? "FFF8FAFC" : "FFFFFFFF" } }
+  cell.border = { bottom: { style: "hair", color: { argb: "FFE2E8F0" } } }
+  if (typeof cell.value === "number") {
+    cell.numFmt = "#,##0"
+    cell.alignment = { horizontal: "right" }
+  }
+}
+
+function addSheetTitle(ws: ExcelJS.Worksheet, title: string, subtitle: string, colCount: number) {
+  ws.mergeCells(1, 1, 1, colCount)
+  const t = ws.getCell("A1")
+  t.value = title
+  t.font = { bold: true, size: 14, color: { argb: "FF" + BLUE_DARK } }
+  t.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + BLUE_LIGHT } }
+  t.alignment = { horizontal: "left", vertical: "middle" }
+  ws.getRow(1).height = 30
+
+  if (subtitle) {
+    ws.mergeCells(2, 1, 2, colCount)
+    const s = ws.getCell("A2")
+    s.value = subtitle
+    s.font = { size: 10, italic: true, color: { argb: "FF64748B" } }
+    s.alignment = { horizontal: "left" }
+  }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const { tasks = [], currentPeriod = 0, projectName = "Projet", cpName = "Chef de Projet" } = await req.json()
     const cp = currentPeriod
-    const wb = XLSX.utils.book_new()
     const date = new Date().toLocaleDateString("fr-FR")
+    const wb = new ExcelJS.Workbook()
+    wb.creator = "PMO AI Studio"
+    wb.created = new Date()
 
-    // ── Calculs globaux ───────────────────────────────────────
+    // ── Calculs globaux ───────────────────────────────────
     const totalBAC = tasks.reduce((s: number, t: any) => s + (t.bac ?? 0), 0)
     const totalPV  = tasks.reduce((s: number, t: any) => s + (t.pv?.[cp] ?? 0), 0)
     const totalEV  = tasks.reduce((s: number, t: any) => s + (t.ev?.[cp] ?? 0), 0)
     const totalAC  = tasks.reduce((s: number, t: any) => s + (t.ac?.[cp] ?? 0), 0)
     const totalCV  = totalEV - totalAC
     const totalSV  = totalEV - totalPV
-    const CPI      = totalAC > 0 ? totalEV / totalAC : 0
-    const SPI      = totalPV > 0 ? totalEV / totalPV : 0
-    const EAC      = CPI > 0 ? totalBAC / CPI : totalBAC
+    const CPI      = totalAC > 0 ? Math.round(totalEV / totalAC * 100) / 100 : 0
+    const SPI      = totalPV > 0 ? Math.round(totalEV / totalPV * 100) / 100 : 0
+    const EAC      = CPI > 0 ? Math.round(totalBAC / CPI) : totalBAC
     const ETC      = EAC - totalAC
-    const TCPI     = (totalBAC - totalAC) > 0 ? (totalBAC - totalEV) / (totalBAC - totalAC) : 0
+    const TCPI     = (totalBAC - totalAC) > 0 ? Math.round((totalBAC - totalEV) / (totalBAC - totalAC) * 100) / 100 : 0
 
-    // ════════════════════════════════════════════════════════
-    // ONGLET 1 — Paramètres
-    // ════════════════════════════════════════════════════════
-    const wsP: any[][] = [
-      [{ v: "⚙️ PARAMÈTRES DU PROJET — Budget EVM", t: "s", s: { font: { bold: true, sz: 14, color: { rgb: "1E3A8A" } }, fill: { fgColor: { rgb: "DBEAFE" } } } }],
-      [],
-      [lbl("Nom du projet"), txt(projectName)],
-      [lbl("Chef de Projet"), txt(cpName)],
-      [lbl("Date d'export"), txt(date)],
-      [lbl("Période courante"), txt(MONTHS[cp] + " " + new Date().getFullYear())],
-      [lbl("Nombre de tâches"), num(tasks.length)],
-      [lbl("Devise"), txt("€")],
-      [lbl("Méthodologie"), txt("PMBOK 7 / EVM")],
-      [],
-      [{ v: "📊 INDICATEURS CLÉS", t: "s", s: { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E3A8A" } } } }],
-      [lbl("BAC — Budget à Complétion"), num(totalBAC)],
-      [lbl("PV — Valeur Planifiée"), num(totalPV)],
-      [lbl("EV — Valeur Acquise"), num(totalEV)],
-      [lbl("AC — Coût Réel"), num(totalAC)],
-      [lbl("CV — Écart Coût"), neg(totalCV)],
-      [lbl("SV — Écart Délai"), neg(totalSV)],
-      [lbl("CPI — Indice Perf Coût"), pct2(Math.round(CPI*100)/100)],
-      [lbl("SPI — Indice Perf Délai"), pct2(Math.round(SPI*100)/100)],
-      [lbl("EAC — Estimation à Complétion"), num(Math.round(EAC))],
-      [lbl("ETC — Coût Restant Estimé"), num(Math.round(ETC))],
-      [lbl("TCPI — Indice Perf Requis"), pct2(Math.round(TCPI*100)/100)],
+    // ════════════════════════════════════════════════════
+    // ONGLET 1 — Dashboard
+    // ════════════════════════════════════════════════════
+    const ws1 = wb.addWorksheet("📊 Dashboard", { tabColor: { argb: "FF" + BLUE_DARK } })
+    ws1.columns = [{ width: 35 }, { width: 20 }, { width: 15 }, { width: 20 }]
+    addSheetTitle(ws1, `📊 DASHBOARD EVM — ${projectName}`, `Période : ${MONTHS[cp]} ${new Date().getFullYear()} | Généré le ${date} | PMO AI Studio`, 4)
+
+    // KPIs en 2 colonnes
+    ws1.addRow([])
+    const kpiData = [
+      ["BAC — Budget à Complétion", totalBAC, "PV — Valeur Planifiée", totalPV],
+      ["EV — Valeur Acquise", totalEV, "AC — Coût Réel", totalAC],
+      ["CV — Écart Coût", totalCV, "SV — Écart Délai", totalSV],
+      ["CPI — Indice Perf Coût", CPI, "SPI — Indice Perf Délai", SPI],
+      ["EAC — Estimation finale", EAC, "ETC — Coût restant", ETC],
+      ["TCPI — Perf Requise", TCPI, "", ""],
     ]
-    const ws1 = XLSX.utils.aoa_to_sheet(wsP)
-    setColWidths(ws1, [35, 30])
-    XLSX.utils.book_append_sheet(wb, ws1, "⚙️ Paramètres")
+    kpiData.forEach(([l1, v1, l2, v2]) => {
+      const row = ws1.addRow([l1, v1, l2, v2])
+      row.height = 22
+      const c1 = row.getCell(1); c1.font = { bold: true }; c1.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + GRAY_LIGHT } }
+      const c2 = row.getCell(2)
+      if (typeof v1 === "number") {
+        const isGood = ["CV","SV"].some(k => String(l1).includes(k)) ? v1 >= 0 : ["CPI","SPI","TCPI"].some(k => String(l1).includes(k)) ? v1 >= 1 : true
+        styleKPI(c2, v1 as number, isGood)
+        c2.numFmt = Math.abs(v1 as number) > 10 ? "#,##0 €" : "0.00"
+      }
+      const c3 = row.getCell(3); if(l2) { c3.font = { bold: true }; c3.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + GRAY_LIGHT } } }
+      const c4 = row.getCell(4)
+      if (typeof v2 === "number" && v2 !== 0) {
+        const isGood2 = ["SV"].some(k => String(l2).includes(k)) ? v2 >= 0 : ["SPI"].some(k => String(l2).includes(k)) ? v2 >= 1 : true
+        styleKPI(c4, v2 as number, isGood2)
+        c4.numFmt = Math.abs(v2 as number) > 10 ? "#,##0 €" : "0.00"
+      }
+    })
 
-    // ════════════════════════════════════════════════════════
-    // ONGLET 2 — Rapport EVM
-    // ════════════════════════════════════════════════════════
-    const rHeaders = [hdr("WBS"), hdr("Tâche"), hdr("BAC"), hdr("PV"), hdr("EV"), hdr("AC"), hdr("CV"), hdr("SV"), hdr("CPI"), hdr("SPI"), hdr("EAC"), hdr("Statut")]
-    const rRows = tasks.map((t: any) => {
+    // Tableau récapitulatif par tâche
+    ws1.addRow([])
+    const rHdr = ws1.addRow(["WBS", "Tâche", "BAC", "PV", "EV", "AC", "CV", "SV", "CPI", "SPI", "EAC", "Statut"])
+    rHdr.height = 20
+    ws1.columns = [
+      { width: 8 }, { width: 42 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 12 },
+      { width: 12 }, { width: 12 }, { width: 8 }, { width: 8 }, { width: 14 }, { width: 12 }
+    ]
+    rHdr.eachCell(c => styleHeader(c))
+
+    tasks.forEach((t: any, i: number) => {
       const pv = t.pv?.[cp]??0, ev = t.ev?.[cp]??0, ac = t.ac?.[cp]??0
       const cv = ev-ac, sv = ev-pv
-      const cpi = ac > 0 ? ev/ac : 0
-      const spi = pv > 0 ? ev/pv : 0
-      const eac = cpi > 0 ? t.bac/cpi : t.bac
+      const cpi = ac > 0 ? Math.round(ev/ac*100)/100 : 0
+      const spi = pv > 0 ? Math.round(ev/pv*100)/100 : 0
+      const eac = cpi > 0 ? Math.round(t.bac/cpi) : t.bac
       const statut = cpi >= 1 && spi >= 1 ? "✅ OK" : cpi < 1 && spi < 1 ? "🔴 Critique" : cpi < 1 ? "⚠️ Coût" : "⚠️ Délai"
-      return [txt(t.wbs), txt(t.name), num(t.bac), num(pv), num(ev), num(ac), neg(cv), neg(sv), pct2(Math.round(cpi*100)/100), pct2(Math.round(spi*100)/100), num(Math.round(eac)), txt(statut)]
+      const row = ws1.addRow([t.wbs, t.name, t.bac, pv, ev, ac, cv, sv, cpi, spi, eac, statut])
+      row.height = 18
+      row.eachCell((c, ci) => {
+        styleData(c, i % 2 === 0)
+        if (ci >= 3) { c.numFmt = ci <= 6 || ci === 11 ? "#,##0" : "0.00" }
+        if (ci === 7 || ci === 8) { c.font = { color: { argb: "FF" + (c.value as number >= 0 ? GREEN : RED) } } }
+      })
     })
-    const rTotal = [lbl("TOTAL"), lbl(""), total(totalBAC), total(totalPV), total(totalEV), total(totalAC), neg(totalCV), neg(totalSV), pct2(Math.round(CPI*100)/100), pct2(Math.round(SPI*100)/100), total(Math.round(EAC)), txt("")]
-    const ws2 = XLSX.utils.aoa_to_sheet([
-      [{ v: `📋 RAPPORT EVM — ${projectName} — Période : ${MONTHS[cp]}`, t:"s", s:{font:{bold:true,sz:13,color:{rgb:"1E3A8A"}}}}],
-      [{ v: `Généré le ${date} | PMO AI Studio`, t:"s", s:{font:{color:{rgb:"64748B"}}}}],
-      [],
-      rHeaders,
-      ...rRows,
-      rTotal
-    ])
-    setColWidths(ws2, [8, 45, 12, 12, 12, 12, 12, 12, 8, 8, 12, 12])
-    XLSX.utils.book_append_sheet(wb, ws2, "📋 Rapport EVM")
+    const totRow = ws1.addRow(["TOTAL", "", totalBAC, totalPV, totalEV, totalAC, totalCV, totalSV, CPI, SPI, EAC, ""])
+    totRow.eachCell((c, ci) => { styleTotal(c); if(ci >= 3) c.numFmt = ci <= 6 || ci === 11 ? "#,##0" : "0.00" })
 
-    // ════════════════════════════════════════════════════════
-    // ONGLET 3 — Feuille PV (12 mois)
-    // ════════════════════════════════════════════════════════
-    const pvHeaders = [hdr("WBS"), hdr("Tâche"), hdr("BAC"), ...MONTHS.map(m => hdr(m)), hdr("TOTAL")]
-    const pvRows = tasks.map((t: any) => {
-      const monthVals = MONTHS.map((_, m) => num(t.pv?.[m]??0))
-      const rowTotal = MONTHS.reduce((s: number, _, m) => s + (t.pv?.[m]??0), 0)
-      return [txt(t.wbs), txt(t.name), num(t.bac), ...monthVals, total(rowTotal)]
+    // ════════════════════════════════════════════════════
+    // ONGLET 2 — Rapport EVM (alias du Dashboard)
+    // ════════════════════════════════════════════════════
+    const ws2 = wb.addWorksheet("📋 Rapport EVM", { tabColor: { argb: "FF" + BLUE_MED } })
+    ws2.columns = [{ width: 8 }, { width: 42 }, { width: 14 }, { width: 12 }, { width: 12 }, { width: 12 }, { width: 12 }, { width: 12 }, { width: 8 }, { width: 8 }, { width: 14 }, { width: 12 }]
+    addSheetTitle(ws2, `📋 RAPPORT EVM COMPLET — ${projectName}`, `Période courante : ${MONTHS[cp]} | BAC Total : ${totalBAC.toLocaleString("fr-FR")} €`, 12)
+    ws2.addRow([])
+    const r2Hdr = ws2.addRow(["WBS", "Tâche", "BAC (€)", "PV (€)", "EV (€)", "AC (€)", "CV (€)", "SV (€)", "CPI", "SPI", "EAC (€)", "Statut"])
+    r2Hdr.height = 22; r2Hdr.eachCell(c => styleHeader(c))
+
+    tasks.forEach((t: any, i: number) => {
+      const pv = t.pv?.[cp]??0, ev = t.ev?.[cp]??0, ac = t.ac?.[cp]??0
+      const cv = ev-ac, sv = ev-pv
+      const cpi = ac > 0 ? Math.round(ev/ac*100)/100 : 0
+      const spi = pv > 0 ? Math.round(ev/pv*100)/100 : 0
+      const eac = cpi > 0 ? Math.round(t.bac/cpi) : t.bac
+      const statut = cpi >= 1 && spi >= 1 ? "✅ OK" : cpi < 1 && spi < 1 ? "🔴 Critique" : cpi < 1 ? "⚠️ Coût" : "⚠️ Délai"
+      const row = ws2.addRow([t.wbs, t.name, t.bac, pv, ev, ac, cv, sv, cpi, spi, eac, statut])
+      row.height = 18
+      row.eachCell((c, ci) => {
+        styleData(c, i % 2 === 0)
+        if (ci >= 3 && ci <= 11) c.numFmt = (ci <= 6 || ci === 11) ? "#,##0" : "0.00"
+        if (ci === 7 || ci === 8) c.font = { ...c.font, color: { argb: "FF" + ((c.value as number) >= 0 ? GREEN : RED) } }
+      })
     })
-    const pvTotals = MONTHS.map((_, m) => total(tasks.reduce((s: number, t: any) => s + (t.pv?.[m]??0), 0)))
-    const pvGrand = total(tasks.reduce((s: number, t: any) => s + MONTHS.reduce((ss: number, _, m) => ss + (t.pv?.[m]??0), 0), 0))
-    const ws3 = XLSX.utils.aoa_to_sheet([
-      [{ v: `📅 VALEUR PLANIFIÉE (PV) — ${projectName}`, t:"s", s:{font:{bold:true,sz:13,color:{rgb:"1E3A8A"}}}}],
-      [],
-      pvHeaders,
-      ...pvRows,
-      [lbl("TOTAL"), lbl(""), total(totalBAC), ...pvTotals, pvGrand]
-    ])
-    setColWidths(ws3, [8, 45, 12, ...MONTHS.map(() => 9), 12])
-    XLSX.utils.book_append_sheet(wb, ws3, "📅 Feuille PV")
+    const t2Row = ws2.addRow(["TOTAL", "", totalBAC, totalPV, totalEV, totalAC, totalCV, totalSV, CPI, SPI, EAC, ""])
+    t2Row.eachCell((c, ci) => { styleTotal(c); if(ci >= 3) c.numFmt = (ci <= 6||ci===11) ? "#,##0" : "0.00" })
 
-    // ════════════════════════════════════════════════════════
-    // ONGLET 4 — Feuille EV
-    // ════════════════════════════════════════════════════════
-    const evRows2 = tasks.map((t: any) => {
-      const monthVals = MONTHS.map((_, m) => num(t.ev?.[m]??0))
-      const rowTotal = MONTHS.reduce((s: number, _, m) => s + (t.ev?.[m]??0), 0)
-      return [txt(t.wbs), txt(t.name), num(t.bac), ...monthVals, total(rowTotal)]
-    })
-    const evTotals = MONTHS.map((_, m) => total(tasks.reduce((s: number, t: any) => s + (t.ev?.[m]??0), 0)))
-    const ws4 = XLSX.utils.aoa_to_sheet([
-      [{ v: `📥 VALEUR ACQUISE (EV) — ${projectName}`, t:"s", s:{font:{bold:true,sz:13,color:{rgb:"1E3A8A"}}}}],
-      [],
-      [hdr("WBS"), hdr("Tâche"), hdr("BAC"), ...MONTHS.map(m => hdr(m)), hdr("TOTAL")],
-      ...evRows2,
-      [lbl("TOTAL"), lbl(""), total(totalBAC), ...evTotals, total(totalEV)]
-    ])
-    setColWidths(ws4, [8, 45, 12, ...MONTHS.map(() => 9), 12])
-    XLSX.utils.book_append_sheet(wb, ws4, "📥 Feuille EV")
+    // ════════════════════════════════════════════════════
+    // Helper: onglets mensuels PV/EV/AC
+    // ════════════════════════════════════════════════════
+    const addMonthlySheet = (name: string, color: string, key: "pv"|"ev"|"ac", label: string) => {
+      const ws = wb.addWorksheet(name, { tabColor: { argb: "FF" + color } })
+      ws.columns = [{ width: 8 }, { width: 42 }, { width: 14 }, ...MONTHS.map(() => ({ width: 9 })), { width: 14 }]
+      addSheetTitle(ws, `${label} — ${projectName}`, `Valeurs mensuelles | ${date}`, MONTHS.length + 4)
+      ws.addRow([])
+      const hRow = ws.addRow(["WBS", "Tâche", "BAC", ...MONTHS, "TOTAL"])
+      hRow.height = 22; hRow.eachCell(c => styleHeader(c, color))
 
-    // ════════════════════════════════════════════════════════
-    // ONGLET 5 — Feuille AC
-    // ════════════════════════════════════════════════════════
-    const acRows2 = tasks.map((t: any) => {
-      const monthVals = MONTHS.map((_, m) => num(t.ac?.[m]??0))
-      const rowTotal = MONTHS.reduce((s: number, _, m) => s + (t.ac?.[m]??0), 0)
-      return [txt(t.wbs), txt(t.name), num(t.bac), ...monthVals, total(rowTotal)]
-    })
-    const acTotals = MONTHS.map((_, m) => total(tasks.reduce((s: number, t: any) => s + (t.ac?.[m]??0), 0)))
-    const ws5 = XLSX.utils.aoa_to_sheet([
-      [{ v: `💰 COÛT RÉEL (AC) — ${projectName}`, t:"s", s:{font:{bold:true,sz:13,color:{rgb:"1E3A8A"}}}}],
-      [],
-      [hdr("WBS"), hdr("Tâche"), hdr("BAC"), ...MONTHS.map(m => hdr(m)), hdr("TOTAL")],
-      ...acRows2,
-      [lbl("TOTAL"), lbl(""), total(totalBAC), ...acTotals, total(totalAC)]
-    ])
-    setColWidths(ws5, [8, 45, 12, ...MONTHS.map(() => 9), 12])
-    XLSX.utils.book_append_sheet(wb, ws5, "💰 Feuille AC")
+      const monthTotals = new Array(12).fill(0)
+      tasks.forEach((t: any, i: number) => {
+        const vals = MONTHS.map((_, m) => { const v = t[key]?.[m]??0; monthTotals[m] += v; return v })
+        const rowTotal = vals.reduce((s: number, v: number) => s + v, 0)
+        const row = ws.addRow([t.wbs, t.name, t.bac, ...vals, rowTotal])
+        row.height = 18
+        row.eachCell((c, ci) => {
+          styleData(c, i % 2 === 0)
+          if (ci >= 3) { c.numFmt = "#,##0"; c.alignment = { horizontal: "right" } }
+        })
+      })
+      const grandTotal = monthTotals.reduce((s, v) => s + v, 0)
+      const totR = ws.addRow(["TOTAL", "", totalBAC, ...monthTotals, grandTotal])
+      totR.eachCell(c => { styleTotal(c); c.numFmt = "#,##0" })
+      return ws
+    }
 
-    // ════════════════════════════════════════════════════════
-    // ONGLET 6 — Courbe S (données cumulées)
-    // ════════════════════════════════════════════════════════
-    let pvCum = 0, evCum = 0, acCum = 0
-    const curveRows = MONTHS.map((m, i) => {
+    addMonthlySheet("📅 Feuille PV", BLUE_MED, "pv", "📅 VALEUR PLANIFIÉE (PV)")
+    addMonthlySheet("📥 Feuille EV", "059669", "ev", "📥 VALEUR ACQUISE (EV)")
+    addMonthlySheet("💰 Feuille AC", "DC2626", "ac", "💰 COÛT RÉEL (AC)")
+
+    // ════════════════════════════════════════════════════
+    // ONGLET — Courbe S
+    // ════════════════════════════════════════════════════
+    const wsS = wb.addWorksheet("📈 Courbe S", { tabColor: { argb: "FF" + PURPLE } })
+    wsS.columns = [{ width: 8 }, { width: 12 }, { width: 14 }, { width: 12 }, { width: 14 }, { width: 12 }, { width: 14 }, { width: 8 }, { width: 8 }, { width: 12 }]
+    addSheetTitle(wsS, `📈 COURBE S — ${projectName}`, "Évolution cumulée PV / EV / AC sur 12 mois", 10)
+    wsS.addRow([])
+    const sHdr = wsS.addRow(["Mois", "PV Mois", "PV Cumulé", "EV Mois", "EV Cumulé", "AC Mois", "AC Cumulé", "CPI", "SPI", "Statut"])
+    sHdr.height = 22; sHdr.eachCell(c => styleHeader(c, PURPLE))
+
+    let pvC = 0, evC = 0, acC = 0
+    MONTHS.forEach((m, i) => {
       const pvM = tasks.reduce((s: number, t: any) => s + (t.pv?.[i]??0), 0)
       const evM = tasks.reduce((s: number, t: any) => s + (t.ev?.[i]??0), 0)
       const acM = tasks.reduce((s: number, t: any) => s + (t.ac?.[i]??0), 0)
-      pvCum += pvM; evCum += evM; acCum += acM
-      const cpiM = acCum > 0 ? evCum/acCum : 0
-      const spiM = pvCum > 0 ? evCum/pvCum : 0
-      const statut = i <= cp ? "● Réalisé" : "○ Prévu"
-      return [
-        txt(m),
-        num(pvM), num(pvCum),
-        num(evM), num(evCum),
-        num(acM), num(acCum),
-        pct2(Math.round(cpiM*100)/100),
-        pct2(Math.round(spiM*100)/100),
-        txt(statut)
-      ]
+      pvC += pvM; evC += evM; acC += acM
+      const cpiM = acC > 0 ? Math.round(evC/acC*100)/100 : 0
+      const spiM = pvC > 0 ? Math.round(evC/pvC*100)/100 : 0
+      const isPast = i <= cp
+      const row = wsS.addRow([m, pvM, pvC, evM, evC, acM, acC, cpiM, spiM, isPast ? "● Réalisé" : "○ Prévu"])
+      row.height = 18
+      row.eachCell((c, ci) => {
+        c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: isPast ? "FFF0FDF4" : "FFFFF7ED" } }
+        c.border = { bottom: { style: "hair", color: { argb: "FFE2E8F0" } } }
+        if (ci >= 2 && ci <= 7) { c.numFmt = "#,##0"; c.alignment = { horizontal: "right" } }
+        if (ci === 8 || ci === 9) {
+          c.numFmt = "0.00"; c.alignment = { horizontal: "center" }
+          c.font = { color: { argb: "FF" + ((c.value as number) >= 1 ? GREEN : RED) } }
+        }
+        if (ci === 1) c.font = { bold: true }
+        if (ci === 10) c.alignment = { horizontal: "center" }
+      })
     })
-    const ws6 = XLSX.utils.aoa_to_sheet([
-      [{ v: `📈 COURBE S — ${projectName}`, t:"s", s:{font:{bold:true,sz:13,color:{rgb:"1E3A8A"}}}}],
-      [{ v: "Évolution cumulée PV / EV / AC sur 12 mois", t:"s", s:{font:{color:{rgb:"64748B"}}}}],
-      [],
-      [hdr("Mois"), hdr("PV Mois"), hdr("PV Cumulé"), hdr("EV Mois"), hdr("EV Cumulé"), hdr("AC Mois"), hdr("AC Cumulé"), hdr("CPI"), hdr("SPI"), hdr("Statut")],
-      ...curveRows,
-    ])
-    setColWidths(ws6, [8, 12, 12, 12, 12, 12, 12, 8, 8, 12])
-    XLSX.utils.book_append_sheet(wb, ws6, "📈 Courbe S")
 
-    // ════════════════════════════════════════════════════════
-    // ONGLET 7 — Dashboard KPIs
-    // ════════════════════════════════════════════════════════
-    const kpiColor = (v: number) => v >= 1 ? "16A34A" : v >= 0.9 ? "CA8A04" : "DC2626"
-    const kpiCell = (label: string, value: number, unit: string, isGood: boolean) => [
-      lbl(label),
-      { v: value, t: "n", s: { numFmt: unit === "€" ? "#,##0 €" : "0.00", font: { bold: true, color: { rgb: isGood ? "16A34A" : "DC2626" } } } },
-      txt(isGood ? "✅" : "⚠️")
+    // ════════════════════════════════════════════════════
+    // ONGLET — Paramètres
+    // ════════════════════════════════════════════════════
+    const wsParam = wb.addWorksheet("⚙️ Paramètres", { tabColor: { argb: "FF64748B" } })
+    wsParam.columns = [{ width: 35 }, { width: 30 }]
+    addSheetTitle(wsParam, "⚙️ PARAMÈTRES DU PROJET", "Budget EVM — PMO AI Studio", 2)
+    wsParam.addRow([])
+    const paramRows = [
+      ["Nom du projet", projectName],
+      ["Chef de Projet", cpName],
+      ["Date d'export", date],
+      ["Période courante", MONTHS[cp] + " " + new Date().getFullYear()],
+      ["Nombre de tâches", tasks.length],
+      ["Devise", "€"],
+      ["Méthodologie", "PMBOK 7 / EVM"],
     ]
-    const ws7 = XLSX.utils.aoa_to_sheet([
-      [{ v: `📊 DASHBOARD EVM — ${projectName}`, t:"s", s:{font:{bold:true,sz:14,color:{rgb:"1E3A8A"}}}}],
-      [{ v: `Période : ${MONTHS[cp]} | Généré le ${date}`, t:"s", s:{font:{color:{rgb:"64748B"}}}}],
-      [],
-      [hdr2("Indicateur"), hdr2("Valeur"), hdr2("Statut")],
-      [lbl("BAC — Budget à Complétion"), num(totalBAC), txt("")],
-      [lbl("PV — Valeur Planifiée"), num(totalPV), txt("")],
-      [lbl("EV — Valeur Acquise"), num(totalEV), txt("")],
-      [lbl("AC — Coût Réel"), num(totalAC), txt("")],
-      kpiCell("CV — Écart Coût", totalCV, "€", totalCV >= 0),
-      kpiCell("SV — Écart Délai", totalSV, "€", totalSV >= 0),
-      kpiCell("CPI — Indice Perf Coût", Math.round(CPI*100)/100, "", CPI >= 1),
-      kpiCell("SPI — Indice Perf Délai", Math.round(SPI*100)/100, "", SPI >= 1),
-      [lbl("EAC — Estimation à Complétion"), num(Math.round(EAC)), txt("")],
-      [lbl("ETC — Coût Restant Estimé"), num(Math.round(ETC)), txt("")],
-      kpiCell("TCPI — Indice Perf Requis", Math.round(TCPI*100)/100, "", TCPI <= 1),
-      [],
-      [{ v: "Interprétation", t:"s", s:{font:{bold:true,color:{rgb:"1E3A8A"}}}}],
-      [txt(`CPI ${Math.round(CPI*100)/100} → ${CPI >= 1 ? "Budget maîtrisé ✅" : CPI >= 0.9 ? "Légère dérive ⚠️" : "Dépassement significatif 🔴"}`)],
-      [txt(`SPI ${Math.round(SPI*100)/100} → ${SPI >= 1 ? "En avance sur le planning ✅" : SPI >= 0.9 ? "Léger retard ⚠️" : "Retard significatif 🔴"}`)],
-      [txt(`EAC ${Math.round(EAC).toLocaleString("fr-FR")} € → Coût final estimé du projet`)],
-    ])
-    setColWidths(ws7, [40, 20, 10])
-    XLSX.utils.book_append_sheet(wb, ws7, "📊 Dashboard")
+    paramRows.forEach(([k, v]) => {
+      const row = wsParam.addRow([k, v])
+      row.getCell(1).font = { bold: true }
+      row.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + GRAY_LIGHT } }
+      row.height = 18
+    })
 
-    // Générer le fichier
-    const output = XLSX.write(wb, { type: "buffer", bookType: "xlsx", bookSST: false })
-    const filename = `BudgetEVM_${(projectName).replace(/[^a-zA-Z0-9]/g, "_")}`
-
-    return new NextResponse(output, {
+    // Générer le buffer
+    const buffer = await wb.xlsx.writeBuffer()
+    const filename = `BudgetEVM_${projectName.replace(/[^a-zA-Z0-9]/g, "_")}`
+    return new NextResponse(buffer as Buffer, {
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "Content-Disposition": `attachment; filename="${filename}.xlsx"`,
       }
     })
   } catch (e: any) {
-    console.error("EVM Excel export error:", e)
+    console.error("EVM Excel ExcelJS error:", e)
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }
