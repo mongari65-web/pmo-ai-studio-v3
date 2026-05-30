@@ -284,7 +284,7 @@ export default function BudgetEVMPage() {
             a.click()
           }
         }}
-        exportFilename={`BudgetEVM_${project?.name??""}`}
+        exportFilename={`BudgetEVM_${project?.name??""} projectId={id} toolType="budget"`}
         projectName={project?.name}
         gammaType="codir" gammaData={data}>
 

@@ -77,7 +77,7 @@ export default function JalonsPage() {
         onGenerate={generate} generateLabel="Générer Jalons" generating={loading}
         projectName={project?.name}
         exportRows={items.map(i => ({ Code:i.code, Nom:i.name, Date:i.date, Statut:i.status, Responsable:i.responsible, Livrables:i.deliverables }))}
-        exportFilename={"jalons_" + (project?.name ?? "")}>
+        exportFilename={"jalons_" + (project?.name ?? "")} projectId={id} toolType="jalons">
 
         {items.length === 0 && !loading && (
           <div style={{ textAlign:"center", padding:"60px 20px" }}>
