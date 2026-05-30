@@ -130,12 +130,12 @@ export async function POST(req: NextRequest) {
       const h = ws.addRow(["#", "Tâche / Livrable", "Phase", ...actors])
       hdr(ws, h, PURPLE)
       const raciCfg: Record<string, {bg:string; fg:string}> = {
-        R: { bg:"1E3A8A", fg:"FFFFFF" },
-        A: { bg:"DC2626", fg:"FFFFFF" },
-        C: { bg:"D97706", fg:"FFFFFF" },
-        I: { bg:"16A34A", fg:"FFFFFF" },
-        D: { bg:"7B5EFF", fg:"FFFFFF" },
-        "-": { bg:"F1F5F9", fg:"94A3B8" },
+        R: { bg:"BFDBFE", fg:"1E3A8A" },
+        A: { bg:"FECACA", fg:"991B1B" },
+        C: { bg:"FDE68A", fg:"92400E" },
+        I: { bg:"BBF7D0", fg:"14532D" },
+        D: { bg:"DDD6FE", fg:"4C1D95" },
+        "-": { bg:"F8FAFC", fg:"CBD5E1" },
       }
       // Helper : calcule la lettre RACI pour un acteur donné
       const getCell = (row: any, actor: string): string => {
