@@ -67,7 +67,7 @@ export default function RACIPage() {
   // On mutate le state local uniquement + save sans rows pour éviter le snapshot.
   // Si useToolData.save crée toujours un snapshot, on passe un flag spécial.
   const saveSilent = async (r:RACIRow[], a:string[], m:string) => {
-    setRows(r); setActors(a); setMode(m)
+    setRows(r); setActors(a); setMode(m as "raci"|"daci")
     // Passe noSnapshot:true pour éviter l'écriture dans tool_history
     await save({ rows:r, actors:a, mode:m, _noSnapshot:true })
   }
