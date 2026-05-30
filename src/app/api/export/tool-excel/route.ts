@@ -102,21 +102,90 @@ export async function POST(req: NextRequest) {
     // ── WBS ───────────────────────────────────────────────────
     else if (toolType === "wbs") {
       const items = d.items ?? []
-      const ws = wb.addWorksheet("🗂️ WBS", { properties: { tabColor: { argb: "FF1E3A8A" } } })
-      ws.columns = [{ width: 12 }, { width: 8 }, { width: 40 }, { width: 40 }, { width: 20 }, { width: 18 }, { width: 12 }, { width: 15 }, { width: 20 }]
-      title(ws, `🗂️ WORK BREAKDOWN STRUCTURE — ${pName}`, `${items.length} livrables | Généré le ${date}`, 9)
-      ws.addRow([])
-      const h = ws.addRow(["Code WBS", "Niveau", "Livrable", "Description", "Responsable", "Livrable attendu", "Durée", "Budget", "Dépendances"])
-      hdr(ws, h, BLUE)
-      const levelColors: Record<number, string> = { 1: "1E3A8A", 2: "7C3AED", 3: "059669", 4: "D97706" }
+      const levelColors: Record<number, string> = { 1:"1E3A8A", 2:"7C3AED", 3:"059669", 4:"D97706" }
+      const levelBg: Record<number, string>     = { 1:"E0E7FF", 2:"F5F3FF", 3:"ECFDF5", 4:"FFFBEB" }
+      const statusColor = (s: string) => s?.includes("Termin") ? GREEN : s?.includes("cours") ? YELLOW : s?.includes("tard") || s?.includes("Bloqu") ? RED : "64748B"
+
+      // ── Onglet 1 : WBS Arborescence
+      const ws1 = wb.addWorksheet("🗂️ WBS", { properties: { tabColor: { argb: "FF1E3A8A" } } })
+      ws1.columns = [{ width:12 },{ width:50 },{ width:8 },{ width:45 },{ width:20 },{ width:16 },{ width:14 },{ width:18 }]
+      title(ws1, `🗂️ WORK BREAKDOWN STRUCTURE — ${pName}`, `${items.length} livrables | Généré le ${date}`, 8)
+      ws1.addRow([])
+      hdr(ws1, ws1.addRow(["Code","Élément WBS","Niv.","Livrable attendu","Responsable","Durée","Budget","Dépendances"]), BLUE)
       items.forEach((item: any, i: number) => {
-        const r = ws.addRow([item.code, item.level, item.name, item.description, item.responsible, item.deliverable, item.duration, item.budget, item.dependencies])
-        dataRow(r, i % 2 === 0)
         const lc = levelColors[item.level] ?? "64748B"
-        r.getCell(1).font = { bold: item.level <= 2, color: { argb: "FF" + lc } }
-        r.getCell(3).font = { bold: item.level === 1 }
-        if (item.level === 1) r.eachCell(c => c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFE0E7FF" } })
-        if (item.level === 2) r.eachCell(c => c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF5F3FF" } })
+        const bg = levelBg[item.level] ?? "F8FAFC"
+        const r = ws1.addRow([item.code, item.name, `N${item.level}`, item.deliverable, item.responsible, item.duration, item.budget, item.dependencies])
+        r.height = 20
+        r.getCell(1).font = { bold: item.level<=2, color:{ argb:"FF"+lc }, family:3 }
+        r.getCell(2).font = { bold: item.level===1, size: item.level===1?12:11, color:{ argb:"FF1F2937" } }
+        r.getCell(2).alignment = { indent: (item.level-1)*2 }
+        r.getCell(3).font = { bold:true, color:{ argb:"FF"+lc } }
+        r.getCell(3).alignment = { horizontal:"center" }
+        r.getCell(5).font = { color:{ argb:"FF1D4ED8" } }
+        r.getCell(6).font = { color:{ argb:"FF059669" } }
+        r.getCell(7).font = { color:{ argb:"FFD97706" } }
+        if (item.level <= 2) {
+          r.eachCell(c => { c.fill = { type:"pattern", pattern:"solid", fgColor:{ argb:"FF"+bg } } })
+        } else {
+          dataRow(r, i%2===0)
+        }
+        r.eachCell(c => { if (!c.border) c.border = { bottom:{ style:"hair", color:{ argb:"FFE2E8F0" } } } })
+      })
+      // Totaux budget
+      const budgets = items.map((i: any) => parseFloat(String(i.budget).replace(/[^0-9.]/g,""))||0)
+      const totalBudget = budgets.reduce((a: number, b: number) => a+b, 0)
+      if (totalBudget > 0) {
+        ws1.addRow([])
+        const tot = ws1.addRow(["TOTAL","","","","","",totalBudget,""])
+        tot.getCell(1).font = { bold:true, color:{ argb:"FF"+BLUE } }
+        tot.getCell(7).font = { bold:true, color:{ argb:"FF"+BLUE } }
+        tot.getCell(7).numFmt = "#,##0 €"
+        tot.eachCell(c => c.fill = { type:"pattern", pattern:"solid", fgColor:{ argb:"FFDBEAFE" } })
+      }
+
+      // ── Onglet 2 : Dictionnaire WBS
+      const ws2 = wb.addWorksheet("📖 Dictionnaire", { properties: { tabColor: { argb: "FF7C3AED" } } })
+      ws2.columns = [{ width:12 },{ width:8 },{ width:35 },{ width:20 },{ width:45 },{ width:45 },{ width:35 },{ width:14 },{ width:18 }]
+      title(ws2, `📖 DICTIONNAIRE WBS — ${pName}`, `Définitions détaillées | ${date}`, 9)
+      ws2.addRow([])
+      hdr(ws2, ws2.addRow(["Code","Niv.","Élément WBS","Responsable","Description","Livrable / Critères acceptation","Risques","Durée","Budget"]), "7C3AED")
+      items.forEach((item: any, i: number) => {
+        const lc = levelColors[item.level] ?? "64748B"
+        const r = ws2.addRow([item.code, `N${item.level}`, item.name, item.responsible, item.description, item.acceptanceCriteria || item.deliverable, item.risks || "—", item.duration, item.budget])
+        r.height = 40
+        r.getCell(1).font = { bold:item.level<=2, color:{ argb:"FF"+lc } }
+        r.getCell(3).font = { bold:item.level===1 }
+        r.getCell(4).font = { color:{ argb:"FF1D4ED8" } }
+        r.eachCell(c => {
+          c.alignment = { wrapText:true, vertical:"top" }
+          c.fill = { type:"pattern", pattern:"solid", fgColor:{ argb: i%2===0 ? "FFF8FAFC" : "FFFFFFFF" } }
+          c.border = { bottom:{ style:"hair", color:{ argb:"FFE2E8F0" } } }
+        })
+        if (item.level===1) r.eachCell(c => c.fill = { type:"pattern", pattern:"solid", fgColor:{ argb:"FFE0E7FF" } })
+        if (item.level===2) r.eachCell(c => c.fill = { type:"pattern", pattern:"solid", fgColor:{ argb:"FFF5F3FF" } })
+      })
+
+      // ── Onglet 3 : Calendrier
+      const ws3 = wb.addWorksheet("📅 Calendrier", { properties: { tabColor: { argb: "FF059669" } } })
+      ws3.columns = [{ width:12 },{ width:45 },{ width:8 },{ width:20 },{ width:14 },{ width:14 },{ width:12 },{ width:14 },{ width:18 }]
+      title(ws3, `📅 CALENDRIER WBS — ${pName}`, `Planning détaillé | ${date}`, 9)
+      ws3.addRow([])
+      hdr(ws3, ws3.addRow(["Code","Livrable","Niv.","Responsable","Début","Fin","Durée","Avancement","Statut"]), "059669")
+      items.forEach((item: any, i: number) => {
+        const lc = levelColors[item.level] ?? "64748B"
+        const prog = item.progress ?? 0
+        const sc = statusColor(item.status ?? "")
+        const r = ws3.addRow([item.code, item.name, `N${item.level}`, item.responsible, item.startDate || "—", item.endDate || "—", item.duration, `${prog}%`, item.status || "Non démarré"])
+        r.height = 20
+        r.getCell(1).font = { bold:item.level<=2, color:{ argb:"FF"+lc } }
+        r.getCell(3).font = { bold:true, color:{ argb:"FF"+lc } }
+        r.getCell(3).alignment = { horizontal:"center" }
+        r.getCell(4).font = { color:{ argb:"FF1D4ED8" } }
+        r.getCell(8).font = { bold:true, color:{ argb:"FF"+(prog>=100?GREEN:prog>0?YELLOW:"94A3B8") } }
+        r.getCell(9).font = { bold:true, color:{ argb:"FF"+sc } }
+        dataRow(r, i%2===0)
+        if (item.level===1) r.eachCell(c => c.fill = { type:"pattern", pattern:"solid", fgColor:{ argb:"FFECFDF5" } })
       })
     }
 
