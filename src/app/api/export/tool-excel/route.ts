@@ -130,9 +130,19 @@ export async function POST(req: NextRequest) {
       const h = ws.addRow(["#", "Tâche / Livrable", "Phase", ...actors])
       hdr(ws, h, PURPLE)
       const raciColors: Record<string, string> = { R: "1E3A8A", A: "DC2626", C: "D97706", I: "16A34A", "-": "94A3B8" }
+      // Helper : calcule la lettre RACI pour un acteur donné
+      const getCell = (row: any, actor: string): string => {
+        const split = (f: string) => (row[f] ?? "").split(",").map((s: string) => s.trim())
+        if (split("driver").includes(actor))      return "D"
+        if (split("accountable").includes(actor)) return "A"
+        if (split("responsible").includes(actor)) return "R"
+        if (split("consulted").includes(actor))   return "C"
+        if (split("informed").includes(actor))    return "I"
+        return "-"
+      }
       rows.forEach((row: any, i: number) => {
-        const vals = actors.map((a: string) => row.assignments?.[a] ?? "-")
-        const r = ws.addRow([i + 1, row.task, row.phase ?? "-", ...vals])
+        const vals = actors.map((a: string) => getCell(row, a))
+        const r = ws.addRow([i + 1, row.activity ?? row.task ?? "-", row.phase ?? "-", ...vals])
         dataRow(r, i % 2 === 0)
         actors.forEach((_: string, ai: number) => {
           const cell = r.getCell(4 + ai)
