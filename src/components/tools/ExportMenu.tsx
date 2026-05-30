@@ -77,13 +77,33 @@ async function generateFile(
       }
     }
 
-    // Cas standard SheetJS
+    // Cas standard — passer par l'API serveur si projectId disponible
+    if (config.projectId && config.toolType) {
+      const res = await fetch("/api/export/tool-excel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: config.projectId,
+          toolType: config.toolType,
+          projectName: config.projectName,
+        }),
+      })
+      if (!res.ok) throw new Error(`Erreur export Excel : ${res.statusText}`)
+      const blob = await res.blob()
+      const buffer = await blob.arrayBuffer()
+      return {
+        base64: arrayBufferToBase64(buffer),
+        filename: config.filename + ".xlsx",
+        mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        rowCount: config.rows?.length ?? 0,
+      }
+    }
+    // Fallback SheetJS si pas de projectId
     if (!config.rows?.length) throw new Error("Aucune donnée à exporter")
     const XLSX = await import("xlsx")
     const ws = XLSX.utils.json_to_sheet(config.rows)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, config.title.slice(0, 31))
-    // FIX : on utilise type:"array" puis on converti en base64 correctement
     const buf = XLSX.write(wb, { type: "array", bookType: "xlsx" }) as Uint8Array
     return {
       base64: arrayBufferToBase64(buf.buffer as ArrayBuffer),
