@@ -39,7 +39,7 @@ export default function ToolLayout({
   onAdd, addLabel = "+ Ajouter",
   children, projectName,
   exportRows, exportFilename = "export", contentId = "tool-content", onExcelOverride,
-  svgRef, jsonData, pptxSlides, projectId,
+  svgRef, jsonData, pptxSlides, projectId, toolType: toolTypeProp,
   gammaType, gammaData
 }: ToolLayoutProps) {
   const [histOpen, setHistOpen] = useState(false)
@@ -56,7 +56,7 @@ export default function ToolLayout({
     title,
     projectName,
     projectId,
-    toolType: title.toLowerCase().replace(/[^a-z]/g, ""),
+    toolType: toolTypeProp ?? title.toLowerCase().replace(/[^a-z]/g, ""),
   } : null
 
   return (
