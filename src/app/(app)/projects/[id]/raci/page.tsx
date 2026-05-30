@@ -49,7 +49,7 @@ export default function RACIPage() {
     initialized.current = true
     if (data.rows?.length)   setRows(data.rows)
     if (data.actors?.length) setActors(data.actors)
-    if (data.mode)           setMode(data.mode)
+    if (data.mode === "raci" || data.mode === "daci") setMode(data.mode)
   }, [data])
 
   // FIX B4 — saveSilent : persiste SANS créer d'entrée historique
