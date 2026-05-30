@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model,
-        max_tokens: ["wbs","workpackages","raid","gantt","budget","sprint"].includes(tool) ? 8192 : 4096,
+        max_tokens: ["wbs","workpackages","gantt","budget","sprint"].includes(tool) ? 8192 : ["raid","raci","communication"].includes(tool) ? 6144 : 4096,
         system: "Tu es un expert PMO certifié en gestion de projet. Réponds UNIQUEMENT en JSON valide, sans markdown, sans backticks, sans commentaires. Génère des données réalistes et spécifiques au projet donné.",
         messages: [{ role: "user", content: prompt }]
       })
