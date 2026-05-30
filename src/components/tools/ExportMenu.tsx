@@ -69,8 +69,11 @@ async function generateFile(
       if (!res.ok) throw new Error(`Erreur export Excel : ${res.statusText}`)
       const blob = await res.blob()
       const buffer = await blob.arrayBuffer()
+      const b64 = arrayBufferToBase64(buffer)
+      console.log("[ExportMenu] blob size:", blob.size, "| buffer:", buffer.byteLength, "| b64 len:", b64.length)
+      if (!b64 || b64.length < 100) throw new Error("Fichier généré vide — buffer: " + buffer.byteLength)
       return {
-        base64: arrayBufferToBase64(buffer),
+        base64: b64,
         filename: config.filename + ".xlsx",
         mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         rowCount: config.rows?.length ?? 0,
@@ -91,8 +94,11 @@ async function generateFile(
       if (!res.ok) throw new Error(`Erreur export Excel : ${res.statusText}`)
       const blob = await res.blob()
       const buffer = await blob.arrayBuffer()
+      const b64 = arrayBufferToBase64(buffer)
+      console.log("[ExportMenu] blob size:", blob.size, "| buffer:", buffer.byteLength, "| b64 len:", b64.length)
+      if (!b64 || b64.length < 100) throw new Error("Fichier généré vide — buffer: " + buffer.byteLength)
       return {
-        base64: arrayBufferToBase64(buffer),
+        base64: b64,
         filename: config.filename + ".xlsx",
         mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         rowCount: config.rows?.length ?? 0,
