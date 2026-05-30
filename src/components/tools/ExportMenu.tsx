@@ -77,7 +77,7 @@ async function generateFile(
       }
     }
 
-    // Cas standard — API serveur si projectId disponible
+    // Cas standard — API serveur si projectId disponible (tous outils)
     if (config.projectId && config.toolType) {
       const res = await fetch("/api/export/tool-excel", {
         method: "POST",
@@ -91,10 +91,12 @@ async function generateFile(
       if (!res.ok) throw new Error(`Erreur export Excel : ${res.statusText}`)
       const blob = await res.blob()
       const buffer = await blob.arrayBuffer()
+      const b64 = arrayBufferToBase64(buffer)
+      if (!b64 || b64.length < 100) throw new Error('Fichier généré vide')
       return {
-        base64: arrayBufferToBase64(buffer),
-        filename: config.filename + ".xlsx",
-        mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        base64: b64,
+        filename: config.filename + '.xlsx',
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         rowCount: config.rows?.length ?? 0,
       }
     }
