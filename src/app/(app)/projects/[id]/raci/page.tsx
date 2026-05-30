@@ -193,7 +193,7 @@ export default function RACIPage() {
         onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.rows){ setRows(e.data.rows); if(e.data.actors) setActors(e.data.actors); if(e.data.mode==="raci"||e.data.mode==="daci") setMode(e.data.mode) } }}
         onDeleteHistory={deleteHistory}
         onGenerate={generate} generateLabel="Générer RACI" generating={loading}
-        exportRows={rows.length > 0 ? toRows() : undefined} exportFilename={"RACI_"+(project?.name||"")} projectName={project?.name}
+        exportRows={rows.length > 0 ? toRows() : undefined} exportFilename={"RACI_"+(project?.name||"")} projectName={project?.name} projectId={id} toolType="raci"
         gammaType="codir" gammaData={data}>
 
         {/* Controls */}
