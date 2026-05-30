@@ -32,7 +32,7 @@ const empty = ():RACIRow => ({
 export default function RACIPage() {
   const { id } = useParams<{ id:string }>()
   const { project } = useProject(id)
-  const { data, history, loading, setLoading, save, loadHistory, deleteHistory } = useToolData(id, "raci")
+  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "raci")
 
   const [rows, setRows]       = useState<RACIRow[]>([])
   const [actors, setActors]   = useState<string[]>(["Chef de Projet","Sponsor","Équipe","Client","MOE"])
@@ -134,12 +134,10 @@ export default function RACIPage() {
 
   return (
     <AppLayout>
-      <ToolLayout
-        title="RACI Matrix Pro" icon="👥" subtitle="// RESPONSABILITÉS"
+      <ToolLayout title="RACI Matrix Pro" icon="👥" subtitle="// RESPONSABILITÉS"
         history={history} onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.rows) { setRows(e.data.rows); if(e.data.actors) setActors(e.data.actors) } }}
         onGenerate={generate} generateLabel="Générer RACI" generating={loading}
-        exportRows={toRows()} exportFilename={"RACI_"+(project?.name||"")} projectName={project?.name}
-        gammaType="codir" gammaData={data}>
+        exportRows={toRows()} exportFilename={"RACI_"+(project?.name||"")} projectName={project?.name}>
 
         {/* Controls */}
         <div style={{ display:"flex", gap:10, marginBottom:14, alignItems:"center", flexWrap:"wrap" }}>
