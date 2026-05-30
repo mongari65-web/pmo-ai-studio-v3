@@ -76,7 +76,7 @@ export default function JalonsPage() {
         onLoadHistory={(e) => { loadHistory(e); const k = e.data?.jalons ? "jalons" : Object.keys(e.data??{})[0]; if(k) setItems(e.data[k]) }}
         onGenerate={generate} generateLabel="Générer Jalons" generating={loading}
         projectName={project?.name}
-        exportRows={items.map(i => ({ Code:i.code, Nom:i.name, Date:i.date, Statut:i.status, Responsable:i.responsible, Livrables:i.deliverables }))}
+        exportRows={items.length > 0 ? items.map(i => ({ Code:i.code, Nom:i.name, Date:i.date, Statut:i.status, Responsable:i.responsible, Livrables:i.deliverables : undefined}))}
         exportFilename={"jalons_" + (project?.name ?? "")} projectId={id} toolType="jalons">
 
         {items.length === 0 && !loading && (
