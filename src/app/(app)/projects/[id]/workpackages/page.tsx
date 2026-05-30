@@ -367,7 +367,7 @@ export default function WorkPackagesPage() {
         title="Work Packages" icon="📦" subtitle="// WORK PACKAGES"
         history={history} onLoadHistory={(e)=>{loadHistory(e);if(e.data?.workpackages)setWps(e.data.workpackages)}}
         onGenerate={generate} generateLabel="Générer Work Packages" generating={loading}
-        exportRows={toRows()} exportFilename={"WP_"+(project?.name??"")} projectId={id} toolType="workpackages" projectName={project?.name}
+        exportRows={items.length > 0 ? toRows() : undefined} exportFilename={"WP_"+(project?.name??"")} projectId={id} toolType="workpackages" projectName={project?.name}
         pptxSlides={wps.map(w => ({
           title: w.code + " - " + w.name,
           content: [],

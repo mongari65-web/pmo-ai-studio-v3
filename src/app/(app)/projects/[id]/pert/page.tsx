@@ -308,7 +308,7 @@ export default function PERTPage() {
       <ToolLayout title="Réseau PERT" icon="🔵" subtitle="// ANALYSE DU RÉSEAU"
         history={history} onLoadHistory={(e) => { loadHistory(e); if(e.data?.tasks) { const laid=autoLayout(computePERT(e.data.tasks)); setTasks(laid) } }}
         onGenerate={generate} generateLabel="Générer PERT" generating={loading}
-        exportRows={toRows()} exportFilename={"PERT_"+(project?.name??"")} projectId={id} toolType="pert" projectName={project?.name}>
+        exportRows={items.length > 0 ? toRows() : undefined} exportFilename={"PERT_"+(project?.name??"")} projectId={id} toolType="pert" projectName={project?.name}>
 
         {/* KPIs globaux */}
         {computed.length > 0 && (
