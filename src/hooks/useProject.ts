@@ -59,23 +59,31 @@ export function useToolData(projectId: string, toolType: string) {
     if (!projectId || !toolType) return
     console.log(`[save] ${toolType}: saving ${JSON.stringify(newData).length} chars`)
 
-    // Upsert current
+    // FIX B4 — si _noSnapshot:true, persiste sans créer d'entrée historique
+    const noSnapshot = newData?._noSnapshot === true
+    const cleanData = noSnapshot
+      ? (({ _noSnapshot, ...rest }) => rest)(newData)
+      : newData
+
+    // Upsert current data
     const { error: upsertErr } = await supabase.from("project_tools").upsert(
-      { project_id: projectId, tool_type: toolType, data: newData, updated_at: new Date().toISOString() },
+      { project_id: projectId, tool_type: toolType, data: cleanData, updated_at: new Date().toISOString() },
       { onConflict: "project_id,tool_type" }
     )
     if (upsertErr) console.error("[save] upsert:", upsertErr.message)
 
-    // Save to history
-    const { data: hist, error: histErr } = await supabase.from("tool_history").insert({
-      project_id: projectId, tool_type: toolType,
-      label: label ?? `${toolType} — ${new Date().toLocaleDateString("fr-FR", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })}`,
-      data: newData
-    }).select().single()
+    // Snapshot historique — seulement si pas noSnapshot
+    if (!noSnapshot) {
+      const { data: hist, error: histErr } = await supabase.from("tool_history").insert({
+        project_id: projectId, tool_type: toolType,
+        label: label ?? `${toolType} — ${new Date().toLocaleDateString("fr-FR", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })}`,
+        data: cleanData
+      }).select().single()
+      if (histErr) console.error("[save] history:", histErr.message)
+      if (hist) setHistory(prev => [hist, ...prev.slice(0, 9)])
+    }
 
-    if (histErr) console.error("[save] history:", histErr.message)
-    if (hist) setHistory(prev => [hist, ...prev.slice(0, 9)])
-    setData(newData)
+    setData(cleanData)
   }, [projectId, toolType])
 
   const loadHistory = useCallback((entry: any) => {
