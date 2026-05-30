@@ -29,6 +29,7 @@ interface ToolLayoutProps {
   jsonData?: any
   pptxSlides?: Array<{ title: string; content: string[] }>
   projectId?: string
+  toolType?: string
   gammaType?: "codir"|"fiche-mission"|"raid"|"okr"|"scrum"|"formation"|"gantt"|"onboarding"
   gammaData?: any
 }
