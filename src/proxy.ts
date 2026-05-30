@@ -15,10 +15,7 @@ export async function proxy(request: NextRequest) {
   // Maintenance : MAINTENANCE_MODE=true dans Vercel env vars
   const maintenanceActive = process.env.MAINTENANCE_MODE === 'true'
   const isAuthRoute = pathname.startsWith('/auth')
-  if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute && !isAuthRoute) {
-    // Temporairement stocker pour check admin plus bas
-    // La redirection maintenance se fait après vérification admin
-  }
+  // En mode maintenance, on bloque TOUT sauf maintenance page, assets et api
   // ─────────────────────────────────────────────────────────
 
   let supabaseResponse = NextResponse.next({ request })
@@ -44,7 +41,7 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // ── Check maintenance avec bypass admin ─────────────────────
-  if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute && !isAuthRoute) {
+  if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute) {
     if (!user) {
       return NextResponse.redirect(new URL('/maintenance', request.url))
     }
