@@ -55,6 +55,8 @@ export default function ToolLayout({
     pptxSlides,
     title,
     projectName,
+    projectId,
+    toolType: title.toLowerCase().replace(/[^a-z]/g, ""),
   } : null
 
   return (
