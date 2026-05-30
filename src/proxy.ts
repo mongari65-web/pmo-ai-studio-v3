@@ -7,7 +7,7 @@ const PRO_ROUTES = ["/portfolio", "/ressources", "/templates", "/propale"]
 export async function proxy(request: NextRequest) {
   // ── MODE MAINTENANCE (lu depuis Supabase app_config) ────
   const { pathname } = request.nextUrl
-  const isMaintenancePage = pathname === '/maintenance'
+  const isMaintenancePage = pathname === '/maintenance' || pathname.startsWith('/maintenance')
   const isStaticAsset = pathname.startsWith('/_next') || pathname.startsWith('/favicon') || pathname === '/sitemap.xml' || pathname === '/robots.txt'
   const isAdminRoute = pathname.startsWith('/admin')
   const isApiRoute = pathname.startsWith('/api')
@@ -41,7 +41,7 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // ── Check maintenance avec bypass admin ─────────────────────
-  if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute) {
+  if (maintenanceActive && !isMaintenancePage && !isStaticAsset && !isAdminRoute && !isApiRoute && !isAuthRoute) {
     if (!user) {
       return NextResponse.redirect(new URL('/maintenance', request.url))
     }
@@ -57,7 +57,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // ── Redirect unauthenticated users ──────────────────────────
-  const publicPaths = ["/", "/auth/login", "/auth/register", "/auth/callback", "/auth/connexion", "/auth/inscription", "/auth/forgot-password", "/auth/reset-password"]
+  const publicPaths = ["/", "/maintenance", "/auth/login", "/auth/register", "/auth/callback", "/auth/connexion", "/auth/inscription", "/auth/forgot-password", "/auth/reset-password"]
   const isPublic = publicPaths.some(p => path === p) || path.startsWith("/api/") || path.startsWith("/embed/") || path.startsWith("/legal/") || path === "/changelog" || path === "/about" || path.startsWith("/blog") || path.endsWith(".html") || path.startsWith("/landing") || path === "/pricing" || path === "/demo" || path.startsWith("/demo") || path === "/contact" || path === "/auth/forgot-password" || path === "/auth/reset-password"
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
