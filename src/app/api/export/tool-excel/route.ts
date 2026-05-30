@@ -129,7 +129,14 @@ export async function POST(req: NextRequest) {
       ws.addRow([])
       const h = ws.addRow(["#", "Tâche / Livrable", "Phase", ...actors])
       hdr(ws, h, PURPLE)
-      const raciColors: Record<string, string> = { R: "1E3A8A", A: "DC2626", C: "D97706", I: "16A34A", "-": "94A3B8" }
+      const raciCfg: Record<string, {bg:string; fg:string}> = {
+        R: { bg:"1E3A8A", fg:"FFFFFF" },
+        A: { bg:"DC2626", fg:"FFFFFF" },
+        C: { bg:"D97706", fg:"FFFFFF" },
+        I: { bg:"16A34A", fg:"FFFFFF" },
+        D: { bg:"7B5EFF", fg:"FFFFFF" },
+        "-": { bg:"F1F5F9", fg:"94A3B8" },
+      }
       // Helper : calcule la lettre RACI pour un acteur donné
       const getCell = (row: any, actor: string): string => {
         const split = (f: string) => (row[f] ?? "").split(",").map((s: string) => s.trim())
@@ -143,13 +150,25 @@ export async function POST(req: NextRequest) {
       rows.forEach((row: any, i: number) => {
         const vals = actors.map((a: string) => getCell(row, a))
         const r = ws.addRow([i + 1, row.activity ?? row.task ?? "-", row.phase ?? "-", ...vals])
-        dataRow(r, i % 2 === 0)
+        r.getCell(1).fill = { type:"pattern", pattern:"solid", fgColor:{ argb: i%2===0 ? "FFF8FAFC":"FFFFFFFF" } }
+        r.getCell(2).fill = { type:"pattern", pattern:"solid", fgColor:{ argb: i%2===0 ? "FFF8FAFC":"FFFFFFFF" } }
+        r.getCell(3).fill = { type:"pattern", pattern:"solid", fgColor:{ argb: i%2===0 ? "FFF8FAFC":"FFFFFFFF" } }
+        r.getCell(2).font = { size:11, color:{ argb:"FF1F2937" } }
+        r.getCell(3).font = { size:10, italic:true, color:{ argb:"FF6B7280" } }
+        r.height = 20
         actors.forEach((_: string, ai: number) => {
           const cell = r.getCell(4 + ai)
           const v = cell.value as string
-          const cc = raciColors[v] ?? "64748B"
-          cell.font = { bold: true, color: { argb: "FF" + cc } }
-          cell.alignment = { horizontal: "center" }
+          const cfg = raciCfg[v] ?? raciCfg["-"]
+          cell.fill = { type:"pattern", pattern:"solid", fgColor:{ argb:"FF"+cfg.bg } }
+          cell.font = { bold: v !== "-", size:12, color:{ argb:"FF"+cfg.fg } }
+          cell.alignment = { horizontal:"center", vertical:"middle" }
+          cell.border = {
+            top:   { style:"thin", color:{ argb:"FFFFFFFF" } },
+            bottom:{ style:"thin", color:{ argb:"FFFFFFFF" } },
+            left:  { style:"thin", color:{ argb:"FFFFFFFF" } },
+            right: { style:"thin", color:{ argb:"FFFFFFFF" } },
+          }
         })
       })
       // Légende
