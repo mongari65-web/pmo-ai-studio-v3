@@ -120,7 +120,7 @@ export default function RAIDPage() {
         history={history} onLoadHistory={(e) => { loadHistory(e); if(e.data?.items) setItems(e.data.items) }}
         onGenerate={generate} generateLabel="Générer RAID" generating={loading}
         onAdd={() => setShowAdd(true)} addLabel="+ Ajouter"
-        exportRows={filtered.length > 0 ? filtered.map(i => ({ Catégorie: i.category, Titre: i.title, Priorité: i.priority, Responsable: i.owner, Échéance: i.due_date, Statut: i.status, Mitigation: i.mitigation })) : undefined}}
+        exportRows={filtered.length > 0 ? filtered.map(i => ({ Catégorie: i.category, Titre: i.title, Priorité: i.priority, Responsable: i.owner, Échéance: i.due_date, Statut: i.status, Mitigation: i.mitigation })) : undefined}
         exportFilename={"RAID_" + (project?.name ?? "")} projectId={id} toolType="raid" projectName={project?.name}
         gammaType="raid" gammaData={data}>
 
