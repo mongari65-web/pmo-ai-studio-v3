@@ -190,7 +190,7 @@ export default function RACIPage() {
       <ToolLayout
         title="RACI Matrix Pro" icon="👥" subtitle="// RESPONSABILITÉS"
         history={history}
-        onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.rows){ setRows(e.data.rows); if(e.data.actors) setActors(e.data.actors); if(e.data.mode) setMode(e.data.mode) } }}
+        onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.rows){ setRows(e.data.rows); if(e.data.actors) setActors(e.data.actors); if(e.data.mode==="raci"||e.data.mode==="daci") setMode(e.data.mode) } }}
         onDeleteHistory={deleteHistory}
         onGenerate={generate} generateLabel="Générer RACI" generating={loading}
         exportRows={toRows()} exportFilename={"RACI_"+(project?.name||"")} projectName={project?.name}
