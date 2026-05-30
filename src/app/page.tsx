@@ -208,7 +208,7 @@ function AppCarousel() {
               }}>{t}</span>
             ))}
           </div>
-          <Link href="/auth/inscription" style={{
+          <Link href="/auth/register" style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
             padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 700,
             background: slide.color, color: '#fff', textDecoration: 'none',
@@ -266,10 +266,10 @@ export default function LandingPage() {
             <Link href="/demo" style={{ padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#7B5EFF', textDecoration: 'none', border: '1px solid rgba(123,94,255,0.3)' }}>
               👁️ Démo live
             </Link>
-            <Link href="/auth/connexion" style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#64748b', textDecoration: 'none' }}>
+            <Link href="/auth/login" style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#64748b', textDecoration: 'none' }}>
               Connexion
             </Link>
-            <Link href="/auth/inscription" style={{ padding: '9px 22px', borderRadius: 9, fontSize: 13, fontWeight: 700, background: 'linear-gradient(135deg,#1e40af,#3b82f6)', color: '#fff', textDecoration: 'none' }}>
+            <Link href="/auth/register" style={{ padding: '9px 22px', borderRadius: 9, fontSize: 13, fontWeight: 700, background: 'linear-gradient(135deg,#1e40af,#3b82f6)', color: '#fff', textDecoration: 'none' }}>
               Essai gratuit →
             </Link>
           </div>
@@ -314,7 +314,7 @@ export default function LandingPage() {
           </p>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
-            <Link href="/auth/inscription" style={{
+            <Link href="/auth/register" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '15px 32px', borderRadius: 12, fontSize: 15, fontWeight: 800,
               background: 'linear-gradient(135deg,#1e40af,#3b82f6)', color: '#fff', textDecoration: 'none',
@@ -611,7 +611,7 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/auth/inscription" style={{ display: 'block', textAlign: 'center', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none', background: plan.ctaBg, color: plan.ctaColor }}>
+                <Link href="/auth/register" style={{ display: 'block', textAlign: 'center', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none', background: plan.ctaBg, color: plan.ctaColor }}>
                   {plan.cta}
                 </Link>
               </div>
@@ -681,7 +681,7 @@ export default function LandingPage() {
           <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.8)', margin: '0 0 36px', lineHeight: 1.7, maxWidth: 560, marginLeft: 'auto', marginRight: 'auto' }}>
             Rejoignez les chefs de projet qui utilisent les standards internationaux et l'IA pour livrer plus vite, mieux et sans stress.
           </p>
-          <Link href="/auth/inscription" style={{ display: 'inline-block', padding: '16px 40px', borderRadius: 12, fontSize: 16, fontWeight: 800, background: '#fff', color: '#1e40af', textDecoration: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
+          <Link href="/auth/register" style={{ display: 'inline-block', padding: '16px 40px', borderRadius: 12, fontSize: 16, fontWeight: 800, background: '#fff', color: '#1e40af', textDecoration: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
             Commencer gratuitement →
           </Link>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 16 }}>✓ Sans carte bancaire &nbsp;·&nbsp; ✓ Accès immédiat &nbsp;·&nbsp; ✓ Support inclus</p>
@@ -698,7 +698,7 @@ export default function LandingPage() {
           <div style={{ display: 'flex', gap: 24, fontSize: 13 }}>
             <Link href="/pricing" style={{ color: '#64748b', textDecoration: 'none' }}>Tarifs</Link>
             <Link href="/demo" style={{ color: '#64748b', textDecoration: 'none' }}>Démo</Link>
-            <Link href="/auth/connexion" style={{ color: '#64748b', textDecoration: 'none' }}>Connexion</Link>
+            <Link href="/auth/login" style={{ color: '#64748b', textDecoration: 'none' }}>Connexion</Link>
             <a href="https://www.youtube.com/@PMOAIStudio" target="_blank" rel="noopener noreferrer" style={{ color: '#64748b', textDecoration: 'none' }}>YouTube</a>
             <a href="/contact" style={{ color: '#64748b', textDecoration: 'none' }}>Contact</a>
           </div>
