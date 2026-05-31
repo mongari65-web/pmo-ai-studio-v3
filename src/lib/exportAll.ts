@@ -1,7 +1,7 @@
 
 // lib/exportAll.ts — Exports universels : Excel, PDF, Word, PPTX, Notion, Gmail, Drive
 
-// ── EXCEL ─────────────────────────────────────────────────────────
+// -- EXCEL
 export async function exportExcel(rows: Record<string, any>[], filename: string, sheetName = "Export") {
   if (!rows.length) return
   try {
@@ -19,7 +19,7 @@ export async function exportExcel(rows: Record<string, any>[], filename: string,
   }
 }
 
-// ── PDF (via impression navigateur) ──────────────────────────────
+// -- PDF (via impression navigateur) 
 export function exportPDF(elementId: string, title: string, projectName = "") {
   const el = document.getElementById(elementId)
   if (!el) return
@@ -49,7 +49,7 @@ export function exportPDF(elementId: string, title: string, projectName = "") {
   setTimeout(() => { w.print() }, 600)
 }
 
-// ── WORD (.docx via HTML blob) ─────────────────────────────────
+// -- WORD (.docx via HTML blob) 
 export function exportWord(content: string, filename: string, title: string) {
   const html = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -89,7 +89,7 @@ export function exportWord(content: string, filename: string, title: string) {
   URL.revokeObjectURL(a.href)
 }
 
-// ── PPTX (via API route) ──────────────────────────────────────
+// -- PPTX (via API route) 
 export async function exportPPTX(
   title: string,
   slides: Array<{ title: string; content: string[] }>,
@@ -115,13 +115,13 @@ export async function exportPPTX(
   }
 }
 
-// ── GMAIL ─────────────────────────────────────────────────────
+// -- GMAIL 
 export function exportGmail(subject: string, body: string) {
   const url = `https://mail.google.com/mail/?view=cm&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
   window.open(url, "_blank")
 }
 
-// ── GOOGLE DRIVE ──────────────────────────────────────────────
+// -- GOOGLE DRIVE 
 export async function exportDrive(content: string, filename: string, mimeType = "text/plain") {
   try {
     const res = await fetch("/api/export/drive", {
@@ -137,7 +137,7 @@ export async function exportDrive(content: string, filename: string, mimeType = 
   }
 }
 
-// ── NOTION ────────────────────────────────────────────────────
+// -- NOTION 
 export async function exportNotion(title: string, content: string) {
   try {
     const res = await fetch("/api/export/notion", {
@@ -153,7 +153,7 @@ export async function exportNotion(title: string, content: string) {
   }
 }
 
-// ── CSV ───────────────────────────────────────────────────────
+// -- CSV 
 export function exportCSV(rows: Record<string, any>[], filename: string) {
   if (!rows.length) return
   const headers = Object.keys(rows[0])
@@ -173,7 +173,7 @@ export function exportCSV(rows: Record<string, any>[], filename: string) {
   URL.revokeObjectURL(a.href)
 }
 
-// ── JSON ──────────────────────────────────────────────────────
+// -- JSON 
 export function exportJSON(data: unknown, filename: string) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
   const a = document.createElement("a")
@@ -183,7 +183,7 @@ export function exportJSON(data: unknown, filename: string) {
   URL.revokeObjectURL(a.href)
 }
 
-// ── PNG (canvas/SVG screenshot) ───────────────────────────────
+// -- PNG (canvas/SVG screenshot) 
 export function exportSVGasPNG(svgElement: SVGElement, filename: string) {
   const svgData = new XMLSerializer().serializeToString(svgElement)
   const canvas = document.createElement("canvas")
@@ -206,7 +206,7 @@ export function exportSVGasPNG(svgElement: SVGElement, filename: string) {
   img.src = url
 }
 
-// ── Helper : rows depuis tableau générique ────────────────────
+// -- Helper : rows depuis tableau générique 
 export function tableToRows(items: any[]): Record<string, any>[] {
   if (!items.length) return []
   return items.map(item => {
