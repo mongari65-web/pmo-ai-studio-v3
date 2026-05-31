@@ -47,9 +47,16 @@ export async function POST(req: NextRequest) {
       invited_by: invitedBy,
     }))
 
+    // Supprimer les entrées existantes puis réinsérer
+    await supabaseAdmin
+      .from("project_members")
+      .delete()
+      .eq("email", targetProfile?.email)
+      .in("project_id", projectIds)
+
     const { error } = await supabaseAdmin
       .from("project_members")
-      .upsert(inserts, { onConflict: "project_id,email" })
+      .insert(inserts)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
