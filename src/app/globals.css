@@ -143,6 +143,12 @@ input[type="password"] {
     height: auto !important;
   }
 
+  /* Éviter les coupures au milieu des blocs */
+  div[style*="background"] {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
   /* Grilles responsive en print */
   [style*="gridTemplateColumns"] {
     grid-template-columns: 1fr 1fr !important;
