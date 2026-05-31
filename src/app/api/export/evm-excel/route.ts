@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import ExcelJS from "exceljs"
+import { ChartJSNodeCanvas } from "chartjs-node-canvas"
 
 const MONTHS = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"]
 
@@ -273,25 +274,50 @@ export async function POST(req: NextRequest) {
       })
     })
 
-    // Instructions graphique Courbe S
-    wsS.addRow([])
-    wsS.addRow([])
-    const instrRow = wsS.addRow(["📊 COMMENT CRÉER LE GRAPHIQUE COURBE S :"])
-    instrRow.getCell(1).font = { bold: true, color: { argb: "FF" + BLUE_DARK }, size: 12 }
-    const steps = [
-      "1. Sélectionnez les colonnes : Mois (A), PV Cumulé (C), EV Cumulé (E), AC Cumulé (G)",
-      "2. Menu Insertion → Graphique → Courbe",
-      "3. Titre : 'Courbe S EVM — " + projectName + "'",
-      "4. Axe X : Mois | Axe Y : Valeur (€)",
-      "5. Couleurs suggérées : PV=Bleu, EV=Vert, AC=Orange",
-      "6. Ajoutez une ligne verticale sur le mois " + MONTHS[cp] + " (période courante)",
-    ]
-    steps.forEach(s => {
-      const r = wsS.addRow([s])
-      r.getCell(1).font = { color: { argb: "FF374151" } }
-      r.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFF7ED" } }
-      r.height = 18
-    })
+    // Générer graphique Courbe S avec chartjs-node-canvas
+    try {
+      const chartCanvas = new ChartJSNodeCanvas({ width: 900, height: 400, backgroundColour: "#0f172a" })
+      const pvCum: number[] = [], evCum: number[] = [], acCum: number[] = []
+      let pvC2 = 0, evC2 = 0, acC2 = 0
+      MONTHS.forEach((_, i) => {
+        pvC2 += tasks.reduce((s: number, t: any) => s + (t.pv?.[i]??0), 0)
+        evC2 += tasks.reduce((s: number, t: any) => s + (t.ev?.[i]??0), 0)
+        acC2 += tasks.reduce((s: number, t: any) => s + (t.ac?.[i]??0), 0)
+        pvCum.push(pvC2); evCum.push(evC2); acCum.push(acC2)
+      })
+      const chartImg = await chartCanvas.renderToBuffer({
+        type: "line",
+        data: {
+          labels: MONTHS,
+          datasets: [
+            { label: "PV — Planifié",  data: pvCum, borderColor: "#3b82f6", backgroundColor: "rgba(59,130,246,0.1)", borderWidth: 2.5, pointRadius: 3, tension: 0.3, fill: false },
+            { label: "EV — Acquis",    data: evCum, borderColor: "#22c55e", backgroundColor: "rgba(34,197,94,0.1)",  borderWidth: 2.5, pointRadius: 3, tension: 0.3, fill: false },
+            { label: "AC — Réel",      data: acCum, borderColor: "#f59e0b", backgroundColor: "rgba(245,158,11,0.1)", borderWidth: 2.5, pointRadius: 3, tension: 0.3, fill: false },
+          ]
+        },
+        options: {
+          responsive: false,
+          plugins: {
+            legend: { labels: { color: "#e2e8f0", font: { size: 12 } } },
+            title: { display: true, text: `Courbe S EVM — ${projectName}`, color: "#f1f5f9", font: { size: 14, weight: "bold" } }
+          },
+          scales: {
+            x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+            y: { ticks: { color: "#94a3b8", callback: (v: any) => v >= 1000 ? (v/1000).toFixed(0)+"k€" : v+"€" }, grid: { color: "rgba(255,255,255,0.08)" } }
+          }
+        }
+      })
+      const imgId = wb.addImage({ buffer: chartImg, extension: "png" })
+      wsS.addRow([])
+      wsS.addRow([])
+      wsS.addImage(imgId, { tl: { col: 0, row: wsS.rowCount }, ext: { width: 860, height: 380 } })
+      // Ajouter des lignes vides pour l'espace du graphique
+      for (let i = 0; i < 22; i++) wsS.addRow([])
+    } catch(chartErr) {
+      console.error("[evm-excel] chart error:", chartErr)
+      wsS.addRow([])
+      wsS.addRow(["📊 Graphique non disponible — utilisez les données ci-dessus pour créer le graphique manuellement"])
+    }
 
     // ════════════════════════════════════════════════════
     // ONGLET — Paramètres
