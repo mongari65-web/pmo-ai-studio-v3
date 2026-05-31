@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState, useMemo } from "react"
+import { Download } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import AppLayout from "@/components/layout/AppLayout"
 import Link from "next/link"
@@ -84,7 +85,7 @@ export default function OKRGlobalPage() {
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div>
             <p style={{ fontSize:10, color:"var(--text-3)", textTransform:"uppercase", letterSpacing:"1px", margin:"0 0 4px" }}>// OKR PORTFOLIO</p>
-            <h1 style={{ fontSize:22, fontWeight:800, color:"var(--text-1)", margin:0 }}>OKR — Vue Portfolio</h1>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}><h1 style={{ fontSize:22, fontWeight:800, color:"var(--text-1)", margin:0 }}>OKR — Vue Portfolio</h1><button onClick={()=>{ const {exportPDF} = require("@/lib/exportAll"); exportPDF("okr-global-content","OKR Global") }} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:8, fontSize:12, color:"var(--primary-light)", cursor:"pointer" }}><Download size={13}/> Exporter PDF</button></div>
             <p style={{ fontSize:13, color:"var(--text-3)", margin:"4px 0 0" }}>Objectifs & Résultats Clés — tous projets</p>
           </div>
           <div style={{ display:"flex", gap:8 }}>
