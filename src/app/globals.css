@@ -102,3 +102,28 @@ input[type="password"] {
 .text-muted-foreground { color: var(--text-2) !important; }
 .border-border, .border { border-color: var(--border) !important; }
 .bg-card { background: var(--bg-card) !important; }
+
+/* ── PRINT STYLES ─────────────────────────────── */
+@media print {
+  /* Masquer sidebar, navbar, boutons non pertinents */
+  nav, aside,
+  [class*="sidebar"], [class*="Sidebar"],
+  [data-sidebar], #sidebar,
+  .no-print,
+  button { display: none !important; }
+
+  /* Afficher tout le contenu sans scroll */
+  body, html { overflow: visible !important; height: auto !important; }
+  * { overflow: visible !important; }
+
+  /* Fond blanc, texte noir */
+  body { background: white !important; color: black !important; }
+
+  /* Pleine largeur */
+  main, [role="main"], .main-content { 
+    margin: 0 !important; 
+    padding: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
