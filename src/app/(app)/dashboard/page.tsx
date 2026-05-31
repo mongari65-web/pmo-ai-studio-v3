@@ -150,7 +150,7 @@ export default function DashboardPage() {
 
   return (
     <AppLayout>
-      <div style={{ padding:"18px 24px", background:"var(--bg)", minHeight:"100%", display:"flex", flexDirection:"column", gap:14 }}>
+      <div id="dashboard-content" style={{ padding:"18px 24px", background:"var(--bg)", minHeight:"100%", display:"flex", flexDirection:"column", gap:14 }}>
 
         {/* Header */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
