@@ -341,7 +341,7 @@ export async function POST(req: NextRequest) {
       const objectives = d.objectives ?? []
       const ws = wb.addWorksheet("OKR", { properties: { tabColor: { argb: "FF7C3AED" } } })
       const CAT_COLORS: Record<string, string> = {
-        "Strategique": "1E3A8A", "Strategique": "1E3A8A",
+        "Strategique": "1E3A8A",
         "Client": "059669", "Qualite": "D97706",
         "Finance": "DC2626", "RH": "7C3AED", "Innovation": "0891B2",
         "Operationnel": "64748B",
