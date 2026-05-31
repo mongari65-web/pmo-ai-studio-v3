@@ -38,6 +38,7 @@ const NAV_GROUPS = [
     items: [
       { href:"/ressources",   icon:Users,     label:"Ressources" },
       { href:"/clients",      icon:Building2, label:"Clients" },
+      { href:"/members",       icon:Users,     label:"Membres" },
       { href:"/share",         icon:Share2,    label:"Partager projets" },
     ]
   },
