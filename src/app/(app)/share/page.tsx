@@ -116,7 +116,7 @@ export default function ShareProjectsPage() {
                 style={{ padding:"10px 24px", borderRadius:10, border:"1px solid var(--border)", background:"transparent", color:"var(--text-1)", fontSize:13, fontWeight:600, cursor:"pointer" }}>
                 Nouveau partage
               </button>
-              <button onClick={() => window.location.href = "/members"}
+              <button onClick={() => window.location.href = "/clients"}
                 style={{ padding:"10px 24px", borderRadius:10, border:"none", background:"linear-gradient(135deg,#1e40af,#3b82f6)", color:"#fff", fontSize:13, fontWeight:600, cursor:"pointer" }}>
                 Voir les membres
               </button>
