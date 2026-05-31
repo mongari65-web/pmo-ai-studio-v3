@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState, useMemo } from "react"
 import { exportPDF } from "@/lib/exportAll"
+import EmailCaptureButton from "@/components/ui/EmailCaptureButton"
 import { Download } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import AppLayout from "@/components/layout/AppLayout"
@@ -162,6 +163,7 @@ export default function DashboardPage() {
                 {new Date().toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", year:"numeric" })}
               </p>
             </div>
+            <EmailCaptureButton captureId="dashboard-content" title="Dashboard PMO" projectName={selectedProject?.name}/>
             <button onClick={()=>window.print()}
               style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:8, fontSize:12, color:"var(--primary-light)", cursor:"pointer", whiteSpace:"nowrap" }}>
               <Download size={13}/> Exporter PDF
