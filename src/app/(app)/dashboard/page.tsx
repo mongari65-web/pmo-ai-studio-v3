@@ -162,7 +162,7 @@ export default function DashboardPage() {
                 {new Date().toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", year:"numeric" })}
               </p>
             </div>
-            <button onClick={()=>exportPDF("dashboard-content","Export PMO")}
+            <button onClick={()=>window.print()}
               style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:8, fontSize:12, color:"var(--primary-light)", cursor:"pointer", whiteSpace:"nowrap" }}>
               <Download size={13}/> Exporter PDF
             </button>

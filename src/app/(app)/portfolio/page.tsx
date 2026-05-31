@@ -150,7 +150,7 @@ export default function PortfolioPage() {
             <p style={{ fontSize:13, color:"var(--text-3)", margin:"4px 0 0" }}>Rouge · Ambre · Vert — Santé globale de tous vos projets</p>
           </div>
           <div style={{ display:"flex", gap:8 }}>
-            <button onClick={()=>exportPDF("portfolio-content","Export PMO")}
+            <button onClick={()=>window.print()}
               style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:8, fontSize:12, color:"var(--primary-light)", cursor:"pointer" }}>
               <Download size={13}/> Exporter PDF
             </button>
