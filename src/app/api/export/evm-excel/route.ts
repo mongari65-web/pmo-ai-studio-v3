@@ -307,7 +307,7 @@ export async function POST(req: NextRequest) {
           }
         }
       })
-      const imgId = wb.addImage({ buffer: chartImg, extension: "png" })
+      const imgId = wb.addImage({ buffer: chartImg as unknown as Buffer, extension: "png" })
       wsS.addRow([])
       wsS.addRow([])
       wsS.addImage(imgId, { tl: { col: 0, row: wsS.rowCount }, ext: { width: 860, height: 380 } })
