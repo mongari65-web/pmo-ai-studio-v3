@@ -107,6 +107,10 @@ input[type="password"] {
 
 /* PRINT STYLES */
 @media print {
+  /* Masquer boutons, liens d'action et icônes refresh */
+  button, .no-print,
+  [class*="sidebar"], [class*="Sidebar"],
+  [data-sidebar], aside { display: none !important; }
   /* Masquer sidebar et navigation */
   [class*="sidebar"], [class*="Sidebar"],
   [data-sidebar], aside,
