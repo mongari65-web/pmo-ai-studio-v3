@@ -335,6 +335,60 @@ export async function POST(req: NextRequest) {
       tot.eachCell(c => c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + BLUE_L } })
     }
 
+
+    // -- OKR
+    else if (toolType === "okr") {
+      const objectives = d.objectives ?? []
+      const ws = wb.addWorksheet("OKR", { properties: { tabColor: { argb: "FF7C3AED" } } })
+      const CAT_COLORS: Record<string, string> = {
+        "Strategique": "1E3A8A", "Strategique": "1E3A8A",
+        "Client": "059669", "Qualite": "D97706", "Qualite": "D97706",
+        "Finance": "DC2626", "RH": "7C3AED", "Innovation": "0891B2",
+        "Operationnel": "64748B", "Operationnel": "64748B",
+      }
+      const progColor = (p: number) => p >= 80 ? GREEN : p >= 60 ? YELLOW : p >= 40 ? "F59E0B" : RED
+      ws.columns = [{ width:8 },{ width:35 },{ width:12 },{ width:14 },{ width:18 },{ width:40 },{ width:10 },{ width:10 },{ width:8 },{ width:12 }]
+      title(ws, `OKR TRACKER -- ${pName}`, `${objectives.length} objectifs | ${date}`, 10)
+      ws.addRow([])
+      hdr(ws, ws.addRow(["#","Objectif","Trimestre","Categorie","Responsable","Key Result","Actuel","Cible","Poids","Progression"]), "7C3AED")
+      let rowIdx = 0
+      objectives.forEach((obj: any, i: number) => {
+        const krs = obj.keyResults ?? []
+        const totalW = krs.reduce((s: number, kr: any) => s + (kr.weight ?? 1), 0)
+        const objProg = totalW > 0 ? Math.round(krs.reduce((s: number, kr: any) => {
+          const p = kr.target > 0 ? Math.min(100, Math.round(kr.current / kr.target * 100)) : 0
+          return s + p * (kr.weight ?? 1)
+        }, 0) / totalW) : 0
+        const cc = CAT_COLORS[obj.category] ?? "64748B"
+        const rowsToAdd = krs.length > 0 ? krs : [null]
+        rowsToAdd.forEach((kr: any, j: number) => {
+          const krProg = kr && kr.target > 0 ? Math.min(100, Math.round(kr.current / kr.target * 100)) : 0
+          const r = ws.addRow([
+            j === 0 ? i + 1 : "",
+            j === 0 ? obj.title : "",
+            j === 0 ? obj.quarter : "",
+            j === 0 ? obj.category : "",
+            j === 0 ? obj.owner : "",
+            kr ? kr.text : "Aucun KR",
+            kr ? (kr.current ?? 0) : "",
+            kr ? (kr.target ?? 100) : "",
+            kr ? (kr.weight ?? 1) : "",
+            `${kr ? krProg : objProg}%`
+          ])
+          r.height = 20
+          const bg = j === 0 ? (rowIdx % 2 === 0 ? "FFF8FAFC" : "FFFFFFFF") : (rowIdx % 2 === 0 ? "FFEFF6FF" : "FFF0FDF4")
+          r.eachCell(c => c.fill = { type:"pattern", pattern:"solid", fgColor:{ argb: bg } })
+          if (j === 0) {
+            r.getCell(2).font = { bold: true }
+            r.getCell(4).font = { bold: true, color: { argb: "FF" + cc } }
+          }
+          r.getCell(10).font = { bold: true, color: { argb: "FF" + progColor(kr ? krProg : objProg) } }
+          r.getCell(10).alignment = { horizontal: "center" }
+          rowIdx++
+        })
+      })
+    }
+
     // ── GÉNÉRIQUE (autres outils) ─────────────────────────────
     else {
       const ws = wb.addWorksheet(toolType, { properties: { tabColor: { argb: "FF1E3A8A" } } })
