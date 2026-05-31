@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import ExcelJS from "exceljs"
 import sharp from "sharp"
 
-const MONTHS = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"]
+const MONTHS = ["Jan","Feb","Mar","Avr","Mai","Jun","Jul","Aou","Sep","Oct","Nov","Dec"]
 
 // Couleurs PMO AI Studio
 const BLUE_DARK  = "1E3A8A"
