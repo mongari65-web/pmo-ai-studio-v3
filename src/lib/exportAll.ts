@@ -46,7 +46,6 @@ export function exportPDF(elementId: string, title: string, projectName = "") {
   document.title = originalTitle
   // Nettoyer après impression
   setTimeout(() => { style.textContent = "" }, 1000)
-  setTimeout(() => { w.print() }, 600)
 }
 
 // -- WORD (.docx via HTML blob) 
