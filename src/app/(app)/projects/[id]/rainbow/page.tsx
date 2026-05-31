@@ -162,8 +162,8 @@ export default function RainbowPage() {
                   <KPI label="BAC" value={fmt(bac)} sub="Budget total"/>
                   <KPI label="EV" value={fmt(ev)} sub="Valeur acquise"/>
                   <KPI label="AC" value={fmt(ac)} sub="Coût réel"/>
-                  <KPI label="CPI" value={cpi?.toFixed(2)??"-"} color={cpi?.(cpi>=1?"#22c55e":cpi>=0.9?"#f59e0b":"#ef4444"):undefined} sub="Perf. coût"/>
-                  <KPI label="SPI" value={spi?.toFixed(2)??"-"} color={spi?.(spi>=1?"#22c55e":spi>=0.9?"#f59e0b":"#ef4444"):undefined} sub="Perf. délai"/>
+                  <KPI label="CPI" value={cpi?.toFixed(2)??"-"} color={cpi!==null?(cpi>=1?"#22c55e":cpi>=0.9?"#f59e0b":"#ef4444"):undefined} sub="Perf. coût"/>
+                  <KPI label="SPI" value={spi?.toFixed(2)??"-"} color={spi!==null?(spi>=1?"#22c55e":spi>=0.9?"#f59e0b":"#ef4444"):undefined} sub="Perf. délai"/>
                   <KPI label="EAC" value={fmt(eac)} sub="Estimation finale"/>
                   <KPI label="CV" value={fmtSign(cv)} color={cv>=0?"#22c55e":"#ef4444"} sub="Écart coût"/>
                 </div>
