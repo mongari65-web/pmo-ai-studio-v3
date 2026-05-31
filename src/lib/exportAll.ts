@@ -23,36 +23,29 @@ export async function exportExcel(rows: Record<string, any>[], filename: string,
 export function exportPDF(elementId: string, title: string, projectName = "") {
   const el = document.getElementById(elementId)
   if (!el) return
-  const w = window.open("", "_blank")!
-  w.document.write(`<!DOCTYPE html><html><head>
-    <meta charset="utf-8">
-    <title>${title}</title>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: 'Inter', Arial, sans-serif; padding: 32px; color: #1e293b; background: #fff; }
-      h1 { font-size: 20px; font-weight: 700; color: #1e40af; margin-bottom: 4px; }
-      .subtitle { font-size: 12px; color: #64748b; margin-bottom: 24px; }
-      table { border-collapse: collapse; width: 100%; margin-top: 16px; }
-      th { background: #1e40af; color: white; padding: 8px 12px; font-size: 11px; text-align: left; font-weight: 600; }
-      td { border: 1px solid #e2e8f0; padding: 7px 12px; font-size: 11px; }
-      tr:nth-child(even) { background: #f8fafc; }
-      .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #1e40af; }
-      .logo { font-size: 14px; font-weight: 700; color: #1e40af; }
-      .date { font-size: 11px; color: #94a3b8; }
-      @media print { body { padding: 16px; } }
-    </style>
-  </head><body>
-    <div class="header">
-      <div class="logo">PMO AI Studio</div>
-      <div class="date">${new Date().toLocaleDateString("fr-FR", { day:"2-digit", month:"long", year:"numeric" })}</div>
-    </div>
-    <h1>${title}</h1>
-    <div class="subtitle">${projectName}</div>
-    ${el.innerHTML}
-  </body></html>`)
-  w.document.close()
-  w.focus()
+
+  // Injecter un style print temporaire qui masque tout sauf le contenu cible
+  const styleId = "pmo-print-style"
+  let style = document.getElementById(styleId) as HTMLStyleElement
+  if (!style) {
+    style = document.createElement("style")
+    style.id = styleId
+    document.head.appendChild(style)
+  }
+  style.textContent = `
+    @media print {
+      body > * { display: none !important; }
+      #${elementId} { display: block !important; }
+      #${elementId} * { display: revert !important; }
+      nav, aside, header, [data-sidebar], .sidebar { display: none !important; }
+    }
+  `
+  const originalTitle = document.title
+  document.title = title + (projectName ? " — " + projectName : "")
+  window.print()
+  document.title = originalTitle
+  // Nettoyer après impression
+  setTimeout(() => { style.textContent = "" }, 1000)
   setTimeout(() => { w.print() }, 600)
 }
 
