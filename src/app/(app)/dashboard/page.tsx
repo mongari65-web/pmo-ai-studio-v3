@@ -152,13 +152,19 @@ export default function DashboardPage() {
 
         {/* Header */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <div>
-            <h1 style={{ fontSize:20, fontWeight:800, color:"var(--text-1)", margin:"0 0 3px" }}>
-              Bonjour{user?.user_metadata?.full_name ? ", "+user.user_metadata.full_name.split(" ")[0] : ""} 👋
-            </h1>
-            <p style={{ fontSize:11, color:"var(--text-3)", margin:0 }}>
-              {new Date().toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", year:"numeric" })}
-            </p>
+          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between" }}>
+            <div>
+              <h1 style={{ fontSize:20, fontWeight:800, color:"var(--text-1)", margin:"0 0 3px" }}>
+                Bonjour{user?.user_metadata?.full_name ? ", "+user.user_metadata.full_name.split(" ")[0] : ""} 👋
+              </h1>
+              <p style={{ fontSize:11, color:"var(--text-3)", margin:0 }}>
+                {new Date().toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", year:"numeric" })}
+              </p>
+            </div>
+            <button onClick={()=>{ const {exportPDF} = require("@/lib/exportAll"); exportPDF("dashboard-content","Dashboard PMO") }}
+              style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:8, fontSize:12, color:"var(--primary-light)", cursor:"pointer", whiteSpace:"nowrap" }}>
+              <Download size={13}/> Exporter PDF
+            </button>
           </div>
           <div style={{ display:"flex", gap:8 }}>
             <Link href="/guide" style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 12px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:8, fontSize:12, fontWeight:500, color:"var(--text-2)", textDecoration:"none" }}>

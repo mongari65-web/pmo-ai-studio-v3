@@ -149,6 +149,10 @@ export default function PortfolioPage() {
             <p style={{ fontSize:13, color:"var(--text-3)", margin:"4px 0 0" }}>Rouge · Ambre · Vert — Santé globale de tous vos projets</p>
           </div>
           <div style={{ display:"flex", gap:8 }}>
+            <button onClick={()=>{ const {exportPDF} = require("@/lib/exportAll"); exportPDF("portfolio-content","Portfolio RAG") }}
+              style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:8, fontSize:12, color:"var(--primary-light)", cursor:"pointer" }}>
+              <Download size={13}/> Exporter PDF
+            </button>
             <button onClick={loadData} style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 12px", border:"1px solid var(--border)", borderRadius:8, background:"transparent", color:"var(--text-2)", fontSize:12, cursor:"pointer" }}>
               <RefreshCw size={13}/> Actualiser
             </button>
