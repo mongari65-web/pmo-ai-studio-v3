@@ -190,7 +190,7 @@ export default function GanttPage() {
         onLoadHistory={(e) => { loadHistory(e); if(e.data?.tasks) setTasks(e.data.tasks) }}
         onGenerate={generate} generateLabel="Générer Planning Gantt" generating={loading}
         onAdd={() => setShowAddForm(true)} addLabel="+ Tâche"
-        exportRows={tasks.length > 0 ? toRows() : undefined} exportFilename={`Gantt_${project?.name??""} projectId={id} toolType="gantt"`}
+        exportRows={tasks.length > 0 ? toRows() : undefined} exportFilename={`Gantt_${project?.name??""}`} projectId={id} toolType="gantt"
         projectName={project?.name}
         gammaType="gantt" gammaData={data}>
 
