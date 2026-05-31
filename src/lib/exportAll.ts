@@ -20,34 +20,34 @@ export async function exportExcel(rows: Record<string, any>[], filename: string,
 }
 
 // -- PDF (via impression navigateur) 
-export function exportPDF(elementId: string, title: string, projectName = "") {
+export async function exportPDF(elementId: string, title: string, projectName = "") {
   const el = document.getElementById(elementId)
-  if (!el) return
-
-  // Injecter un style print temporaire qui masque tout sauf le contenu cible
-  const styleId = "pmo-print-style"
-  let style = document.getElementById(styleId) as HTMLStyleElement
-  if (!style) {
-    style = document.createElement("style")
-    style.id = styleId
-    document.head.appendChild(style)
+  if (!el) { console.error("[exportPDF] Element not found:", elementId); return }
+  try {
+    const html2canvas = (await import("html2canvas")).default
+    const jsPDF = (await import("jspdf")).default
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#0f172a",
+      logging: false,
+      windowWidth: el.scrollWidth,
+      windowHeight: el.scrollHeight,
+    })
+    const imgData = canvas.toDataURL("image/png")
+    const pdf = new jsPDF({
+      orientation: canvas.width > canvas.height ? "landscape" : "portrait",
+      unit: "px",
+      format: [canvas.width / 2, canvas.height / 2],
+    })
+    pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2)
+    pdf.save(`${title}${projectName ? " - " + projectName : ""}.pdf`)
+  } catch(e) {
+    console.error("[exportPDF] error:", e)
+    window.print()
   }
-  style.textContent = `
-    @media print {
-      body > * { display: none !important; }
-      #${elementId} { display: block !important; }
-      #${elementId} * { display: revert !important; }
-      nav, aside, header, [data-sidebar], .sidebar { display: none !important; }
-    }
-  `
-  const originalTitle = document.title
-  document.title = title + (projectName ? " — " + projectName : "")
-  window.print()
-  document.title = originalTitle
-  // Nettoyer après impression
-  setTimeout(() => { style.textContent = "" }, 1000)
 }
-
 // -- WORD (.docx via HTML blob) 
 export function exportWord(content: string, filename: string, title: string) {
   const html = `
