@@ -26,6 +26,9 @@ export default function EmailCaptureButton({ captureId, title, projectName }: Pr
       if (!el) throw new Error("Élément non trouvé: " + captureId)
 
       const html2canvas = (await import("html2canvas")).default
+      // Masquer temporairement la modal pendant la capture
+      const modal = document.querySelector('[data-capture-modal]') as HTMLElement
+      if (modal) modal.style.display = "none"
       const canvas = await html2canvas(el, {
         scale: 1.5,
         useCORS: true,
@@ -36,6 +39,8 @@ export default function EmailCaptureButton({ captureId, title, projectName }: Pr
         windowHeight: el.scrollHeight,
       })
 
+      // Réafficher la modal
+      if (modal) modal.style.display = ""
       const base64 = canvas.toDataURL("image/png").split(",")[1]
       const filename = `${title}${projectName ? "_" + projectName : ""}_${new Date().toLocaleDateString("fr-FR").replace(/\//g, "-")}.png`
 
@@ -84,7 +89,7 @@ export default function EmailCaptureButton({ captureId, title, projectName }: Pr
       </button>
 
       {open && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.75)", zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
+        <div data-capture-modal style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.75)", zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
           <div style={{ background:"var(--bg-card)", borderRadius:16, border:"1px solid var(--border)", width:"100%", maxWidth:460, boxShadow:"0 32px 80px rgba(0,0,0,0.6)", overflow:"hidden" }}>
 
             {/* Header */}
