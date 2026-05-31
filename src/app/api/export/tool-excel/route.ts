@@ -342,9 +342,9 @@ export async function POST(req: NextRequest) {
       const ws = wb.addWorksheet("OKR", { properties: { tabColor: { argb: "FF7C3AED" } } })
       const CAT_COLORS: Record<string, string> = {
         "Strategique": "1E3A8A", "Strategique": "1E3A8A",
-        "Client": "059669", "Qualite": "D97706", "Qualite": "D97706",
+        "Client": "059669", "Qualite": "D97706",
         "Finance": "DC2626", "RH": "7C3AED", "Innovation": "0891B2",
-        "Operationnel": "64748B", "Operationnel": "64748B",
+        "Operationnel": "64748B",
       }
       const progColor = (p: number) => p >= 80 ? GREEN : p >= 60 ? YELLOW : p >= 40 ? "F59E0B" : RED
       ws.columns = [{ width:8 },{ width:35 },{ width:12 },{ width:14 },{ width:18 },{ width:40 },{ width:10 },{ width:10 },{ width:8 },{ width:12 }]
