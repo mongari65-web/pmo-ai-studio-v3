@@ -44,8 +44,6 @@ export async function POST(req: NextRequest) {
       email: targetProfile?.email,
       role,
       status: "accepted",
-      full_name: targetProfile?.full_name,
-      user_id: targetUserId,
       invited_by: invitedBy,
     }))
 
