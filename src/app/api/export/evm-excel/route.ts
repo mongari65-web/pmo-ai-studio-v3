@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import ExcelJS from "exceljs"
-import { ChartJSNodeCanvas } from "chartjs-node-canvas"
+import sharp from "sharp"
 
 const MONTHS = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"]
 
