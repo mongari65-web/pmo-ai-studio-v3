@@ -105,22 +105,25 @@ input[type="password"] {
 
 
 
+
 /* PRINT STYLES */
 @media print {
-  /* Masquer boutons, liens d'action et icônes refresh */
-  button, .no-print,
-  [class*="sidebar"], [class*="Sidebar"],
-  [data-sidebar], aside { display: none !important; }
-  /* Masquer sidebar et navigation */
-  [class*="sidebar"], [class*="Sidebar"],
-  [data-sidebar], aside,
-  .no-print { display: none !important; }
+  /* Masquer sidebar, banner, boutons, navigation */
+  .no-print,
+  [class*="no-print"] { display: none !important; }
 
-  /* Afficher contenu complet */
-  body, html { 
+  /* Pleine largeur sans scroll */
+  body { 
     overflow: visible !important; 
-    height: auto !important;
-    background: white !important;
+    background: #0f172a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   * { overflow: visible !important; }
+  
+  /* Page en paysage */
+  @page { 
+    size: A4 landscape; 
+    margin: 10mm;
+  }
 }
