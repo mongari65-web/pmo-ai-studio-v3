@@ -57,7 +57,7 @@ export function exportWord(content: string, filename: string, title: string) {
     <head>
       <meta charset="utf-8">
       <title>${title}</title>
-      <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->
+      <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print<\/w:View><\/w:WordDocument><\/xml><![endif]-->
       <style>
         body { font-family: Calibri, Arial; font-size: 11pt; color: #1e293b; }
         h1 { font-size: 16pt; color: #1e40af; font-weight: bold; margin-bottom: 6pt; }
