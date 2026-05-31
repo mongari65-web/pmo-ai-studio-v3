@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, ArrowLeft, GraduationCap, Package, Lock, Brain, Users, FileText, Briefcase, Building2, Settings2, CalendarRange, Target, Map, Zap, BookOpen } from "lucide-react"
+import { LayoutDashboard, FolderKanban, Wand2, BarChart3, Bell, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, ArrowLeft, GraduationCap, Package, Lock, Brain, Users, FileText, Briefcase, Building2, Settings2, CalendarRange, Target, Map, Zap, BookOpen, Share2} from "lucide-react"
 
 // Groupes sidebar avec séparateurs
 const NAV_GROUPS = [
@@ -38,6 +38,7 @@ const NAV_GROUPS = [
     items: [
       { href:"/ressources",   icon:Users,     label:"Ressources" },
       { href:"/clients",      icon:Building2, label:"Clients" },
+      { href:"/share",         icon:Share2,    label:"Partager projets" },
     ]
   },
   {
