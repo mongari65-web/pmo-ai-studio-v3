@@ -274,9 +274,8 @@ export async function POST(req: NextRequest) {
       })
     })
 
-    // Générer graphique Courbe S avec chartjs-node-canvas
+    // Generer Courbe S SVG -> PNG via sharp
     try {
-      const chartCanvas = new ChartJSNodeCanvas({ width: 900, height: 400, backgroundColour: "#0f172a" })
       const pvCum: number[] = [], evCum: number[] = [], acCum: number[] = []
       let pvC2 = 0, evC2 = 0, acC2 = 0
       MONTHS.forEach((_, i) => {
@@ -285,38 +284,29 @@ export async function POST(req: NextRequest) {
         acC2 += tasks.reduce((s: number, t: any) => s + (t.ac?.[i]??0), 0)
         pvCum.push(pvC2); evCum.push(evC2); acCum.push(acC2)
       })
-      const chartImg = await chartCanvas.renderToBuffer({
-        type: "line",
-        data: {
-          labels: MONTHS,
-          datasets: [
-            { label: "PV — Planifié",  data: pvCum, borderColor: "#3b82f6", backgroundColor: "rgba(59,130,246,0.1)", borderWidth: 2.5, pointRadius: 3, tension: 0.3, fill: false },
-            { label: "EV — Acquis",    data: evCum, borderColor: "#22c55e", backgroundColor: "rgba(34,197,94,0.1)",  borderWidth: 2.5, pointRadius: 3, tension: 0.3, fill: false },
-            { label: "AC — Réel",      data: acCum, borderColor: "#f59e0b", backgroundColor: "rgba(245,158,11,0.1)", borderWidth: 2.5, pointRadius: 3, tension: 0.3, fill: false },
-          ]
-        },
-        options: {
-          responsive: false,
-          plugins: {
-            legend: { labels: { color: "#e2e8f0", font: { size: 12 } } },
-            title: { display: true, text: `Courbe S EVM — ${projectName}`, color: "#f1f5f9", font: { size: 14, weight: "bold" } }
-          },
-          scales: {
-            x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
-            y: { ticks: { color: "#94a3b8", callback: (v: any) => v >= 1000 ? (v/1000).toFixed(0)+"k€" : v+"€" }, grid: { color: "rgba(255,255,255,0.08)" } }
-          }
-        }
-      })
-      const imgId = wb.addImage({ buffer: Buffer.from(chartImg) as any, extension: "png" })
-      wsS.addRow([])
-      wsS.addRow([])
+      const W=900,H=400,padL=70,padR=30,padT=50,padB=60
+      const cW=W-padL-padR, cH=H-padT-padB
+      const maxVal=Math.max(...pvCum,...evCum,...acCum,1)
+      const xStep=cW/(MONTHS.length-1)
+      const yS=(v:number)=>padT+cH-(v/maxVal)*cH
+      const pts=(arr:number[])=>arr.map((v,i)=>`${padL+i*xStep},${yS(v)}`).join(" ")
+      const yLines=[0,0.25,0.5,0.75,1].map(r=>{
+        const y=padT+cH*(1-r)
+        const val=Math.round(maxVal*r)
+        const lbl=val>=1000000?(val/1000000).toFixed(1)+"M":val>=1000?(val/1000).toFixed(0)+"k":val.toString()
+        return `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#334155" stroke-width="1"/><text x="${padL-8}" y="${y+4}" fill="#94a3b8" font-size="11" text-anchor="end">${lbl}</text>`
+      }).join("")
+      const xLabels=MONTHS.map((m,i)=>`<text x="${padL+i*xStep}" y="${H-15}" fill="#94a3b8" font-size="11" text-anchor="middle">${m}</text>`).join("")
+      const cpL=`<line x1="${padL+cp*xStep}" y1="${padT}" x2="${padL+cp*xStep}" y2="${padT+cH}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3"/>`
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="#0f172a" rx="8"/><text x="${W/2}" y="28" fill="#f1f5f9" font-size="14" font-weight="bold" text-anchor="middle">Courbe S EVM - ${projectName}</text>${yLines}${xLabels}${cpL}<polyline points="${pts(pvCum)}" fill="none" stroke="#3b82f6" stroke-width="2.5"/><polyline points="${pts(evCum)}" fill="none" stroke="#22c55e" stroke-width="2.5"/><polyline points="${pts(acCum)}" fill="none" stroke="#f59e0b" stroke-width="2.5"/>${pvCum.map((v,i)=>`<circle cx="${padL+i*xStep}" cy="${yS(v)}" r="3" fill="#3b82f6"/>`).join("")}${evCum.map((v,i)=>`<circle cx="${padL+i*xStep}" cy="${yS(v)}" r="3" fill="#22c55e"/>`).join("")}${acCum.map((v,i)=>`<circle cx="${padL+i*xStep}" cy="${yS(v)}" r="3" fill="#f59e0b"/>`).join("")}<rect x="180" y="8" width="10" height="10" fill="#3b82f6"/><text x="194" y="18" fill="#94a3b8" font-size="11">PV</text><rect x="230" y="8" width="10" height="10" fill="#22c55e"/><text x="244" y="18" fill="#94a3b8" font-size="11">EV</text><rect x="280" y="8" width="10" height="10" fill="#f59e0b"/><text x="294" y="18" fill="#94a3b8" font-size="11">AC</text></svg>`
+      const pngBuf = await sharp(Buffer.from(svg)).png().toBuffer()
+      const imgId = wb.addImage({ buffer: pngBuf as any, extension: "png" })
+      wsS.addRow([]); wsS.addRow([])
       wsS.addImage(imgId, { tl: { col: 0, row: wsS.rowCount }, ext: { width: 860, height: 380 } })
-      // Ajouter des lignes vides pour l'espace du graphique
-      for (let i = 0; i < 22; i++) wsS.addRow([])
-    } catch(chartErr) {
-      console.error("[evm-excel] chart error:", chartErr)
-      wsS.addRow([])
-      wsS.addRow(["📊 Graphique non disponible — utilisez les données ci-dessus pour créer le graphique manuellement"])
+      for (let i=0;i<22;i++) wsS.addRow([])
+    } catch(e:any) {
+      console.error("[evm-excel] chart:", e.message)
+      wsS.addRow([]); wsS.addRow(["Graphique non disponible"])
     }
 
     // ════════════════════════════════════════════════════
