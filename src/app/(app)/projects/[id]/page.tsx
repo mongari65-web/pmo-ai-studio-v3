@@ -23,6 +23,7 @@ const TOOLS = [
   { key:"members",      label:"Inviter Membre", icon:"👥",  desc:"Collaborateurs",        color:"#7B5EFF" },
   { key:"scrum-guide",  label:"Guide Scrum",    icon:"🔄",  desc:"Agile / SAFe interactif",color:"#22c55e" },
   { key:"fiche-mission",label:"Fiche Mission",  icon:"📋",  desc:"Cadrage 1 page",        color:"#1e3a5f" },
+  { key:"rainbow",      label:"Page RAINBOW",   icon:"🌈",  desc:"Rapport gouvernance",   color:"#7c3aed" },
   { key:"codir",        label:"Rapport CODIR",  icon:"📊",  desc:"Comité de pilotage",    color:"#312e81" },
   { key:"integrations", label:"Intégrations",   icon:"🔗",  desc:"Jira / Notion / CSV",  color:"#0052CC" },
   { key:"widget",       label:"Widget Embed",   icon:"🖼️",  desc:"Iframe SharePoint",     color:"#0ea5e9" },
@@ -114,6 +115,7 @@ export default function ProjectPage() {
         <div style={{ padding:"20px 28px" }}>
           {/* Actions */}
           <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginBottom:16 }}>
+            <Link href={`/projects/${id}/rainbow`} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"rgba(124,58,237,0.15)", border:"1px solid rgba(124,58,237,0.3)", borderRadius:"var(--r8)", fontSize:12, color:"#a78bfa", textDecoration:"none", fontWeight:600 }}>🌈 RAINBOW</Link>
             <Link href={`/projects/${id}/report`} style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 14px", background:"var(--primary-bg)", border:"1px solid #B5D4F4", borderRadius:"var(--r8)", fontSize:12, color:"var(--primary-t)", textDecoration:"none", fontWeight:500 }}>
               <FileText size={13}/> Rapport PDF
             </Link>
