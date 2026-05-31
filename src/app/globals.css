@@ -126,4 +126,25 @@ input[type="password"] {
     size: A4 landscape; 
     margin: 10mm;
   }
+
+  /* Dashboard — courbe S pleine largeur */
+  #evm-grid {
+    grid-template-columns: 1fr !important;
+    display: block !important;
+  }
+  #evm-grid > div {
+    width: 100% !important;
+    margin-bottom: 16px;
+  }
+
+  /* Empêcher les débordements */
+  canvas, svg {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Grilles responsive en print */
+  [style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
 }

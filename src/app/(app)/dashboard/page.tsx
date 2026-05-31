@@ -213,7 +213,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Ligne 2 : Courbe S + EVM détail */}
-            <div style={{ display:"grid", gridTemplateColumns:"3fr 2fr", gap:14 }}>
+            <div id="evm-grid" style={{ display:"grid", gridTemplateColumns:"3fr 2fr", gap:14 }}>
               {/* Courbe S */}
               <div style={{ background:"#0f172a", border:"1px solid #1e293b", borderRadius:12, padding:"14px 18px" }}>
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
