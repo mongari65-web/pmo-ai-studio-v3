@@ -56,17 +56,16 @@ async function generateFile(
   if (format === "excel") {
     // Cas EVM ou outil avec override custom → appel API dédié
     if (config.onExcelOverride && config.projectId) {
-      const toolType = config.toolType ?? "evm"
-      const res = await fetch("/api/export/tool-excel", {
+      // Budget/EVM — route dédiée evm-excel
+      const res = await fetch("/api/export/evm-excel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           projectId: config.projectId,
-          toolType,
           projectName: config.projectName,
         }),
       })
-      if (!res.ok) throw new Error(`Erreur export Excel : ${res.statusText}`)
+      if (!res.ok) throw new Error(`Erreur export EVM : ${res.statusText}`)
       const blob = await res.blob()
       const buffer = await blob.arrayBuffer()
       return {
