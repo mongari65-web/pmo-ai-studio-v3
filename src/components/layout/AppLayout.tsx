@@ -58,9 +58,9 @@ const S: Record<string,string> = {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ display:"flex", height:"100vh", background:"var(--bg)", overflow:"hidden" }}>
-      <Sidebar/>
+      <div className="no-print"><Sidebar/></div>
       <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
-        <div style={{ position:"relative", width:"100%", height:130, flexShrink:0, overflow:"hidden" }}>
+        <div className="no-print" style={{ position:"relative", width:"100%", height:130, flexShrink:0, overflow:"hidden" }}>
           <img src="/banner.jpg" alt="" style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 35%", filter:"brightness(0.58) saturate(1.1)" }}/>
           <div style={{ position:"absolute", inset:0, background:"linear-gradient(90deg,rgba(12,68,124,0.90) 0%,rgba(12,68,124,0.42) 45%,rgba(24,95,165,0.68) 100%)" }}/>
           <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 28px" }}>
