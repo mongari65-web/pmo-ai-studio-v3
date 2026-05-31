@@ -70,7 +70,32 @@ function addSheetTitle(ws: ExcelJS.Worksheet, title: string, subtitle: string, c
 
 export async function POST(req: NextRequest) {
   try {
-    const { tasks = [], currentPeriod = 0, projectName = "Projet", cpName = "Chef de Projet" } = await req.json()
+    const body = await req.json()
+    let { tasks = [], currentPeriod = 0, projectName = "Projet", cpName = "Chef de Projet" } = body
+
+    // Si projectId fourni — lire depuis Supabase
+    if (body.projectId && tasks.length === 0) {
+      const { createAdminClient } = await import("@/lib/supabase/admin")
+      const supabase = createAdminClient()
+      const { data: toolData } = await supabase
+        .from("project_tools")
+        .select("data")
+        .eq("project_id", body.projectId)
+        .eq("tool_type", "budget")
+        .maybeSingle()
+      if (toolData?.data) {
+        tasks = toolData.data.tasks ?? []
+        currentPeriod = toolData.data.currentPeriod ?? 0
+        if (!body.projectName) {
+          const { data: proj } = await supabase
+            .from("projects")
+            .select("name")
+            .eq("id", body.projectId)
+            .maybeSingle()
+          projectName = proj?.name ?? "Projet"
+        }
+      }
+    }
     const cp = currentPeriod
     const date = new Date().toLocaleDateString("fr-FR")
     const wb = new ExcelJS.Workbook()
