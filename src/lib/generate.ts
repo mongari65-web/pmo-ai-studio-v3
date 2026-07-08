@@ -1,3 +1,5 @@
+import { anonymize, deanonymize, mergeTokenMaps } from "@/lib/ai/anonymizer"
+
 const ANTHROPIC_API = "https://api.anthropic.com/v1/messages"
 
 export interface GenerateOptions {
@@ -192,11 +194,22 @@ export async function generateTool(options: GenerateOptions): Promise<any> {
   const { tool } = options
   const arrayKey = ARRAY_KEY[tool] ?? "items"
 
+  // ── Anonymisation des champs sensibles avant envoi à Claude ──────
+  const nameAnon = anonymize(options.projectName ?? "")
+  const descAnon = anonymize(options.projectDescription ?? "")
+  const tokenMap = mergeTokenMaps(nameAnon.tokenMap, descAnon.tokenMap)
+
+  const safeOptions: GenerateOptions = {
+    ...options,
+    projectName: nameAnon.anonymized,
+    projectDescription: descAnon.anonymized,
+  }
+
   // Essaie d'abord avec les données du prompt (template enrichi)
   // Si Claude répond, on parse sa réponse
   // Si Claude échoue, on retourne le template JSON directement depuis le prompt
 
-  const prompt = buildPrompt(tool, options)
+  const prompt = buildPrompt(tool, safeOptions)
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -206,7 +219,8 @@ export async function generateTool(options: GenerateOptions): Promise<any> {
       const items = parsed[arrayKey]
       if (Array.isArray(items) && items.length > 0) {
         console.log(`[generate] ${tool}: ${items.length} items from Claude`)
-        return parsed
+        const clean = JSON.parse(deanonymize(JSON.stringify(parsed), tokenMap))
+        return clean
       }
     } catch (e: any) {
       console.warn(`[generate] ${tool} attempt ${attempt + 1} failed: ${e.message}`)
@@ -219,7 +233,9 @@ export async function generateTool(options: GenerateOptions): Promise<any> {
   if (jsonStart >= 0) {
     try {
       const templateJSON = parseJSON(prompt.slice(jsonStart))
-      if (templateJSON[arrayKey]?.length > 0) return templateJSON
+      if (templateJSON[arrayKey]?.length > 0) {
+        return JSON.parse(deanonymize(JSON.stringify(templateJSON), tokenMap))
+      }
     } catch {}
   }
 
