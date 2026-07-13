@@ -1,0 +1,741 @@
+diff --git a/src/app/(app)/guide/page.tsx b/src/app/(app)/guide/page.tsx
+index 1b9e08c..04dc4a2 100644
+--- a/src/app/(app)/guide/page.tsx
++++ b/src/app/(app)/guide/page.tsx
+@@ -72,6 +72,23 @@ const SCENARIOS = [
+       {id:"budget",label:"Budget de l'étude (EUR)",type:"number",placeholder:"Ex: 15000",required:false,aide:""},
+     ]
+   },
++  { id:"rationalisation-si", icon:"🗂️", label:"Rationalisation SI", subtitle:"Cartographie & optimisation", color:"#0d9488",
++    principe:"Le CP intervient en mode hybride CP MOE / PO: rationaliser l'existant (cartographie, matrice TIME) et prioriser les besoins manquants (backlog, roadmap).",
++    message:"Cartographie applicative initialisée, matrice TIME prête à qualifier, backlog WSJF et roadmap Now/Next/Later générés à partir de votre contexte.",
++    outils:["cartographie-si","matrice-time","dependances-si","impact-retrait","backlog-wsjf","roadmap-nnl"],
++    questions:[
++      {id:"name",label:"Nom du projet",type:"text",placeholder:"Ex: Rationalisation SI ANFSI",required:true,aide:"Identifiez clairement le périmètre du SI concerné."},
++      {id:"description",label:"Description et objectifs",type:"textarea",placeholder:"Contexte, patrimoine applicatif concerné, enjeux...",required:true,aide:"Répondez à: quel périmètre? quels doublons/dette suspectés? quels besoins non couverts?"},
++      {id:"startDate",label:"Date de début prévue",type:"date",placeholder:"",required:true,aide:""},
++      {id:"endDate",label:"Date de fin prévue",type:"date",placeholder:"",required:true,aide:"Échéance de la mission ou du cadrage."},
++      {id:"budget",label:"Budget alloué (EUR)",type:"number",placeholder:"Ex: 200000",required:false,aide:""},
++      {id:"appCount",label:"Nombre d'applications concernées (estimation)",type:"number",placeholder:"Ex: 15",required:false,aide:"Base pour dimensionner la cartographie."},
++      {id:"client",label:"Nom du client / direction",type:"text",placeholder:"Ex: ANFSI, DSI...",required:false,aide:""},
++      {id:"sector",label:"Secteur",type:"select",options:["IT / Digital","Finance / Banking","Santé / Médical","BTP / Construction","Industrie","Télécom","Retail","Secteur public","Autre"],required:false,aide:""},
++      {id:"issues",label:"Doublons / dette technique suspectés",type:"textarea",placeholder:"Applications redondantes, technos obsolètes...",required:false,aide:"Alimente la matrice TIME et le registre de dépendances."},
++      {id:"methodology",label:"Méthodologie cible",type:"select",options:["standards de gestion de projet","PRINCE2","Agile / Scrum","Waterfall","Hybride"],required:false,aide:""},
++    ]
++  },
+ ]
+ 
+ export default function GuidePage() {
+diff --git a/src/app/(app)/projects/[id]/backlog-wsjf/page.tsx b/src/app/(app)/projects/[id]/backlog-wsjf/page.tsx
+new file mode 100644
+index 0000000..98be51e
+--- /dev/null
++++ b/src/app/(app)/projects/[id]/backlog-wsjf/page.tsx
+@@ -0,0 +1,112 @@
++"use client"
++import { useState } from "react"
++import { useParams } from "next/navigation"
++import AppLayout from "@/components/layout/AppLayout"
++import ToolLayout from "@/components/tools/ToolLayout"
++import { useProject, useToolData } from "@/hooks/useProject"
++import { toast } from "sonner"
++import { Trash2 } from "lucide-react"
++
++interface Item {
++  id:string; titre:string; description:string; type:"Rationalisation"|"Nouveau besoin"
++  businessValue:number; timeCriticality:number; riskReduction:number; jobSize:number
++  wsjf:number; statut:"À faire"|"En cours"|"Fait"
++}
++
++const TYPE_COLOR: Record<string,string> = { "Rationalisation":"#0d9488", "Nouveau besoin":"#7B5EFF" }
++const STATUT_COLOR: Record<string,string> = { "À faire":"var(--text-3)", "En cours":"#f59e0b", "Fait":"#22c55e" }
++
++export default function BacklogWsjfPage() {
++  const { id } = useParams<{ id:string }>()
++  const { project } = useProject(id)
++  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "backlog-wsjf")
++  const [items, setItems] = useState<Item[]>([])
++
++  useState(() => { if (data?.items?.length) setItems(data.items) })
++
++  const saveAll = async (list:Item[]) => { setItems(list); await save({ items:list }) }
++
++  const generate = async () => {
++    if (!project) return
++    setLoading(true); toast.info("Génération du backlog WSJF en cours...")
++    try {
++      const res = await fetch("/api/generate", {
++        method:"POST", headers:{"Content-Type":"application/json"},
++        body: JSON.stringify({ tool:"backlog-wsjf", projectName:project.name, projectDescription:project.description })
++      })
++      const json = await res.json()
++      if (json.error) throw new Error(json.error)
++      const list: Item[] = (json.data?.items ?? []).map((it:any,i:number) => {
++        const bv=it.businessValue??3, tc=it.timeCriticality??3, rr=it.riskReduction??3, js=it.jobSize||1
++        return {
++          id: it.id ?? "BL"+Date.now()+i, titre:it.titre??"", description:it.description??"", type:it.type??"Nouveau besoin",
++          businessValue:bv, timeCriticality:tc, riskReduction:rr, jobSize:js,
++          wsjf: it.wsjf ?? +(((bv+tc+rr)/js).toFixed(2)), statut:it.statut??"À faire"
++        }
++      }).sort((a:Item,b:Item)=>b.wsjf-a.wsjf)
++      await saveAll(list)
++      toast.success("Backlog généré — "+list.length+" items priorisés")
++    } catch(e:any) { toast.error(e.message) }
++    finally { setLoading(false) }
++  }
++
++  const deleteItem = (itemId:string) => saveAll(items.filter(i=>i.id!==itemId))
++  const sorted = [...items].sort((a,b)=>b.wsjf-a.wsjf)
++
++  const toRows = () => sorted.map(i => ({ Titre:i.titre, Type:i.type, "Business Value":i.businessValue, "Time Criticality":i.timeCriticality, "Risk Reduction":i.riskReduction, "Job Size":i.jobSize, WSJF:i.wsjf, Statut:i.statut }))
++
++  return (
++    <AppLayout>
++      <ToolLayout title="Backlog WSJF" icon="📊" subtitle="// PRIORISATION SI"
++        history={history} onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.items) setItems(e.data.items) }}
++        onGenerate={generate} generateLabel="Générer le backlog" generating={loading}
++        exportRows={toRows()} exportFilename={"Backlog_WSJF_"+(project?.name??"")} projectName={project?.name}>
++
++        {sorted.length > 0 ? (
++          <div style={{ overflowX:"auto", border:"1px solid var(--border)", borderRadius:10 }}>
++            <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
++              <thead>
++                <tr style={{ background:"var(--bg-card)" }}>
++                  {["#","Titre","Type","BV","TC","RR","JS","WSJF","Statut",""].map(h=>(
++                    <th key={h} style={{ textAlign:"left", padding:"8px 10px", color:"var(--text-3)", fontWeight:600, borderBottom:"1px solid var(--border)" }}>{h}</th>
++                  ))}
++                </tr>
++              </thead>
++              <tbody>
++                {sorted.map((it,idx) => (
++                  <tr key={it.id} style={{ borderBottom:"1px solid var(--border)" }}>
++                    <td style={{ padding:"8px 10px", color:"var(--text-3)", fontWeight:700 }}>{idx+1}</td>
++                    <td style={{ padding:"8px 10px" }}>
++                      <div style={{ color:"var(--text-1)", fontWeight:600 }}>{it.titre}</div>
++                      <div style={{ color:"var(--text-3)", fontSize:11 }}>{it.description}</div>
++                    </td>
++                    <td style={{ padding:"8px 10px" }}>
++                      <span style={{ fontSize:10, padding:"2px 8px", borderRadius:20, fontWeight:600, color:TYPE_COLOR[it.type], background:TYPE_COLOR[it.type]+"18" }}>{it.type}</span>
++                    </td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{it.businessValue}</td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{it.timeCriticality}</td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{it.riskReduction}</td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{it.jobSize}</td>
++                    <td style={{ padding:"8px 10px", fontWeight:800, color:"var(--primary-light)" }}>{it.wsjf}</td>
++                    <td style={{ padding:"8px 10px" }}>
++                      <span style={{ fontSize:10, fontWeight:600, color:STATUT_COLOR[it.statut] }}>{it.statut}</span>
++                    </td>
++                    <td style={{ padding:"8px 10px" }}>
++                      <button onClick={()=>deleteItem(it.id)} style={{ background:"transparent", border:"none", cursor:"pointer", color:"var(--text-3)" }}><Trash2 size={12}/></button>
++                    </td>
++                  </tr>
++                ))}
++              </tbody>
++            </table>
++          </div>
++        ) : !loading && (
++          <div style={{ textAlign:"center", padding:"50px 20px" }}>
++            <div style={{ fontSize:40, marginBottom:12 }}>📊</div>
++            <p style={{ color:"var(--text-2)", fontSize:14 }}>Backlog vide</p>
++            <p style={{ color:"var(--text-3)", fontSize:12 }}>Générez le backlog priorisé WSJF (rationalisation + nouveaux besoins)</p>
++          </div>
++        )}
++      </ToolLayout>
++    </AppLayout>
++  )
++}
+diff --git a/src/app/(app)/projects/[id]/cartographie-si/page.tsx b/src/app/(app)/projects/[id]/cartographie-si/page.tsx
+new file mode 100644
+index 0000000..b7d60f5
+--- /dev/null
++++ b/src/app/(app)/projects/[id]/cartographie-si/page.tsx
+@@ -0,0 +1,125 @@
++"use client"
++import { useState } from "react"
++import { useParams } from "next/navigation"
++import AppLayout from "@/components/layout/AppLayout"
++import ToolLayout from "@/components/tools/ToolLayout"
++import { useProject, useToolData } from "@/hooks/useProject"
++import { toast } from "sonner"
++import { Trash2 } from "lucide-react"
++
++interface AppItem {
++  id:string; nom:string; proprietaire:string; technologie:string; age:number
++  costAnnuel:number; criticite:"Critique"|"Élevée"|"Moyenne"|"Faible"
++  fitTechnique:number; fitFonctionnel:number; utilisateurs:number; description:string
++}
++
++const CRIT_COLOR: Record<string,string> = { "Critique":"#ef4444", "Élevée":"#f59e0b", "Moyenne":"#3b82f6", "Faible":"#22c55e" }
++
++export default function CartographieSIPage() {
++  const { id } = useParams<{ id:string }>()
++  const { project } = useProject(id)
++  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "cartographie-si")
++  const [apps, setApps] = useState<AppItem[]>([])
++
++  useState(() => { if (data?.applications?.length) setApps(data.applications) })
++
++  const saveAll = async (list:AppItem[]) => { setApps(list); await save({ applications:list }) }
++
++  const generate = async () => {
++    if (!project) return
++    setLoading(true); toast.info("Génération de la cartographie en cours...")
++    try {
++      const res = await fetch("/api/generate", {
++        method:"POST", headers:{"Content-Type":"application/json"},
++        body: JSON.stringify({ tool:"cartographie-si", projectName:project.name, projectDescription:project.description })
++      })
++      const json = await res.json()
++      if (json.error) throw new Error(json.error)
++      const list: AppItem[] = (json.data?.applications ?? []).map((a:any,i:number) => ({
++        id: a.id ?? "APP"+Date.now()+i, nom:a.nom??"", proprietaire:a.proprietaire??"", technologie:a.technologie??"",
++        age:a.age??0, costAnnuel:a.costAnnuel??0, criticite:a.criticite??"Moyenne",
++        fitTechnique:a.fitTechnique??3, fitFonctionnel:a.fitFonctionnel??3, utilisateurs:a.utilisateurs??0, description:a.description??""
++      }))
++      await saveAll(list)
++      toast.success("Cartographie générée — "+list.length+" applications")
++    } catch(e:any) { toast.error(e.message) }
++    finally { setLoading(false) }
++  }
++
++  const deleteApp = (appId:string) => saveAll(apps.filter(a=>a.id!==appId))
++
++  const toRows = () => apps.map(a => ({
++    Application:a.nom, Propriétaire:a.proprietaire, Technologie:a.technologie, "Âge (ans)":a.age,
++    "Coût annuel (€)":a.costAnnuel, Criticité:a.criticite, "Fit technique":a.fitTechnique, "Fit fonctionnel":a.fitFonctionnel,
++    Utilisateurs:a.utilisateurs, Description:a.description
++  }))
++
++  const totalCost = apps.reduce((s,a)=>s+(a.costAnnuel||0),0)
++
++  return (
++    <AppLayout>
++      <ToolLayout title="Cartographie SI" icon="🗺️" subtitle="// INVENTAIRE APPLICATIF"
++        history={history} onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.applications) setApps(e.data.applications) }}
++        onGenerate={generate} generateLabel="Générer la cartographie" generating={loading}
++        exportRows={toRows()} exportFilename={"Cartographie_SI_"+(project?.name??"")} projectName={project?.name}>
++
++        {apps.length > 0 && (
++          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:16 }}>
++            <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:10, padding:"12px 14px" }}>
++              <div style={{ fontSize:20, fontWeight:900, color:"var(--text-1)" }}>{apps.length}</div>
++              <div style={{ fontSize:11, color:"var(--text-3)" }}>Applications recensées</div>
++            </div>
++            <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:10, padding:"12px 14px" }}>
++              <div style={{ fontSize:20, fontWeight:900, color:"var(--text-1)" }}>{totalCost.toLocaleString("fr-FR")} €</div>
++              <div style={{ fontSize:11, color:"var(--text-3)" }}>Coût annuel cumulé</div>
++            </div>
++            <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:10, padding:"12px 14px" }}>
++              <div style={{ fontSize:20, fontWeight:900, color:"#ef4444" }}>{apps.filter(a=>a.criticite==="Critique").length}</div>
++              <div style={{ fontSize:11, color:"var(--text-3)" }}>Applications critiques</div>
++            </div>
++          </div>
++        )}
++
++        {apps.length > 0 ? (
++          <div style={{ overflowX:"auto", border:"1px solid var(--border)", borderRadius:10 }}>
++            <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
++              <thead>
++                <tr style={{ background:"var(--bg-card)" }}>
++                  {["Application","Propriétaire","Techno","Âge","Coût/an","Criticité","Fit Tech.","Fit Fonc.","Users",""].map(h=>(
++                    <th key={h} style={{ textAlign:"left", padding:"8px 10px", color:"var(--text-3)", fontWeight:600, borderBottom:"1px solid var(--border)" }}>{h}</th>
++                  ))}
++                </tr>
++              </thead>
++              <tbody>
++                {apps.map(a => (
++                  <tr key={a.id} style={{ borderBottom:"1px solid var(--border)" }}>
++                    <td style={{ padding:"8px 10px", color:"var(--text-1)", fontWeight:600 }}>{a.nom}</td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{a.proprietaire}</td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{a.technologie}</td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{a.age} ans</td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{a.costAnnuel?.toLocaleString("fr-FR")} €</td>
++                    <td style={{ padding:"8px 10px" }}>
++                      <span style={{ padding:"2px 8px", borderRadius:20, fontSize:10, fontWeight:700, color:CRIT_COLOR[a.criticite], background:CRIT_COLOR[a.criticite]+"18" }}>{a.criticite}</span>
++                    </td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{a.fitTechnique}/5</td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{a.fitFonctionnel}/5</td>
++                    <td style={{ padding:"8px 10px", color:"var(--text-2)" }}>{a.utilisateurs}</td>
++                    <td style={{ padding:"8px 10px" }}>
++                      <button onClick={()=>deleteApp(a.id)} style={{ background:"transparent", border:"none", cursor:"pointer", color:"var(--text-3)" }}><Trash2 size={12}/></button>
++                    </td>
++                  </tr>
++                ))}
++              </tbody>
++            </table>
++          </div>
++        ) : !loading && (
++          <div style={{ textAlign:"center", padding:"50px 20px" }}>
++            <div style={{ fontSize:40, marginBottom:12 }}>🗺️</div>
++            <p style={{ color:"var(--text-2)", fontSize:14 }}>Aucune application recensée</p>
++            <p style={{ color:"var(--text-3)", fontSize:12 }}>Générez la cartographie à partir du contexte du projet</p>
++          </div>
++        )}
++      </ToolLayout>
++    </AppLayout>
++  )
++}
+diff --git a/src/app/(app)/projects/[id]/dependances-si/page.tsx b/src/app/(app)/projects/[id]/dependances-si/page.tsx
+new file mode 100644
+index 0000000..502784f
+--- /dev/null
++++ b/src/app/(app)/projects/[id]/dependances-si/page.tsx
+@@ -0,0 +1,82 @@
++"use client"
++import { useState } from "react"
++import { useParams } from "next/navigation"
++import AppLayout from "@/components/layout/AppLayout"
++import ToolLayout from "@/components/tools/ToolLayout"
++import { useProject, useToolData } from "@/hooks/useProject"
++import { toast } from "sonner"
++import { Trash2, ArrowRight } from "lucide-react"
++
++interface Dep { id:string; source:string; cible:string; type:string; description:string; criticite:"Critique"|"Élevée"|"Moyenne"|"Faible"; frequence:string }
++
++const CRIT_COLOR: Record<string,string> = { "Critique":"#ef4444", "Élevée":"#f59e0b", "Moyenne":"#3b82f6", "Faible":"#22c55e" }
++
++export default function DependancesSIPage() {
++  const { id } = useParams<{ id:string }>()
++  const { project } = useProject(id)
++  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "dependances-si")
++  const [deps, setDeps] = useState<Dep[]>([])
++
++  useState(() => { if (data?.dependances?.length) setDeps(data.dependances) })
++
++  const saveAll = async (list:Dep[]) => { setDeps(list); await save({ dependances:list }) }
++
++  const generate = async () => {
++    if (!project) return
++    setLoading(true); toast.info("Analyse des dépendances en cours...")
++    try {
++      const res = await fetch("/api/generate", {
++        method:"POST", headers:{"Content-Type":"application/json"},
++        body: JSON.stringify({ tool:"dependances-si", projectName:project.name, projectDescription:project.description })
++      })
++      const json = await res.json()
++      if (json.error) throw new Error(json.error)
++      const list: Dep[] = (json.data?.dependances ?? []).map((d:any,i:number) => ({
++        id: d.id ?? "DEP"+Date.now()+i, source:d.source??"", cible:d.cible??"", type:d.type??"",
++        description:d.description??"", criticite:d.criticite??"Moyenne", frequence:d.frequence??""
++      }))
++      await saveAll(list)
++      toast.success("Dépendances générées — "+list.length+" flux identifiés")
++    } catch(e:any) { toast.error(e.message) }
++    finally { setLoading(false) }
++  }
++
++  const deleteDep = (depId:string) => saveAll(deps.filter(d=>d.id!==depId))
++
++  const toRows = () => deps.map(d => ({ Source:d.source, Cible:d.cible, Type:d.type, Description:d.description, Criticité:d.criticite, Fréquence:d.frequence }))
++
++  return (
++    <AppLayout>
++      <ToolLayout title="Dépendances SI" icon="🔗" subtitle="// CARTE DES INTERCONNEXIONS"
++        history={history} onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.dependances) setDeps(e.data.dependances) }}
++        onGenerate={generate} generateLabel="Générer les dépendances" generating={loading}
++        exportRows={toRows()} exportFilename={"Dependances_SI_"+(project?.name??"")} projectName={project?.name}>
++
++        {deps.length > 0 ? (
++          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
++            {deps.map(d => (
++              <div key={d.id} style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 14px", background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:10 }}>
++                <div style={{ display:"flex", alignItems:"center", gap:8, minWidth:260 }}>
++                  <span style={{ fontSize:12, fontWeight:700, color:"var(--text-1)" }}>{d.source}</span>
++                  <ArrowRight size={13} style={{ color:"var(--text-3)" }}/>
++                  <span style={{ fontSize:12, fontWeight:700, color:"var(--text-1)" }}>{d.cible}</span>
++                </div>
++                <span style={{ fontSize:10, padding:"2px 8px", background:"rgba(123,94,255,0.12)", color:"#9B84FF", borderRadius:20, fontWeight:600 }}>{d.type}</span>
++                <span style={{ flex:1, fontSize:12, color:"var(--text-2)" }}>{d.description}</span>
++                <span style={{ fontSize:10, color:"var(--text-3)" }}>{d.frequence}</span>
++                <span style={{ fontSize:10, padding:"2px 8px", borderRadius:20, fontWeight:700, color:CRIT_COLOR[d.criticite], background:CRIT_COLOR[d.criticite]+"18" }}>{d.criticite}</span>
++                <button onClick={()=>deleteDep(d.id)} style={{ background:"transparent", border:"none", cursor:"pointer", color:"var(--text-3)" }}><Trash2 size={12}/></button>
++              </div>
++            ))}
++          </div>
++        ) : !loading && (
++          <div style={{ textAlign:"center", padding:"50px 20px" }}>
++            <div style={{ fontSize:40, marginBottom:12 }}>🔗</div>
++            <p style={{ color:"var(--text-2)", fontSize:14 }}>Aucune dépendance recensée</p>
++            <p style={{ color:"var(--text-3)", fontSize:12 }}>Générez le registre à partir de votre cartographie</p>
++          </div>
++        )}
++      </ToolLayout>
++    </AppLayout>
++  )
++}
+diff --git a/src/app/(app)/projects/[id]/impact-retrait/page.tsx b/src/app/(app)/projects/[id]/impact-retrait/page.tsx
+new file mode 100644
+index 0000000..829b4ef
+--- /dev/null
++++ b/src/app/(app)/projects/[id]/impact-retrait/page.tsx
+@@ -0,0 +1,96 @@
++"use client"
++import { useState } from "react"
++import { useParams } from "next/navigation"
++import AppLayout from "@/components/layout/AppLayout"
++import ToolLayout from "@/components/tools/ToolLayout"
++import { useProject, useToolData } from "@/hooks/useProject"
++import { toast } from "sonner"
++import { Trash2 } from "lucide-react"
++
++interface Fiche {
++  id:string; application:string; niveauRisque:"Critique"|"Élevé"|"Moyen"|"Faible"
++  utilisateursImpactes:string; donneesAMigrer:string; applicationsDependantes:string
++  planBascule:string; dateCible:string; responsable:string
++}
++
++const RISK_COLOR: Record<string,string> = { "Critique":"#ef4444", "Élevé":"#f59e0b", "Moyen":"#3b82f6", "Faible":"#22c55e" }
++
++export default function ImpactRetraitPage() {
++  const { id } = useParams<{ id:string }>()
++  const { project } = useProject(id)
++  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "impact-retrait")
++  const [fiches, setFiches] = useState<Fiche[]>([])
++
++  useState(() => { if (data?.fiches?.length) setFiches(data.fiches) })
++
++  const saveAll = async (list:Fiche[]) => { setFiches(list); await save({ fiches:list }) }
++
++  const generate = async () => {
++    if (!project) return
++    setLoading(true); toast.info("Génération des fiches d'impact en cours...")
++    try {
++      const res = await fetch("/api/generate", {
++        method:"POST", headers:{"Content-Type":"application/json"},
++        body: JSON.stringify({ tool:"impact-retrait", projectName:project.name, projectDescription:project.description })
++      })
++      const json = await res.json()
++      if (json.error) throw new Error(json.error)
++      const list: Fiche[] = (json.data?.fiches ?? []).map((f:any,i:number) => ({
++        id: f.id ?? "IMP"+Date.now()+i, application:f.application??"", niveauRisque:f.niveauRisque??"Moyen",
++        utilisateursImpactes:f.utilisateursImpactes??"", donneesAMigrer:f.donneesAMigrer??"",
++        applicationsDependantes:f.applicationsDependantes??"", planBascule:f.planBascule??"",
++        dateCible:f.dateCible??"", responsable:f.responsable??""
++      }))
++      await saveAll(list)
++      toast.success("Fiches d'impact générées — "+list.length)
++    } catch(e:any) { toast.error(e.message) }
++    finally { setLoading(false) }
++  }
++
++  const deleteFiche = (fid:string) => saveAll(fiches.filter(f=>f.id!==fid))
++
++  const toRows = () => fiches.map(f => ({
++    Application:f.application, "Niveau de risque":f.niveauRisque, "Utilisateurs impactés":f.utilisateursImpactes,
++    "Données à migrer":f.donneesAMigrer, "Applications dépendantes":f.applicationsDependantes,
++    "Plan de bascule":f.planBascule, "Date cible":f.dateCible, Responsable:f.responsable
++  }))
++
++  return (
++    <AppLayout>
++      <ToolLayout title="Impact Retrait" icon="⚠️" subtitle="// RISQUES DE DÉCOMMISSIONNEMENT"
++        history={history} onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.fiches) setFiches(e.data.fiches) }}
++        onGenerate={generate} generateLabel="Générer les fiches d'impact" generating={loading}
++        exportRows={toRows()} exportFilename={"Impact_Retrait_"+(project?.name??"")} projectName={project?.name}>
++
++        {fiches.length > 0 ? (
++          <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
++            {fiches.map(f => (
++              <div key={f.id} style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderLeft:"4px solid "+RISK_COLOR[f.niveauRisque], borderRadius:10, padding:"14px 16px" }}>
++                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
++                  <div>
++                    <h3 style={{ fontSize:14, fontWeight:800, color:"var(--text-1)", margin:0 }}>{f.application}</h3>
++                    <span style={{ fontSize:10, padding:"2px 8px", borderRadius:20, fontWeight:700, color:RISK_COLOR[f.niveauRisque], background:RISK_COLOR[f.niveauRisque]+"18" }}>Risque {f.niveauRisque}</span>
++                  </div>
++                  <button onClick={()=>deleteFiche(f.id)} style={{ background:"transparent", border:"none", cursor:"pointer", color:"var(--text-3)" }}><Trash2 size={12}/></button>
++                </div>
++                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
++                  <div><div style={{ fontSize:10, color:"var(--text-3)", textTransform:"uppercase" }}>Utilisateurs impactés</div><div style={{ fontSize:12, color:"var(--text-1)" }}>{f.utilisateursImpactes}</div></div>
++                  <div><div style={{ fontSize:10, color:"var(--text-3)", textTransform:"uppercase" }}>Données à migrer</div><div style={{ fontSize:12, color:"var(--text-1)" }}>{f.donneesAMigrer}</div></div>
++                  <div><div style={{ fontSize:10, color:"var(--text-3)", textTransform:"uppercase" }}>Applications dépendantes</div><div style={{ fontSize:12, color:"var(--text-1)" }}>{f.applicationsDependantes}</div></div>
++                  <div><div style={{ fontSize:10, color:"var(--text-3)", textTransform:"uppercase" }}>Responsable / Date cible</div><div style={{ fontSize:12, color:"var(--text-1)" }}>{f.responsable} — {f.dateCible}</div></div>
++                  <div style={{ gridColumn:"1 / -1" }}><div style={{ fontSize:10, color:"var(--text-3)", textTransform:"uppercase" }}>Plan de bascule</div><div style={{ fontSize:12, color:"var(--text-1)", lineHeight:1.5 }}>{f.planBascule}</div></div>
++                </div>
++              </div>
++            ))}
++          </div>
++        ) : !loading && (
++          <div style={{ textAlign:"center", padding:"50px 20px" }}>
++            <div style={{ fontSize:40, marginBottom:12 }}>⚠️</div>
++            <p style={{ color:"var(--text-2)", fontSize:14 }}>Aucune fiche d'impact</p>
++            <p style={{ color:"var(--text-3)", fontSize:12 }}>Générez les fiches pour les applications candidates au retrait</p>
++          </div>
++        )}
++      </ToolLayout>
++    </AppLayout>
++  )
++}
+diff --git a/src/app/(app)/projects/[id]/matrice-time/page.tsx b/src/app/(app)/projects/[id]/matrice-time/page.tsx
+new file mode 100644
+index 0000000..1a1a0e2
+--- /dev/null
++++ b/src/app/(app)/projects/[id]/matrice-time/page.tsx
+@@ -0,0 +1,99 @@
++"use client"
++import { useState } from "react"
++import { useParams } from "next/navigation"
++import AppLayout from "@/components/layout/AppLayout"
++import ToolLayout from "@/components/tools/ToolLayout"
++import { useProject, useToolData } from "@/hooks/useProject"
++import { toast } from "sonner"
++
++interface TimeApp { id:string; nom:string; fitTechnique:number; fitFonctionnel:number; quadrant:"Tolerate"|"Invest"|"Migrate"|"Eliminate"; recommandation:string; echeance:string }
++
++const QUAD = {
++  Tolerate: { label:"Tolerate",  emoji:"🟡", color:"#f59e0b", bg:"rgba(245,158,11,0.08)", border:"rgba(245,158,11,0.25)", desc:"Fit technique haut, fit fonctionnel bas — ne pas investir, ne pas retirer" },
++  Invest:   { label:"Invest",    emoji:"🟢", color:"#22c55e", bg:"rgba(34,197,94,0.08)",  border:"rgba(34,197,94,0.25)",  desc:"Fit technique et fonctionnel hauts — prioriser l'investissement" },
++  Migrate:  { label:"Migrate",   emoji:"🔵", color:"#3b82f6", bg:"rgba(59,130,246,0.08)", border:"rgba(59,130,246,0.25)", desc:"Fit technique bas, fit fonctionnel haut — trouver une meilleure solution" },
++  Eliminate:{ label:"Eliminate", emoji:"🔴", color:"#ef4444", bg:"rgba(239,68,68,0.08)",  border:"rgba(239,68,68,0.25)",  desc:"Fit technique et fonctionnel bas — retirer" },
++} as const
++
++export default function MatriceTimePage() {
++  const { id } = useParams<{ id:string }>()
++  const { project } = useProject(id)
++  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "matrice-time")
++  const [apps, setApps] = useState<TimeApp[]>([])
++
++  useState(() => { if (data?.applications?.length) setApps(data.applications) })
++
++  const saveAll = async (list:TimeApp[]) => { setApps(list); await save({ applications:list }) }
++
++  const generate = async () => {
++    if (!project) return
++    setLoading(true); toast.info("Classification TIME en cours...")
++    try {
++      const res = await fetch("/api/generate", {
++        method:"POST", headers:{"Content-Type":"application/json"},
++        body: JSON.stringify({ tool:"matrice-time", projectName:project.name, projectDescription:project.description })
++      })
++      const json = await res.json()
++      if (json.error) throw new Error(json.error)
++      const list: TimeApp[] = (json.data?.applications ?? []).map((a:any,i:number) => ({
++        id: a.id ?? "APP"+Date.now()+i, nom:a.nom??"", fitTechnique:a.fitTechnique??3, fitFonctionnel:a.fitFonctionnel??3,
++        quadrant: a.quadrant??"Tolerate", recommandation:a.recommandation??"", echeance:a.echeance??""
++      }))
++      await saveAll(list)
++      toast.success("Matrice TIME générée — "+list.length+" applications classées")
++    } catch(e:any) { toast.error(e.message) }
++    finally { setLoading(false) }
++  }
++
++  const toRows = () => apps.map(a => ({ Application:a.nom, Quadrant:a.quadrant, "Fit technique":a.fitTechnique, "Fit fonctionnel":a.fitFonctionnel, Recommandation:a.recommandation, Échéance:a.echeance }))
++
++  return (
++    <AppLayout>
++      <ToolLayout title="Matrice TIME" icon="🎯" subtitle="// TOLERATE · INVEST · MIGRATE · ELIMINATE"
++        history={history} onLoadHistory={(e)=>{ loadHistory(e); if(e.data?.applications) setApps(e.data.applications) }}
++        onGenerate={generate} generateLabel="Générer la matrice TIME" generating={loading}
++        exportRows={toRows()} exportFilename={"Matrice_TIME_"+(project?.name??"")} projectName={project?.name}>
++
++        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
++          {(["Invest","Tolerate","Migrate","Eliminate"] as const).map(q => {
++            const quad = QUAD[q]
++            const list = apps.filter(a=>a.quadrant===q)
++            return (
++              <div key={q} style={{ background:quad.bg, border:"2px solid "+quad.border, borderRadius:12, padding:"14px 16px" }}>
++                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
++                  <span style={{ fontSize:20 }}>{quad.emoji}</span>
++                  <div>
++                    <h3 style={{ fontSize:13, fontWeight:800, color:quad.color, margin:0 }}>{quad.label}</h3>
++                    <p style={{ fontSize:10, color:"var(--text-3)", margin:0, lineHeight:1.4 }}>{quad.desc}</p>
++                  </div>
++                  <span style={{ marginLeft:"auto", fontSize:11, fontWeight:700, color:quad.color, background:quad.color+"22", padding:"2px 8px", borderRadius:8 }}>{list.length}</span>
++                </div>
++                <div style={{ display:"flex", flexDirection:"column", gap:6, minHeight:60 }}>
++                  {list.map(a => (
++                    <div key={a.id} style={{ padding:"8px 10px", background:"var(--bg-card)", borderRadius:7, border:"1px solid var(--border)" }}>
++                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:2 }}>
++                        <span style={{ fontSize:12, fontWeight:600, color:"var(--text-1)" }}>{a.nom}</span>
++                        <span style={{ fontSize:10, color:"var(--text-3)" }}>Tech {a.fitTechnique}/5 · Fonc {a.fitFonctionnel}/5</span>
++                      </div>
++                      {a.recommandation && <p style={{ fontSize:11, color:"var(--text-2)", margin:0, lineHeight:1.4 }}>{a.recommandation}</p>}
++                      {a.echeance && <span style={{ fontSize:10, color:quad.color, fontWeight:600 }}>{a.echeance}</span>}
++                    </div>
++                  ))}
++                  {list.length===0 && <p style={{ fontSize:11, color:"var(--text-3)", textAlign:"center", padding:"10px 0" }}>Aucune application</p>}
++                </div>
++              </div>
++            )
++          })}
++        </div>
++
++        {apps.length === 0 && !loading && (
++          <div style={{ textAlign:"center", padding:"50px 20px" }}>
++            <div style={{ fontSize:40, marginBottom:12 }}>🎯</div>
++            <p style={{ color:"var(--text-2)", fontSize:14 }}>Matrice TIME vide</p>
++            <p style={{ color:"var(--text-3)", fontSize:12 }}>Générez la classification à partir de votre cartographie</p>
++          </div>
++        )}
++      </ToolLayout>
++    </AppLayout>
++  )
++}
+diff --git a/src/app/(app)/projects/[id]/page.tsx b/src/app/(app)/projects/[id]/page.tsx
+index 620a692..17d52bb 100644
+--- a/src/app/(app)/projects/[id]/page.tsx
++++ b/src/app/(app)/projects/[id]/page.tsx
+@@ -43,6 +43,14 @@ const TOOLS = [
+   // ── AI / CPMAI ─────────────────────────────────────────────────────────────
+   { key:"cpmai",        label:"Pipeline CPMAI",  icon:"🤖",  desc:"6 phases DIKUW",         color:"#f97316" },
+   { key:"dataset",      label:"Datasets",        icon:"🗄️",  desc:"Sources & qualité data", color:"#f59e0b" },
++
++  // ── Rationalisation SI (CP MOE / PO) ──────────────────────────────────────
++  { key:"cartographie-si", label:"Cartographie SI", icon:"🗺️", desc:"Inventaire applicatif",          color:"#0d9488" },
++  { key:"matrice-time",    label:"Matrice TIME",    icon:"🎯", desc:"Tolerate/Invest/Migrate/Eliminate",color:"#0f766e" },
++  { key:"dependances-si",  label:"Dépendances",     icon:"🔗", desc:"Carte des interconnexions",       color:"#0891b2" },
++  { key:"impact-retrait",  label:"Impact Retrait",  icon:"⚠️", desc:"Risques de décommissionnement",   color:"#b45309" },
++  { key:"backlog-wsjf",    label:"Backlog WSJF",    icon:"📊", desc:"Priorisation SI",                 color:"#7B5EFF" },
++  { key:"roadmap-nnl",     label:"Roadmap N/N/L",   icon:"🗓️", desc:"Now / Next / Later",              color:"#312e81" },
+ ]
+ 
+ export default function ProjectPage() {
+diff --git a/src/app/(app)/projects/[id]/roadmap-nnl/page.tsx b/src/app/(app)/projects/[id]/roadmap-nnl/page.tsx
+new file mode 100644
+index 0000000..8d3d010
+--- /dev/null
++++ b/src/app/(app)/projects/[id]/roadmap-nnl/page.tsx
+@@ -0,0 +1,95 @@
++"use client"
++import { useState } from "react"
++import { useParams } from "next/navigation"
++import AppLayout from "@/components/layout/AppLayout"
++import ToolLayout from "@/components/tools/ToolLayout"
++import { useProject, useToolData } from "@/hooks/useProject"
++import { toast } from "sonner"
++import { Trash2 } from "lucide-react"
++
++interface Initiative { id:string; titre:string; description:string; type:"Rationalisation"|"Développement"|"Migration" }
++interface RoadmapData { now:Initiative[]; next:Initiative[]; later:Initiative[] }
++
++const TYPE_COLOR: Record<string,string> = { "Rationalisation":"#0d9488", "Développement":"#7B5EFF", "Migration":"#3b82f6" }
++const COLS: { key:"now"|"next"|"later", label:string, sub:string, color:string }[] = [
++  { key:"now",   label:"Now",   sub:"T1 — En cours",       color:"#22c55e" },
++  { key:"next",  label:"Next",  sub:"T2-T3 — À planifier", color:"#f59e0b" },
++  { key:"later", label:"Later", sub:"T4+ — Vision",        color:"#7B5EFF" },
++]
++
++export default function RoadmapNNLPage() {
++  const { id } = useParams<{ id:string }>()
++  const { project } = useProject(id)
++  const { data, history, loading, setLoading, save, loadHistory } = useToolData(id, "roadmap-nnl")
++  const [roadmap, setRoadmap] = useState<RoadmapData>({ now:[], next:[], later:[] })
++
++  useState(() => { if (data?.now || data?.next || data?.later) setRoadmap({ now:data.now??[], next:data.next??[], later:data.later??[] }) })
++
++  const saveAll = async (rm:RoadmapData) => { setRoadmap(rm); await save(rm) }
++
++  const generate = async () => {
++    if (!project) return
++    setLoading(true); toast.info("Génération de la roadmap en cours...")
++    try {
++      const res = await fetch("/api/generate", {
++        method:"POST", headers:{"Content-Type":"application/json"},
++        body: JSON.stringify({ tool:"roadmap-nnl", projectName:project.name, projectDescription:project.description, startDate:project.start_date, endDate:project.end_date })
++      })
++      const json = await res.json()
++      if (json.error) throw new Error(json.error)
++      const rm: RoadmapData = { now: json.data?.now??[], next: json.data?.next??[], later: json.data?.later??[] }
++      await saveAll(rm)
++      toast.success("Roadmap générée")
++    } catch(e:any) { toast.error(e.message) }
++    finally { setLoading(false) }
++  }
++
++  const deleteItem = (col:"now"|"next"|"later", itemId:string) =>
++    saveAll({ ...roadmap, [col]: roadmap[col].filter(i=>i.id!==itemId) })
++
++  const toRows = () => COLS.flatMap(c => roadmap[c.key].map(i => ({ Horizon:c.label, Titre:i.titre, Type:i.type, Description:i.description })))
++
++  const total = roadmap.now.length + roadmap.next.length + roadmap.later.length
++
++  return (
++    <AppLayout>
++      <ToolLayout title="Roadmap Now/Next/Later" icon="🗓️" subtitle="// TRAJECTOIRE SI"
++        history={history} onLoadHistory={(e)=>{ loadHistory(e); if(e.data) setRoadmap({ now:e.data.now??[], next:e.data.next??[], later:e.data.later??[] }) }}
++        onGenerate={generate} generateLabel="Générer la roadmap" generating={loading}
++        exportRows={toRows()} exportFilename={"Roadmap_NNL_"+(project?.name??"")} projectName={project?.name}>
++
++        {total > 0 ? (
++          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
++            {COLS.map(col => (
++              <div key={col.key} style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderTop:"3px solid "+col.color, borderRadius:10, padding:"14px" }}>
++                <div style={{ marginBottom:12 }}>
++                  <h3 style={{ fontSize:14, fontWeight:800, color:col.color, margin:0 }}>{col.label}</h3>
++                  <p style={{ fontSize:10, color:"var(--text-3)", margin:0 }}>{col.sub}</p>
++                </div>
++                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
++                  {roadmap[col.key].map(item => (
++                    <div key={item.id} style={{ padding:"10px 12px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:8 }}>
++                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:4 }}>
++                        <span style={{ fontSize:12, fontWeight:700, color:"var(--text-1)" }}>{item.titre}</span>
++                        <button onClick={()=>deleteItem(col.key,item.id)} style={{ background:"transparent", border:"none", cursor:"pointer", color:"var(--text-3)" }}><Trash2 size={11}/></button>
++                      </div>
++                      <p style={{ fontSize:11, color:"var(--text-2)", margin:"0 0 6px", lineHeight:1.4 }}>{item.description}</p>
++                      <span style={{ fontSize:9, padding:"2px 7px", borderRadius:20, fontWeight:600, color:TYPE_COLOR[item.type], background:TYPE_COLOR[item.type]+"18" }}>{item.type}</span>
++                    </div>
++                  ))}
++                  {roadmap[col.key].length===0 && <p style={{ fontSize:11, color:"var(--text-3)", textAlign:"center", padding:"10px 0" }}>Aucune initiative</p>}
++                </div>
++              </div>
++            ))}
++          </div>
++        ) : !loading && (
++          <div style={{ textAlign:"center", padding:"50px 20px" }}>
++            <div style={{ fontSize:40, marginBottom:12 }}>🗓️</div>
++            <p style={{ color:"var(--text-2)", fontSize:14 }}>Roadmap vide</p>
++            <p style={{ color:"var(--text-3)", fontSize:12 }}>Générez la trajectoire à partir de la matrice TIME et du backlog</p>
++          </div>
++        )}
++      </ToolLayout>
++    </AppLayout>
++  )
++}
+diff --git a/src/app/api/generate/route.ts b/src/app/api/generate/route.ts
+index f0b2c00..c76f8b9 100644
+--- a/src/app/api/generate/route.ts
++++ b/src/app/api/generate/route.ts
+@@ -224,6 +224,44 @@ function buildPrompt(tool: string, name: string, desc: string, extra: any): stri
+       " Nom: " + n + ". Description: " + d + "." +
+       " CONTRAINTES: 8 documents adaptés au type de projet." +
+       ' JSON: {"documents":[{"id":"DOC1","type":"[TYPE]","title":"[TITRE]","version":"v1.0","status":"[Approuvé|En révision|Brouillon|Actif]","author":"[ROLE]","date":"' + s + '","summary":"[DESC]","priority":"[Critique|Élevé|Moyen]"}]}',
++
++    "cartographie-si": "Génère une cartographie applicative pour ce projet de rationalisation SI." +
++      " Nom: " + n + ". Description: " + d + "." +
++      " CONTRAINTES: 10 à 15 applications réalistes et cohérentes avec le contexte décrit (secteur, doublons/dette mentionnés)." +
++      " fitTechnique et fitFonctionnel sont des scores 1-5 (5=excellent). costAnnuel en euros. criticite: Critique, Élevée, Moyenne ou Faible." +
++      ' JSON: {"applications":[{"id":"APP1","nom":"[NOM APPLICATION]","proprietaire":"[DIRECTION/RÔLE]","technologie":"[TECHNO/VERSION]","age":[ANNÉES],"costAnnuel":[MONTANT],"criticite":"Élevée","fitTechnique":3,"fitFonctionnel":4,"utilisateurs":[NOMBRE],"description":"[USAGE MÉTIER]"}]}',
++
++    "matrice-time": "Génère une classification TIME (Tolerate/Invest/Migrate/Eliminate) pour ce projet de rationalisation SI." +
++      " Nom: " + n + ". Description: " + d + "." +
++      " CONTRAINTES: 10 à 15 applications réparties de façon réaliste sur les 4 quadrants selon fitTechnique et fitFonctionnel (scores 1-5)." +
++      " quadrant DOIT être exactement: Tolerate, Invest, Migrate ou Eliminate (fit technique+fonctionnel hauts=Invest, fit technique haut/fonctionnel bas=Tolerate, fit technique bas/fonctionnel haut=Migrate, les deux bas=Eliminate)." +
++      " Inclure une recommandation d'action concrète par application." +
++      ' JSON: {"applications":[{"id":"APP1","nom":"[NOM]","fitTechnique":3,"fitFonctionnel":4,"quadrant":"Invest","recommandation":"[ACTION CONCRÈTE]","echeance":"[T1/T2/T3/T4 2026]"}]}',
++
++    "dependances-si": "Génère un registre de dépendances applicatives pour ce projet de rationalisation SI." +
++      " Nom: " + n + ". Description: " + d + "." +
++      " CONTRAINTES: 8 à 12 dépendances entre applications (flux de données, API, interfaces, référentiels partagés)." +
++      " criticite: Critique, Élevée, Moyenne ou Faible. type: Flux de données, API, Batch, Référentiel partagé ou Interface utilisateur." +
++      ' JSON: {"dependances":[{"id":"DEP1","source":"[APPLICATION SOURCE]","cible":"[APPLICATION CIBLE]","type":"Flux de données","description":"[NATURE DU FLUX]","criticite":"Élevée","frequence":"[Temps réel|Quotidien|Hebdomadaire|Mensuel]"}]}',
++
++    "impact-retrait": "Génère des fiches d'impact de retrait pour les applications candidates à l'élimination dans ce projet de rationalisation SI." +
++      " Nom: " + n + ". Description: " + d + "." +
++      " CONTRAINTES: 4 à 6 fiches, une par application candidate au retrait, avec plan de bascule concret." +
++      " niveauRisque: Critique, Élevé, Moyen ou Faible." +
++      ' JSON: {"fiches":[{"id":"IMP1","application":"[NOM APPLICATION]","niveauRisque":"Élevé","utilisateursImpactes":"[DIRECTIONS/NOMBRE]","donneesAMigrer":"[NATURE DES DONNÉES]","applicationsDependantes":"[LISTE]","planBascule":"[ÉTAPES DE MIGRATION]","dateCible":"[DATE]","responsable":"[RÔLE]"}]}',
++
++    "backlog-wsjf": "Génère un backlog priorisé WSJF pour ce projet de rationalisation SI (mix rationalisation + nouveaux besoins métier)." +
++      " Nom: " + n + ". Description: " + d + "." +
++      " CONTRAINTES: 10 à 12 items mêlant décisions de rationalisation (migrer/retirer) et nouveaux développements." +
++      " costOfDelay = businessValue + timeCriticality + riskReduction (échelle 1-13 Fibonacci pour chaque composante)." +
++      " wsjf = costOfDelay / jobSize (jobSize en 1-13 Fibonacci). Trier par wsjf décroissant." +
++      ' JSON: {"items":[{"id":"BL1","titre":"[TITRE]","description":"[DESC]","type":"[Rationalisation|Nouveau besoin]","businessValue":8,"timeCriticality":5,"riskReduction":3,"jobSize":5,"wsjf":3.2,"statut":"[À faire|En cours|Fait]"}]}',
++
++    "roadmap-nnl": "Génère une roadmap Now/Next/Later trimestrielle pour ce projet de rationalisation SI." +
++      " Nom: " + n + ". Description: " + d + ". Période: " + s + " → " + e + "." +
++      " CONTRAINTES: 3 à 5 initiatives par colonne (Now/Next/Later), cohérentes avec une trajectoire de rationalisation + développement." +
++      " horizon: Now (T1), Next (T2-T3), Later (T4+)." +
++      ' JSON: {"now":[{"id":"N1","titre":"[INITIATIVE]","description":"[DESC]","type":"[Rationalisation|Développement|Migration]"}],"next":[{"id":"NX1","titre":"[INITIATIVE]","description":"[DESC]","type":"[Rationalisation|Développement|Migration]"}],"later":[{"id":"L1","titre":"[INITIATIVE]","description":"[DESC]","type":"[Rationalisation|Développement|Migration]"}]}',
+   }
+ 
+   return prompts[tool] ?? "Génère des données JSON pour l'outil " + tool + " du projet: " + n + ". Description: " + d

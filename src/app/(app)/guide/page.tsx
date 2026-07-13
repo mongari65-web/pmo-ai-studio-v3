@@ -72,6 +72,23 @@ const SCENARIOS = [
       {id:"budget",label:"Budget de l'étude (EUR)",type:"number",placeholder:"Ex: 15000",required:false,aide:""},
     ]
   },
+  { id:"rationalisation-si", icon:"🗂️", label:"Rationalisation SI", subtitle:"Cartographie & optimisation", color:"#0d9488",
+    principe:"Le CP intervient en mode hybride CP MOE / PO: rationaliser l'existant (cartographie, matrice TIME) et prioriser les besoins manquants (backlog, roadmap).",
+    message:"Cartographie applicative initialisée, matrice TIME prête à qualifier, backlog WSJF et roadmap Now/Next/Later générés à partir de votre contexte.",
+    outils:["cartographie-si","matrice-time","dependances-si","impact-retrait","backlog-wsjf","roadmap-nnl"],
+    questions:[
+      {id:"name",label:"Nom du projet",type:"text",placeholder:"Ex: Rationalisation SI ANFSI",required:true,aide:"Identifiez clairement le périmètre du SI concerné."},
+      {id:"description",label:"Description et objectifs",type:"textarea",placeholder:"Contexte, patrimoine applicatif concerné, enjeux...",required:true,aide:"Répondez à: quel périmètre? quels doublons/dette suspectés? quels besoins non couverts?"},
+      {id:"startDate",label:"Date de début prévue",type:"date",placeholder:"",required:true,aide:""},
+      {id:"endDate",label:"Date de fin prévue",type:"date",placeholder:"",required:true,aide:"Échéance de la mission ou du cadrage."},
+      {id:"budget",label:"Budget alloué (EUR)",type:"number",placeholder:"Ex: 200000",required:false,aide:""},
+      {id:"appCount",label:"Nombre d'applications concernées (estimation)",type:"number",placeholder:"Ex: 15",required:false,aide:"Base pour dimensionner la cartographie."},
+      {id:"client",label:"Nom du client / direction",type:"text",placeholder:"Ex: ANFSI, DSI...",required:false,aide:""},
+      {id:"sector",label:"Secteur",type:"select",options:["IT / Digital","Finance / Banking","Santé / Médical","BTP / Construction","Industrie","Télécom","Retail","Secteur public","Autre"],required:false,aide:""},
+      {id:"issues",label:"Doublons / dette technique suspectés",type:"textarea",placeholder:"Applications redondantes, technos obsolètes...",required:false,aide:"Alimente la matrice TIME et le registre de dépendances."},
+      {id:"methodology",label:"Méthodologie cible",type:"select",options:["standards de gestion de projet","PRINCE2","Agile / Scrum","Waterfall","Hybride"],required:false,aide:""},
+    ]
+  },
 ]
 
 export default function GuidePage() {

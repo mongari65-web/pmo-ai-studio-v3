@@ -43,6 +43,14 @@ const TOOLS = [
   // ── AI / CPMAI ─────────────────────────────────────────────────────────────
   { key:"cpmai",        label:"Pipeline CPMAI",  icon:"🤖",  desc:"6 phases DIKUW",         color:"#f97316" },
   { key:"dataset",      label:"Datasets",        icon:"🗄️",  desc:"Sources & qualité data", color:"#f59e0b" },
+
+  // ── Rationalisation SI (CP MOE / PO) ──────────────────────────────────────
+  { key:"cartographie-si", label:"Cartographie SI", icon:"🗺️", desc:"Inventaire applicatif",          color:"#0d9488" },
+  { key:"matrice-time",    label:"Matrice TIME",    icon:"🎯", desc:"Tolerate/Invest/Migrate/Eliminate",color:"#0f766e" },
+  { key:"dependances-si",  label:"Dépendances",     icon:"🔗", desc:"Carte des interconnexions",       color:"#0891b2" },
+  { key:"impact-retrait",  label:"Impact Retrait",  icon:"⚠️", desc:"Risques de décommissionnement",   color:"#b45309" },
+  { key:"backlog-wsjf",    label:"Backlog WSJF",    icon:"📊", desc:"Priorisation SI",                 color:"#7B5EFF" },
+  { key:"roadmap-nnl",     label:"Roadmap N/N/L",   icon:"🗓️", desc:"Now / Next / Later",              color:"#312e81" },
 ]
 
 export default function ProjectPage() {

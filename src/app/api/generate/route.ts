@@ -224,6 +224,44 @@ function buildPrompt(tool: string, name: string, desc: string, extra: any): stri
       " Nom: " + n + ". Description: " + d + "." +
       " CONTRAINTES: 8 documents adaptés au type de projet." +
       ' JSON: {"documents":[{"id":"DOC1","type":"[TYPE]","title":"[TITRE]","version":"v1.0","status":"[Approuvé|En révision|Brouillon|Actif]","author":"[ROLE]","date":"' + s + '","summary":"[DESC]","priority":"[Critique|Élevé|Moyen]"}]}',
+
+    "cartographie-si": "Génère une cartographie applicative pour ce projet de rationalisation SI." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 10 à 15 applications réalistes et cohérentes avec le contexte décrit (secteur, doublons/dette mentionnés)." +
+      " fitTechnique et fitFonctionnel sont des scores 1-5 (5=excellent). costAnnuel en euros. criticite: Critique, Élevée, Moyenne ou Faible." +
+      ' JSON: {"applications":[{"id":"APP1","nom":"[NOM APPLICATION]","proprietaire":"[DIRECTION/RÔLE]","technologie":"[TECHNO/VERSION]","age":[ANNÉES],"costAnnuel":[MONTANT],"criticite":"Élevée","fitTechnique":3,"fitFonctionnel":4,"utilisateurs":[NOMBRE],"description":"[USAGE MÉTIER]"}]}',
+
+    "matrice-time": "Génère une classification TIME (Tolerate/Invest/Migrate/Eliminate) pour ce projet de rationalisation SI." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 10 à 15 applications réparties de façon réaliste sur les 4 quadrants selon fitTechnique et fitFonctionnel (scores 1-5)." +
+      " quadrant DOIT être exactement: Tolerate, Invest, Migrate ou Eliminate (fit technique+fonctionnel hauts=Invest, fit technique haut/fonctionnel bas=Tolerate, fit technique bas/fonctionnel haut=Migrate, les deux bas=Eliminate)." +
+      " Inclure une recommandation d'action concrète par application." +
+      ' JSON: {"applications":[{"id":"APP1","nom":"[NOM]","fitTechnique":3,"fitFonctionnel":4,"quadrant":"Invest","recommandation":"[ACTION CONCRÈTE]","echeance":"[T1/T2/T3/T4 2026]"}]}',
+
+    "dependances-si": "Génère un registre de dépendances applicatives pour ce projet de rationalisation SI." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 8 à 12 dépendances entre applications (flux de données, API, interfaces, référentiels partagés)." +
+      " criticite: Critique, Élevée, Moyenne ou Faible. type: Flux de données, API, Batch, Référentiel partagé ou Interface utilisateur." +
+      ' JSON: {"dependances":[{"id":"DEP1","source":"[APPLICATION SOURCE]","cible":"[APPLICATION CIBLE]","type":"Flux de données","description":"[NATURE DU FLUX]","criticite":"Élevée","frequence":"[Temps réel|Quotidien|Hebdomadaire|Mensuel]"}]}',
+
+    "impact-retrait": "Génère des fiches d'impact de retrait pour les applications candidates à l'élimination dans ce projet de rationalisation SI." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 4 à 6 fiches, une par application candidate au retrait, avec plan de bascule concret." +
+      " niveauRisque: Critique, Élevé, Moyen ou Faible." +
+      ' JSON: {"fiches":[{"id":"IMP1","application":"[NOM APPLICATION]","niveauRisque":"Élevé","utilisateursImpactes":"[DIRECTIONS/NOMBRE]","donneesAMigrer":"[NATURE DES DONNÉES]","applicationsDependantes":"[LISTE]","planBascule":"[ÉTAPES DE MIGRATION]","dateCible":"[DATE]","responsable":"[RÔLE]"}]}',
+
+    "backlog-wsjf": "Génère un backlog priorisé WSJF pour ce projet de rationalisation SI (mix rationalisation + nouveaux besoins métier)." +
+      " Nom: " + n + ". Description: " + d + "." +
+      " CONTRAINTES: 10 à 12 items mêlant décisions de rationalisation (migrer/retirer) et nouveaux développements." +
+      " costOfDelay = businessValue + timeCriticality + riskReduction (échelle 1-13 Fibonacci pour chaque composante)." +
+      " wsjf = costOfDelay / jobSize (jobSize en 1-13 Fibonacci). Trier par wsjf décroissant." +
+      ' JSON: {"items":[{"id":"BL1","titre":"[TITRE]","description":"[DESC]","type":"[Rationalisation|Nouveau besoin]","businessValue":8,"timeCriticality":5,"riskReduction":3,"jobSize":5,"wsjf":3.2,"statut":"[À faire|En cours|Fait]"}]}',
+
+    "roadmap-nnl": "Génère une roadmap Now/Next/Later trimestrielle pour ce projet de rationalisation SI." +
+      " Nom: " + n + ". Description: " + d + ". Période: " + s + " → " + e + "." +
+      " CONTRAINTES: 3 à 5 initiatives par colonne (Now/Next/Later), cohérentes avec une trajectoire de rationalisation + développement." +
+      " horizon: Now (T1), Next (T2-T3), Later (T4+)." +
+      ' JSON: {"now":[{"id":"N1","titre":"[INITIATIVE]","description":"[DESC]","type":"[Rationalisation|Développement|Migration]"}],"next":[{"id":"NX1","titre":"[INITIATIVE]","description":"[DESC]","type":"[Rationalisation|Développement|Migration]"}],"later":[{"id":"L1","titre":"[INITIATIVE]","description":"[DESC]","type":"[Rationalisation|Développement|Migration]"}]}',
   }
 
   return prompts[tool] ?? "Génère des données JSON pour l'outil " + tool + " du projet: " + n + ". Description: " + d
